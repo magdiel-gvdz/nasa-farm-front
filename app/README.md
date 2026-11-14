@@ -1,75 +1,44 @@
-# React + TypeScript + Vite
+# Field Shift — frontend
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+SPA (React 19 + Vite + TypeScript + Tailwind 4) del reto **Field Shift: Adapting Farms with NASA Data** (NASA Space Apps 2026).
+Guía completa (qué hace cada pantalla, cómo se calcula cada dato, cómo debe ser la API): [`../docs/guia-de-la-app.md`](../docs/guia-de-la-app.md).
+Diseño, datos y contrato JSON con el backend: [`../docs/backend-handoff.md`](../docs/backend-handoff.md).
 
-Currently, two official plugins are available:
+## Correr
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
-
-## React Compiler
-
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
-
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
-
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-
+```bash
+nvm use 22          # Node >= 22.18
+npm install
+npm run dev         # http://localhost:5173
+npm run build && npm run lint
 ```
 
-You can also install [eslint-plugin-react-x](https://npmx.dev/package/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://npmx.dev/package/eslint-plugin-react-dom) for React-specific lint rules:
+## Modo demostración vs backend
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+| | Sin `VITE_API_URL` (demo) | Con `VITE_API_URL=https://…` |
+|---|---|---|
+| Datos | Clima **real** de NASA POWER y proyecciones CMIP6 reales (Open-Meteo Climate API), ambos desde el navegador; suelo, agua y vegetación de ejemplo | Lo que devuelva el backend (NEX-GDDP-CMIP6 para el futuro) |
+| Análisis de suelo | Se capturan los valores a mano (no se lee el PDF) | Claude lee el PDF/foto y el usuario confirma |
+| Motores | `src/api/mock/engine/*` (aptitud, rotaciones, invernadero, agua) | Backend |
+| Chat | Reglas sobre los datos, mismos eventos SSE | Claude en Bedrock vía SSE |
+| Parcelas | `localStorage` del navegador | Backend, separadas por `X-Client-Id` |
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+Ambos implementan la interfaz `Api` (`src/api/client.ts`); los tipos del contrato están en `src/api/types.ts`.
+Los motores de demostración sirven de **implementación de referencia** para el backend.
+
+`npm run fixtures` vuelve a descargar de NASA POWER el clima 1991–2025 de las tres parcelas de ejemplo
+(`src/api/mock/fixtures/`), para que carguen al instante y sin internet. `npm run fixtures:future` hace lo mismo
+con las proyecciones CMIP6 (espera ~1 min entre parcelas por el límite de la API).
+
+## Estructura
 
 ```
+src/
+  api/            contrato (types), cliente HTTP, modo demo (mock/)
+  components/     ui/ (botones, sheet, sliders…), charts/, map/, chat/
+  pages/          home, map-page (todos los terrenos), new-field (dibujar geocerca), field/ (pestañas)
+  hooks/api.ts    React Query
+  lib/            formato, tema claro/oscuro, geo (área, búsqueda Photon)
+```
+
+Mapas: MapLibre GL con satélite de Esri y mapas de CARTO (sin API key). Búsqueda de lugares: Photon (OpenStreetMap).

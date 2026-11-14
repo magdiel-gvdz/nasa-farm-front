@@ -75,7 +75,8 @@ deploy: build
 	bucket=$$(terraform -chdir=infra output -raw bucket_name); \
 	distribution_id=$$(terraform -chdir=infra output -raw distribution_id); \
 	echo "  → Sincronizando app/dist/ con s3://$$bucket ..."; \
-	aws s3 sync app/dist/ "s3://$$bucket" --delete; \
+	aws s3 sync app/dist/ "s3://$$bucket" --delete --exclude "*.mjs"; \
+	aws s3 sync app/dist/ "s3://$$bucket" --exclude "*" --include "*.mjs" --content-type "text/javascript"; \
 	echo "  → Invalidando CloudFront ($$distribution_id)..."; \
 	aws cloudfront create-invalidation --distribution-id "$$distribution_id" --paths "/*" >/dev/null; \
 	echo "  ✓ Deploy completo: $$(terraform -chdir=infra output -raw cloudfront_url)"
