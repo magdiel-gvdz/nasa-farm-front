@@ -253,6 +253,8 @@ export interface SoilLayer {
   bulk_density_g_cm3: number | null
   awc_mm_per_m: number | null
   uncertainty?: Record<string, { p05: number; p95: number }>
+  /** Electrical conductivity (dS/m). Only when the soil map provides it (SSURGO). */
+  ec_ds_m?: number | null
 }
 
 export interface SoilLab {
@@ -291,6 +293,10 @@ export interface SoilProfile {
   layers: SoilLayer[]
   lab: SoilLab | null
   k_factor: number | null
+  /** Likely interval of each estimated value: SoilGrids P5–P95 or SSURGO low–high. */
+  ranges?: Partial<Record<'om_pct' | 'ph' | 'clay_pct' | 'sand_pct' | 'cec_cmol_kg' | 'n_total_g_kg' | 'ec_ds_m' | 'bulk_density_g_cm3', [number | null, number | null]>>
+  /** Soil survey map unit (SSURGO). */
+  map_unit?: string | null
 }
 
 export interface TerrainProfile {
@@ -299,6 +305,8 @@ export interface TerrainProfile {
   slope_pct: { mean: number; p90: number } | null
   aspect_dominant: string | null
   cold_air_pooling_share: number | null
+  /** Meters below (−) or above (+) the terrain within 1 km. */
+  relative_to_surroundings_m?: number | null
 }
 
 export interface WaterProfile {
@@ -313,6 +321,9 @@ export interface VegetationProfile {
   ndvi_by_month: { month: number; mean: number; p10: number | null; p90: number | null }[]
   bare_soil_months: number[]
   vigor_trend_per_decade: number | null
+  /** true = NDVI measured by satellite; false = estimated (demo mode). */
+  observed?: boolean
+  years?: [number, number]
 }
 
 export interface Hazard {
@@ -341,6 +352,30 @@ export interface FieldProfile {
   hazards: { hail: Hazard | null }
   sources: Source[]
   gaps: Gap[]
+  /** How accurate each value is (only when the server provides it). */
+  quality?: DataQuality
+}
+
+export interface QualityItem {
+  /** Which value: "Minimum temperature", "Rainfall", "Organic matter"… */
+  label: string
+  source: string
+  /** Error margin in words with its number: "±0.9 °C", "±18 %". */
+  margin: string
+  /** How the margin was obtained. */
+  basis: string
+  level: Confidence
+}
+
+export interface DataQuality {
+  climate_correction: {
+    applied: boolean
+    method: string
+    stations: { id: string; name: string; distance_km: number; years: [number, number] }[]
+    error_after: { tmin_c: number | null; tmax_c: number | null; rain_pct: number | null }
+    error_before: { tmin_c: number | null; tmax_c: number | null; rain_pct: number | null }
+  }
+  items: QualityItem[]
 }
 
 export interface ProfileStep {

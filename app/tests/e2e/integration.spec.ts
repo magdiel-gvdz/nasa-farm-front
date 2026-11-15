@@ -6,7 +6,7 @@ import { env } from 'node:process'
 const fixture = (name: string) => JSON.parse(readFileSync(new URL(`../fixtures/${name}.json`, import.meta.url), 'utf8'))
 const api = 'https://na-80276c48174345cab83857032d88d2ac.ecs.us-east-1.on.aws'
 
-async function setup(page: Page, sparse = false) {
+async function setup(page: Page, sparse = false, profileDelayMs = 0) {
   let field = fixture('create-field')
   const crops = fixture('catalog')
   const profile = fixture('profile')
@@ -31,7 +31,10 @@ async function setup(page: Page, sparse = false) {
     else if (path === '/fields') result = [field]
     else if (path === '/fields/fld_test' && req.method() === 'PATCH') { field = { ...field, ...body }; result = field }
     else if (path === '/fields/fld_test') result = field
-    else if (path.endsWith('/profile')) result = profile
+    else if (path.endsWith('/profile')) {
+      if (profileDelayMs) await new Promise((resolve) => setTimeout(resolve, profileDelayMs))
+      result = profile
+    }
     else if (path.endsWith('/suitability')) result = url.searchParams.has('crop_id') ? fixture('suitability') : { months: Array.from({ length: 12 }, (_, i) => i + 1), crops: crops.map((c: { id: string }) => ({ crop_id: c.id, scores: Array(12).fill(72), status: Array(12).fill('suitable') })), scenario: { delta_t_c: 0, delta_p_pct: 0, daily_origin: null, not_recomputed: [], note: null } }
     else if (path.endsWith('/rotations')) result = fixture('rotations')
     else if (path.endsWith('/soil-report')) {
@@ -55,7 +58,7 @@ test('renders sparse profiles, 36 decadal periods and the server catalog', async
   const { calls, errors } = await setup(page, true)
   await page.goto('/parcela/fld_test')
   await expect(page.getByText('Zonal analysis:', { exact: false })).toBeVisible()
-  await expect(page.getByText('No groundwater source available')).toBeVisible()
+  await expect(page.getByText('Water shortfall per year')).toBeVisible()
   await page.getByRole('button', { name: 'Calendar', exact: true }).click()
   await expect(page.getByRole('button', { name: /10-day period of.*: Frost / })).toHaveCount(36)
   await expect(page.getByText('Frost dates are unavailable', { exact: false })).toBeVisible()
@@ -64,8 +67,19 @@ test('renders sparse profiles, 36 decadal periods and the server catalog', async
   await page.getByPlaceholder(/Search|Busca|crops|cultivos/i).fill('oat')
   await expect(page.getByRole('row', { name: /Forage oat/ })).toBeVisible()
   await page.getByRole('button', { name: 'Water', exact: true }).click()
-  await expect(page.getByText('No soil moisture data available.')).toBeVisible()
+  await expect(page.getByText('No data for this point.')).toBeVisible()
   expect(calls.some((c) => /future-climate|predict-yield|water-quality|profile:refresh|soil-lab/.test(c.path))).toBe(false)
+  expect(errors).toEqual([])
+})
+
+test('shows the analysis screen while the profile is retrieved', async ({ page }) => {
+  const { errors } = await setup(page, false, 3000)
+  await page.goto('/parcela/fld_test')
+  await expect(page.getByRole('heading', { name: 'Analyzing your field…' })).toBeVisible()
+  await expect(page.getByText('35 year climate', { exact: true })).toBeVisible()
+  await expect(page.getByRole('button', { name: 'Summary', exact: true })).toHaveCount(0)
+  await expect(page.getByRole('button', { name: 'Summary', exact: true })).toBeVisible({ timeout: 10_000 })
+  await expect(page.getByRole('heading', { name: 'Analyzing your field…' })).toHaveCount(0)
   expect(errors).toEqual([])
 })
 
@@ -89,7 +103,7 @@ test('uploads and applies a soil report without a second save request', async ({
   const { calls, errors } = await setup(page)
   await page.goto('/parcela/fld_test?tab=suelo')
   await page.getByLabel('Soil report file').setInputFiles({ name: 'soil.pdf', mimeType: 'application/pdf', buffer: Buffer.from('%PDF-test') })
-  await expect(page.getByText('Accepted values were saved', { exact: false })).toBeVisible()
+  await expect(page.getByText('We saved the values we could read', { exact: false })).toBeVisible()
   await expect(page.getByText('Example laboratory', { exact: false })).toBeVisible()
   expect(calls.some((c) => c.path.endsWith('/soil-lab'))).toBe(false)
   expect(errors).toEqual([])
@@ -132,7 +146,7 @@ test('live dev: loads a disposable field and its main tabs', async ({ page, requ
     await page.getByRole('button', { name: 'Rotations', exact: true }).click()
     await expect(page.getByText('Erosion exposure index').first()).toBeVisible()
     await page.getByRole('button', { name: 'Water', exact: true }).click()
-    await expect(page.getByText('Monthly water balance')).toBeVisible()
+    await expect(page.getByText('Monthly water surplus or deficit')).toBeVisible()
     expect(errors).toEqual([])
     await expect(page.locator('.recharts-bar-rectangle path').first()).toBeVisible()
     await page.screenshot({ path: 'test-results/live-dev-water.png', fullPage: true })

@@ -32,7 +32,7 @@ const GROUPS: { id: string; label: string; cats?: CropCategory[] }[] = [
 ]
 const PAGE = 20
 
-const SOURCE_LABEL: Record<string, string> = { nasa_power: 'NASA POWER', soilgrids: 'SoilGrids', ssurgo: 'SSURGO', srtm: 'SRTM', lab_report: 'Your analysis' }
+const SOURCE_LABEL: Record<string, string> = { nasa_power: 'NASA POWER', 'nasa_power+ghcn': 'NASA POWER + stations', ghcn: 'NOAA stations', modis_ndvi: 'MODIS NDVI', soilgrids: 'SoilGrids', ssurgo: 'SSURGO', srtm: 'SRTM', copernicus_dem: 'Copernicus DEM', copernicus_dem_glo90: 'Copernicus DEM', era5: 'ERA5', era5_land: 'ERA5-Land', cdl: 'USDA CDL', lab_report: 'Your analysis' }
 
 function CropDetail({ field, crop, month, scenario, onMonth }: { field: Field; crop: Crop; month: number; scenario: Scenario; onMonth: (m: number) => void }) {
   const det = useSuitability(field.id, crop.id, month, scenario)
@@ -94,7 +94,7 @@ function CropDetail({ field, crop, month, scenario, onMonth }: { field: Field; c
           {y && (
             <div>
               <h4 className="mb-1 text-sm font-semibold text-ink">Expected yield{crop.perennial ? ' (mature orchard)' : ''}</h4>
-              <p className="mb-3 text-xs text-muted">Probable range (8 out of 10 years). {y.model.name.startsWith('demo') ? 'Demo Estimation.' : ''}</p>
+              <p className="mb-3 text-xs text-muted">Probable range (8 out of 10 years). Rule-based estimate from the score, not a model trained on harvests: compare it with your own records.</p>
               <YieldBar p10={y.p10} p50={y.p50} p90={y.p90} reference={y.regional_reference?.value} unit={y.unit} />
             </div>
           )}

@@ -22,12 +22,20 @@ function daysAbove(m: ClimateModel['months'][number], crit: number) {
   return crit <= 30 ? m.heat30 : crit >= 35 ? m.heat35 * Math.max(0.2, 1 - (crit - 35) * 0.25) : m.heat30 + (m.heat35 - m.heat30) * ((crit - 30) / 5)
 }
 
-/** Salinity (solo si hay análisis con CE): pérdida de rendimiento tipo Maas-Hoffman (~10 % por dS/m sobre el umbral). */
+/** Salinidad (análisis con CE, o mapa SSURGO en EE.UU.): pérdida de rendimiento tipo Maas-Hoffman (~10 % por dS/m sobre el umbral). */
 function salinity(crop: Crop, ctx: SuitContext, add: (f: SuitabilityReason['factor'], s: Level, d: string, src: string, bad?: number, warn?: number) => void) {
-  const ec = ctx.profile.soil.lab?.ec_ds_m
+  const labEc = ctx.profile.soil.lab?.ec_ds_m
+  const mapEc = ctx.profile.soil.layers[0]?.ec_ds_m
+  const ec = labEc ?? mapEc
   if (ec == null) return
   const thr = crop.salt_threshold_ds_m
   const loss = Math.max(0, Math.round((ec - thr) * 10))
+  if (labEc == null) {
+    // El mapa de suelos describe la condición natural; años de riego pueden haber lavado sales.
+    if (ec <= thr) add('salinity', 'ok', `The soil map shows salinity of ${ec.toFixed(1)} dS/m, below what it tolerates (${thr} dS/m).`, ctx.profile.soil.source_id)
+    else add('salinity', 'warn', `The soil map shows saline soil (${ec.toFixed(1)} dS/m vs ${thr} it tolerates). It is the natural condition: confirm it with an analysis, irrigation may have leached salts.`, ctx.profile.soil.source_id, 30, 15)
+    return
+  }
   if (ec <= thr) add('salinity', 'ok', `Soil salinity ${ec.toFixed(1)} dS/m, below what is tolerated (${thr} dS/m).`, 'lab_report')
   else if (loss <= 25) add('salinity', 'warn', `Salinity ${ec.toFixed(1)} dS/m above its limit (${thr}): loses ~${loss} % yield.`, 'lab_report', 30, 15)
   else add('salinity', 'bad', `Saline soil for this crop (${ec.toFixed(1)} vs ${thr} dS/m): loss of ~${Math.min(100, loss)} %.`, 'lab_report', 40)

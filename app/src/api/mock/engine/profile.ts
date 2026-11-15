@@ -149,7 +149,7 @@ export function buildProfile(field: Field, climate: ClimateProfile, overrides: F
     sources: sourcesUsed.map((id) => ({ ...SOURCES[id], ...(id === 'nasa_power' ? { period: `${climate.years[0]}–${climate.years[1]}` } : {}) })),
     gaps: [
       { code: 'demo_mode', severity: 'medium', message: 'Demo mode: Weather comes from real NASA POWER; Soil, water and vegetation are example estimates until connecting the server.' },
-      { code: 'power_tmax_bias', severity: 'low', message: 'NASA POWER averages ~50 km: in areas with hills the maximums can be 2–3 °C higher than in your terrain (validated against ERA5-Land).' },
+      { code: 'power_tmin_bias', severity: 'medium', message: 'NASA POWER averages ~50 km: in valleys the minimums can be 2–4 °C warmer than on your land, so frosts may be more frequent (validated against stations). With the server they are corrected with nearby stations.' },
       ...(lab ? [] : [{ code: 'no_lab', severity: 'medium' as const, message: 'There is no laboratory analysis: nitrogen, phosphorus and potassium are estimates. Upload it to the Soil tab.' }]),
       { code: 'hail_no_direct_product', severity: 'medium', message: 'Hail is estimated with an indirect indicator (low evidence).' },
       { code: 'coarse_climate', severity: 'low', message: 'Climate averages ~50 km; Low-lying areas and slopes can be colder or hotter.' },

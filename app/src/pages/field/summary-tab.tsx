@@ -1,5 +1,5 @@
 import { motion } from 'motion/react'
-import { ArrowRight, CloudRain, Database, Droplets, Layers, Shovel, Snowflake, Sun, Telescope, Wind, type LucideIcon } from 'lucide-react'
+import { ArrowRight, CloudRain, Database, Droplets, Gauge, Layers, Shovel, Snowflake, Sun, Telescope, Wind, type LucideIcon } from 'lucide-react'
 import { capabilities } from '@/api/client'
 import type { ReactNode } from 'react'
 import type { Field, FieldProfile, Level, Scenario } from '@/api/types'
@@ -108,9 +108,100 @@ function insights(field: Field, p: FieldProfile): Insight[] {
   return out.slice(0, 5)
 }
 
+const CONF = { high: { level: 'ok', label: 'High' }, medium: { level: 'warn', label: 'Medium' }, low: { level: 'bad', label: 'Low' } } as const
+
+function QualityCard({ profile }: { profile: FieldProfile }) {
+  const q = profile.quality!
+  const k = q.climate_correction
+  return (
+    <Card className="lg:col-span-3">
+      <CardHeader
+        title="How accurate is this data?"
+        subtitle={
+          k.applied
+            ? `We validated against ${k.stations.length} real weather station(s) and corrected where it improves the data: ${k.stations
+                .slice(0, 3)
+                .map((s) => `${s.name.replace(/, (MX|NV US|US)$/, '')} (${num(s.distance_km, 0)} km)`)
+                .join(', ')}${k.stations.length > 3 ? '…' : ''}.`
+            : 'There are no weather stations nearby to correct the climate: margins are wide.'
+        }
+        icon={<Gauge className="h-4 w-4" />}
+      />
+      {k.applied && k.error_before.tmin_c != null && (
+        <p className="mb-3 rounded-xl bg-surface-2 p-3 text-sm text-ink-2">
+          Minimum temperature error: <b className="text-ink">±{num(k.error_before.tmin_c, 1)} °C</b> with NASA data → <b className="text-ink">±{num(k.error_after.tmin_c ?? k.error_before.tmin_c, 1)} °C</b> in what you see
+          {k.error_before.rain_pct != null && k.error_after.rain_pct != null && (
+            <>
+              {' '}
+              · rain <b className="text-ink">±{k.error_before.rain_pct} %</b> → <b className="text-ink">±{k.error_after.rain_pct} %</b>
+            </>
+          )}
+          . Measured against the stations themselves.
+        </p>
+      )}
+      <div className="overflow-x-auto">
+        <table className="w-full text-sm">
+          <thead>
+            <tr className="border-b border-line text-left text-xs text-muted">
+              <th className="py-2 pr-3 font-medium">Data</th>
+              <th className="py-2 pr-3 font-medium">Source</th>
+              <th className="py-2 pr-3 font-medium">Error margin</th>
+              <th className="py-2 font-medium">Confidence</th>
+            </tr>
+          </thead>
+          <tbody>
+            {q.items.map((it) => (
+              <tr key={it.label} className="border-b border-line align-top last:border-0">
+                <td className="py-2.5 pr-3 font-medium text-ink">{it.label}</td>
+                <td className="py-2.5 pr-3 text-ink-2">{it.source}</td>
+                <td className="py-2.5 pr-3">
+                  <div className="tabular font-semibold text-ink">{it.margin}</div>
+                  <div className="text-xs text-muted">{it.basis}</div>
+                </td>
+                <td className="py-2.5">
+                  <StatusPill level={CONF[it.level].level} label={CONF[it.level].label} />
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </Card>
+  )
+}
+
+/** Escenarios de referencia cuando el servidor aún no publica proyecciones CMIP6 para la zona. */
+const SCENARIOS: { label: string; sub: string; scenario: Scenario }[] = [
+  { label: '+1 °C', sub: 'Rain unchanged', scenario: { delta_t_c: 1, delta_p_pct: 0 } },
+  { label: '+1.5 °C', sub: '−10 % rain', scenario: { delta_t_c: 1.5, delta_p_pct: -10 } },
+  { label: '+2 °C', sub: '−20 % rain', scenario: { delta_t_c: 2, delta_p_pct: -20 } },
+]
+
 function FutureCard({ field, onUse }: { field: Field; onUse: (s: Scenario) => void }) {
   const q = useFutureClimate(field.id)
   const f = q.data
+  if (!capabilities.futureClimate)
+    return (
+      <Card className="lg:col-span-2">
+        <CardHeader title="Your climate in the future" subtitle="Model projections are not published for this zone yet. Try a warmer, drier climate and see which crops change." icon={<Telescope className="h-4 w-4" />} />
+        <div className="grid gap-3 sm:grid-cols-3">
+          {SCENARIOS.map((s) => (
+            <button
+              key={s.label}
+              onClick={() => onUse(s.scenario)}
+              className="no-print group flex cursor-pointer items-center justify-between gap-2 rounded-xl bg-surface-2 p-3 text-left transition-colors hover:bg-surface-3"
+            >
+              <div>
+                <div className="tabular text-lg font-semibold text-ink">{s.label}</div>
+                <div className="text-[11px] text-muted">{s.sub}</div>
+              </div>
+              <ArrowRight className="h-4 w-4 text-muted transition-transform group-hover:translate-x-0.5 group-hover:text-ink" />
+            </button>
+          ))}
+        </div>
+        <p className="mt-3 text-sm text-ink-2">A hypothetical sensitivity scenario, not a forecast for next year.</p>
+      </Card>
+    )
   return (
     <Card className="lg:col-span-2">
       <CardHeader
@@ -153,6 +244,7 @@ export function SummaryTab({ field, profile, onNavigate, onScenario }: { field: 
   const soil = profile.soil?.layers[0]
   const om = profile.soil?.lab?.om_pct ?? soil?.om_pct ?? null
   const gw = profile.water.groundwater?.trend_cm_per_year ?? null
+  const deficit = profile.water.water_balance_by_month.reduce((a, b) => a + Math.min(0, b.p_minus_et0_mm), 0)
   const hot = c.heat.by_month[c.heat.hottest_month - 1]
   const frostFree = (c.frost.share_years_without_frost ?? 0) >= 0.9
   const items = insights(field, profile)
@@ -203,23 +295,35 @@ export function SummaryTab({ field, profile, onNavigate, onScenario }: { field: 
             sub={c.wind ? <>More wind in {monthName(c.wind.windiest_month)}</> : 'No wind data available'}
             status={field.greenhouse?.rated_wind_kmh && field.greenhouse.rated_wind_kmh < (c.wind?.return_levels_kmh[0]?.estimated_gust_kmh ?? 0) ? { level: 'bad', label: 'Exceeds structure rating' } : undefined}
           />
-        ) : (
+        ) : gw != null ? (
           <Kpi
             icon={Droplets}
             label="Groundwater"
             value={
               <>
-                {gw == null ? '—' : <AnimatedNumber value={gw} digits={1} />} <span className="text-lg font-medium text-ink-2">cm/year</span>
+                <AnimatedNumber value={gw} digits={1} /> <span className="text-lg font-medium text-ink-2">cm/year</span>
               </>
             }
-            sub={gw == null ? 'No groundwater source available' : 'Regional groundwater trend'}
-            status={gw == null ? undefined : gw < -1 ? { level: 'bad', label: 'Declining rapidly' } : gw < 0 ? { level: 'warn', label: 'Declining' } : { level: 'ok', label: 'Stable' }}
+            sub="Regional trend since 2002 (GRACE-FO)"
+            status={gw < -1 ? { level: 'bad', label: 'Declining rapidly' } : gw < 0 ? { level: 'warn', label: 'Declining' } : { level: 'ok', label: 'Stable' }}
+          />
+        ) : (
+          <Kpi
+            icon={Droplets}
+            label="Water shortfall per year"
+            value={
+              <>
+                <AnimatedNumber value={Math.abs(deficit)} /> <span className="text-lg font-medium text-ink-2">mm</span>
+              </>
+            }
+            sub="How much evaporation exceeds rain in the dry months: irrigation has to supply it."
+            status={deficit < -600 ? { level: 'bad', label: 'Very dry' } : deficit < -250 ? { level: 'warn', label: 'Dry' } : { level: 'ok', label: 'Balanced' }}
           />
         )}
       </div>
 
       <Card className="lg:col-span-2">
-        <CardHeader title="Key insights" subtitle={`Zonal climate record: ${c.years[0]}?${c.years[1]}.`} />
+        <CardHeader title="Key insights" subtitle={`What ${c.years[1] - c.years[0] + 1} years of data (${c.years[0]}–${c.years[1]}) say about your land.`} />
         <ul className="divide-y divide-line">
           {items.map((it, i) => (
             <motion.li key={i} initial={{ opacity: 0, x: -6 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.15 + i * 0.07 }} className="flex items-start gap-3 py-3 first:pt-0 last:pb-0">
@@ -270,20 +374,22 @@ export function SummaryTab({ field, profile, onNavigate, onScenario }: { field: 
         )}
       </Card>
 
-      {capabilities.futureClimate && <FutureCard
+      <FutureCard
         field={field}
         onUse={(sc) => {
           onScenario(sc)
           onNavigate('sembrar')
         }}
-      />}
+      />
+
+      {profile.quality && <QualityCard profile={profile} />}
 
       <Card>
         <CardHeader title="Sources" icon={<Database className="h-4 w-4" />} />
         <div className="flex flex-wrap gap-1.5">
           {profile.sources.map((s) => (
-            <a key={s.id} href={s.url} target="_blank" rel="noreferrer" title={`${s.data_class ?? 'demo'} / ${s.license ?? ''} / ${s.provider} · ${s.resolution}${s.period ? ` · ${s.period}` : ''}`}>
-              <Chip className="hover:text-ink">{s.dataset}{s.data_class ? ` (${s.data_class})` : ''}</Chip>
+            <a key={s.id} href={s.url} target="_blank" rel="noreferrer" title={`${s.provider} · ${s.resolution}${s.period ? ` · ${s.period}` : ''}${s.data_class ? ` · ${s.data_class}` : ''}${s.license ? ` · ${s.license}` : ''}`}>
+              <Chip className="hover:text-ink">{s.dataset}</Chip>
             </a>
           ))}
         </div>
@@ -299,7 +405,6 @@ export function SummaryTab({ field, profile, onNavigate, onScenario }: { field: 
           ))}
         </ul>
       </Card>
-
     </Stagger>
   )
 }

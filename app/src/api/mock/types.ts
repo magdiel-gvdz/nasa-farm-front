@@ -226,6 +226,8 @@ export interface SoilLayer {
   silt_pct: number | null
   bulk_density_g_cm3: number | null
   awc_mm_per_m: number | null
+  /** Electrical conductivity (dS/m). Only when the soil map provides it (SSURGO). */
+  ec_ds_m?: number | null
 }
 
 export interface SoilLab {

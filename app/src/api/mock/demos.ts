@@ -10,7 +10,7 @@ function rect(lon: number, lat: number, wM: number, hM: number): Field['geometry
   }
 }
 
-function circle(lon: number, lat: number, rM: number, n = 48): Field['geometry'] {
+export function circle(lon: number, lat: number, rM: number, n = 48): Field['geometry'] {
   const ring: [number, number][] = []
   for (let i = 0; i <= n; i++) {
     const a = (i / n) * 2 * Math.PI
@@ -83,15 +83,18 @@ export const DEMOS: DemoField[] = [
     },
   },
   {
-    story: 'Alfalfa center pivot in the Nevada desert, like the challenge photo.',
+    // Location verified with real data: alfalfa in USDA CDL 2021–2025, summer NDVI 0.4–0.7 with dips
+    // after each cutting (MODIS) and Dia loam soil pH 7 (SSURGO). 1.5 km from the Fallon Experiment
+    // Station (NOAA GHCN USC00262780).
+    story: 'Irrigated alfalfa in the Nevada desert, like the challenge photo.',
     field: {
       id: 'demo-nevada',
       is_demo: true,
-      name: 'Alfalfa Pivot, Fallon',
+      name: 'Irrigated alfalfa, Fallon',
       kind: 'field',
-      geometry: circle(-118.8, 39.5, 400),
-      area_ha: 50.2,
-      centroid: [-118.8, 39.5],
+      geometry: rect(-118.77, 39.445, 300, 300),
+      area_ha: 9,
+      centroid: [-118.77, 39.445],
       country: 'US',
       admin: { state: 'Nevada', municipality: 'Churchill County' },
       created_at: created,
@@ -110,25 +113,9 @@ export const DEMOS: DemoField[] = [
       livestock: null,
     },
     overrides: {
-      soil: { texture_class: 'franco-arenosa', k_factor: 0.028, layer: { om_pct: 0.9, soc_g_kg: 5.2, ph: 8.4, clay_pct: 14, sand_pct: 58, silt_pct: 28, cec_cmol_kg: 13, n_total_g_kg: 0.45, awc_mm_per_m: 110 } },
+      soil: { texture_class: 'loam (Dia loam)', layer: { om_pct: 2, ph: 7, clay_pct: 20, sand_pct: 40, silt_pct: 40 } },
       terrain: { slope_pct: { mean: 0.4, p90: 1.0 }, aspect_dominant: 'plano', cold_air_pooling_share: 0.22 },
       groundwater_trend_cm_per_year: -0.8,
-      land_use: {
-        source_id: 'cdl',
-        history: [
-          { year: 2016, crop: 'Alfalfa', share: 0.94 },
-          { year: 2017, crop: 'Alfalfa', share: 0.95 },
-          { year: 2018, crop: 'Alfalfa', share: 0.93 },
-          { year: 2019, crop: 'Corn silage', share: 0.88 },
-          { year: 2020, crop: 'Alfalfa', share: 0.91 },
-          { year: 2021, crop: 'Alfalfa', share: 0.94 },
-          { year: 2022, crop: 'Alfalfa', share: 0.92 },
-          { year: 2023, crop: 'Corn silage', share: 0.86 },
-          { year: 2024, crop: 'Alfalfa', share: 0.9 },
-          { year: 2025, crop: 'Alfalfa', share: 0.93 },
-        ],
-        detected_rotation: ['alfalfa', 'alfalfa', 'alfalfa', 'corn silage'],
-      },
     },
   },
 ]

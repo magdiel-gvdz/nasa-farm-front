@@ -22,7 +22,7 @@ const ROLE: Record<CropRole | 'bare', { label: string; color: string }> = {
   bare: { label: 'Bare soil', color: 'transparent' },
 }
 
-const SOURCE: Record<string, string> = { nasa_power: 'NASA POWER', modis_ndvi: 'MODIS NDVI', soilgrids: 'SoilGrids', ssurgo: 'SSURGO', cdl: 'USDA CDL' }
+const SOURCE: Record<string, string> = { nasa_power: 'NASA POWER', 'nasa_power+ghcn': 'NASA POWER + stations', ghcn: 'NOAA stations', modis_ndvi: 'MODIS NDVI', soilgrids: 'SoilGrids', ssurgo: 'SSURGO', srtm: 'SRTM', copernicus_dem: 'Copernicus DEM', copernicus_dem_glo90: 'Copernicus DEM', era5: 'ERA5', era5_land: 'ERA5-Land', cdl: 'USDA CDL', lab_report: 'Your analysis' }
 
 function useDebounced<T>(value: T, ms = 220) {
   const [v, setV] = useState(value)

@@ -4,16 +4,28 @@ import type { ProfileStep } from '@/api/types'
 import { cn } from '@/lib/cn'
 
 const LABELS: Record<string, { title: string; detail: string }> = {
+  locate: { title: 'Your field', detail: 'Boundary, area and analysis cell' },
   nasa_power: { title: '35 year climate', detail: 'NASA POWER · frost, heat, wind and light' },
   gpm_imerg: { title: 'Rains', detail: 'GPM IMERG · season and downpours' },
+  risk_calendar: { title: 'Risk calendar', detail: 'Frost, heat, heavy rain and wind, period by period' },
   soilgrids: { title: 'Soil', detail: 'SoilGrids / SSURGO · organic matter, pH, texture' },
   srtm: { title: 'Land', detail: 'SRTM slope and cold shoals' },
+  copernicus_dem: { title: 'Terrain', detail: 'Copernicus DEM 90 m · slope and cold hollows' },
+  copernicus_dem_glo90: { title: 'Terrain', detail: 'Copernicus DEM 90 m · elevation and slope' },
   modis_ndvi: { title: 'Vegetation', detail: 'MODIS · months with bare soil' },
   smap: { title: 'Soil moisture', detail: 'SMAP · anomalies and drought' },
   grace_fo: { title: 'Groundwater', detail: 'GRACE-FO aquifer trend' },
+  water_balance: { title: 'Water balance', detail: 'Rain minus reference evaporation (FAO-56)' },
+  ghcn: { title: 'Weather stations', detail: 'NOAA GHCN · corrects frost and rain with measured data' },
+  ssurgo: { title: 'Soil', detail: 'USDA SSURGO · field soil survey' },
+  era5: { title: 'Evaporation, humidity and gusts', detail: 'ERA5 / ERA5-Land · FAO-56 ET₀ and wind' },
+  cmip6_highresmip: { title: 'Future climate', detail: 'CMIP6 · 7 models, 2031–2050' },
+  water_quality: { title: 'Water quality', detail: 'Nearest monitoring station' },
+  cdl: { title: 'Past crops', detail: 'USDA Cropland Data Layer 2016–2025' },
+  crops: { title: 'Crops and rotations', detail: 'Suitability by crop and planting month' },
 }
 
-export function Processing({ steps }: { steps: ProfileStep[] }) {
+export function Processing({ steps, subtitle = 'We are consulting NASA satellites, climate records and soil maps. It takes a few seconds.' }: { steps: ProfileStep[]; subtitle?: string }) {
   const done = steps.filter((s) => s.status === 'done').length
   const progress = steps.length ? done / steps.length : 0.05
   return (
@@ -41,7 +53,7 @@ export function Processing({ steps }: { steps: ProfileStep[] }) {
       </div>
       <div>
         <h2 className="text-xl font-semibold tracking-tight text-ink">Analyzing your field…</h2>
-        <p className="mt-1 text-sm text-ink-2">We are consulting NASA satellites. It takes a few seconds.</p>
+        <p className="mt-1 text-sm text-ink-2">{subtitle}</p>
         <div className="mt-4 h-1.5 overflow-hidden rounded-full bg-surface-3">
           <motion.div className="h-full rounded-full bg-accent" animate={{ width: `${Math.max(6, progress * 100)}%` }} transition={{ type: 'spring', stiffness: 120, damping: 20 }} />
         </div>

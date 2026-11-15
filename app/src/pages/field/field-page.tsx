@@ -7,6 +7,7 @@ import type { Scenario } from '@/api/types'
 import { ChatLauncher } from '@/components/chat/chat-sheet'
 import { Button } from '@/components/ui/button'
 import { isReady, useDeleteField, useField, useProfile } from '@/hooks/api'
+import { useLiveProcessing } from '@/hooks/live-processing'
 import { cn } from '@/lib/cn'
 import { num } from '@/lib/format'
 import { CalendarTab } from './calendar-tab'
@@ -42,6 +43,11 @@ export function FieldPage() {
   const [scenario, setScenario] = useState<Scenario>(NO_SCENARIO)
 
   const f = field.data
+  const p = profile.data
+  const loaded = isReady(p)
+  // Live backend: show the analysis screen until the profile arrives, then let it finish its last step.
+  const live = useLiveProcessing(loaded, id)
+  const ready = isReady(p) && (isDemoMode || !live.settling)
   const tabs = TABS.filter((t) => t.id !== 'invernadero' || f?.kind === 'greenhouse')
   const tab = (tabs.find((t) => t.id === params.get('tab'))?.id ?? 'resumen') as TabId
   const setTab = (t: TabId) => setParams({ tab: t }, { replace: true })
@@ -57,9 +63,6 @@ export function FieldPage() {
       </div>
     )
   }
-
-  const p = profile.data
-  const ready = isReady(p)
 
   return (
     <div className="mx-auto w-full max-w-7xl px-4 pb-28 sm:px-6">
@@ -114,7 +117,11 @@ export function FieldPage() {
         )}
       </div>
 
-      {ready && p.resolution_m && <div className="mb-4 rounded-xl border border-line p-3 text-xs text-ink-2">Zonal analysis: {num(p.resolution_m / 1000, 1)} km cell / {p.zone_id} / {p.cell_id}. Data version: {p.data_version}. Conditions within the field may differ.</div>}
+      {ready && p.resolution_m && (
+        <div className="mb-4 rounded-xl border border-line p-3 text-xs text-ink-2">
+          Zonal analysis: {num(p.resolution_m / 1000, 1)} km cell · {p.zone_id} · {p.cell_id}. Data version: {p.data_version}. Conditions within the field may differ.
+        </div>
+      )}
       {profile.isError ? (
         <div className="card mx-auto max-w-lg p-8 text-center">
           <h2 className="font-semibold text-ink">We could not analyze the field</h2>
@@ -124,7 +131,7 @@ export function FieldPage() {
           </Button>
         </div>
       ) : !ready || !f ? (
-        isDemoMode ? <Processing steps={p && p.status === 'processing' ? p.steps : []} /> : <p className="card p-8 text-sm text-ink-2">Loading zonal profile?</p>
+        <Processing steps={isDemoMode ? (p && p.status === 'processing' ? p.steps : []) : live.steps} />
       ) : (
         <>
           {/* Pestañas */}

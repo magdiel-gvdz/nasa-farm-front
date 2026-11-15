@@ -1,5 +1,5 @@
 import { motion } from 'motion/react'
-import { CalendarDays, CloudRain, Snowflake, Thermometer } from 'lucide-react'
+import { CalendarDays, CloudRain, Leaf, Snowflake, Thermometer } from 'lucide-react'
 import type { FieldProfile } from '@/api/types'
 import { RainChart, TemperatureChart } from '@/components/charts/monthly-charts'
 import { RiskCalendar } from '@/components/charts/risk-calendar'
@@ -87,12 +87,48 @@ function FrostWindow({ profile }: { profile: FieldProfile }) {
   )
 }
 
+function NdviCard({ profile }: { profile: FieldProfile }) {
+  const v = profile.vegetation!
+  const max = Math.max(0.5, ...v.ndvi_by_month.map((m) => m.p90 ?? m.mean))
+  const peak = v.ndvi_by_month.reduce((a, b) => (b.mean > a.mean ? b : a))
+  return (
+    <Card className="lg:col-span-2">
+      <CardHeader
+        title="Greenness of your field seen from the satellite"
+        subtitle={`MODIS NDVI (NASA, 250 m)${v.years ? `, ${v.years[0]}–${v.years[1]}` : ''}. 0.1 = bare soil · 0.3 = pasture or young crop · 0.6+ = dense crop. Bar = range of 8 out of 10 years.`}
+        icon={<Leaf className="h-4 w-4" />}
+      />
+      <div className="flex h-40 items-end gap-1.5">
+        {v.ndvi_by_month.map((m, i) => (
+          <div key={m.month} className="relative flex h-full flex-1 flex-col items-center justify-end gap-1" title={`${MONTHS_SHORT[m.month - 1]}: NDVI ${m.mean}${m.p10 != null && m.p90 != null ? ` (from ${m.p10} to ${m.p90})` : ''}`}>
+            <div className="relative w-full max-w-[28px] flex-1">
+              {m.p10 != null && m.p90 != null && <div className="absolute inset-x-[35%] rounded-full bg-good/25" style={{ bottom: `${(m.p10 / max) * 100}%`, height: `${((m.p90 - m.p10) / max) * 100}%` }} />}
+              <motion.div className="absolute inset-x-0 bottom-0 rounded-t-[4px] bg-good/70" initial={{ height: 0 }} animate={{ height: `${(m.mean / max) * 100}%` }} transition={{ delay: i * 0.03, type: 'spring', stiffness: 200, damping: 24 }} />
+            </div>
+            <span className="text-[10px] text-muted">{MONTHS_SHORT[m.month - 1]}</span>
+          </div>
+        ))}
+      </div>
+      <p className="mt-3 text-sm text-ink-2">
+        Greenest: <b className="text-ink">{MONTHS_SHORT[peak.month - 1]}</b> (NDVI {num(peak.mean, 2)}).{' '}
+        {v.vigor_trend_per_decade != null && Math.abs(v.vigor_trend_per_decade) >= 0.02 && (
+          <>
+            Trend: {v.vigor_trend_per_decade > 0 ? 'greener' : 'less green'} over the years ({v.vigor_trend_per_decade > 0 ? '+' : ''}
+            {num(v.vigor_trend_per_decade, 2)} per decade, few years: take it with caution).{' '}
+          </>
+        )}
+        A 250 m pixel may include part of neighboring fields.
+      </p>
+    </Card>
+  )
+}
+
 export function CalendarTab({ profile }: { profile: FieldProfile }) {
   const c = profile.climate
   return (
     <Stagger className="grid gap-4 lg:grid-cols-2">
       <Card className="lg:col-span-2">
-        <CardHeader title="The year of your field" subtitle={`Seasonal risks based on ${c.years[1] - c.years[0] + 1} years of data.`} icon={<CalendarDays className="h-4 w-4" />} />
+        <CardHeader title="The year of your field" subtitle={`Risks ${c.risk_calendar[0]?.decade != null ? 'every 10 days' : 'week by week'} according to ${c.years[1] - c.years[0] + 1} years of data.`} icon={<CalendarDays className="h-4 w-4" />} />
         <RiskCalendar profile={profile} />
       </Card>
       <Card className="lg:col-span-2">
@@ -107,6 +143,7 @@ export function CalendarTab({ profile }: { profile: FieldProfile }) {
         <CardHeader title="Rain" subtitle={`Millimeters per month · ${num(c.rain.annual_mean_mm)} mm per year on average.`} icon={<CloudRain className="h-4 w-4" />} />
         <RainChart climate={c} />
       </Card>
+      {profile.vegetation?.observed && profile.vegetation.ndvi_by_month.length > 0 && <NdviCard profile={profile} />}
     </Stagger>
   )
 }
