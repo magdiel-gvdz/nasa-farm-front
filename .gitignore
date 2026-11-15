@@ -33,3 +33,7 @@ dist/
 .vscode/
 .idea/
 .DS_Store
+
+# Browser test artifacts
+app/test-results/
+app/playwright-report/

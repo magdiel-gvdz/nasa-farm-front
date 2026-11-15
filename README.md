@@ -35,6 +35,18 @@ make dev       # desarrollo local
 make deploy    # publicar cambios
 ```
 
+En Windows también se puede publicar con:
+
+```powershell
+.\scripts\deploy.ps1 -Environment prod -AwsProfile <perfil>
+```
+
+El script usa el estado existente `prod/terraform.tfstate`, exige un commit sin cambios
+pendientes, publica los assets antes del HTML e invalida CloudFront. `/deployment.json`
+identifica el commit publicado. El script lee los outputs del estado remoto sin aplicar infraestructura.
+El frontend usa la API de dev configurada en `app/.env`. La guía de integración y pruebas
+está en [app/README.md](app/README.md).
+
 ## Qué trae
 
 - `infra/` — bucket S3 privado servido por CloudFront con Origin Access

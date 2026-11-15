@@ -1,7 +1,7 @@
 import { create } from 'zustand'
-import type { ChatMessage, SuitabilityDetail, Strategy } from '@/api/types'
+import type { ChatMessage, SuitabilityDetail, SuitabilityMatrix, Strategy, RotationResponse } from '@/api/types'
 
-export type ChatCard = { card: 'suitability'; payload: SuitabilityDetail } | { card: 'rotations'; payload: Strategy } | { card: 'greenhouse' | 'water'; payload: unknown }
+export type ChatCard = { card: 'suitability'; payload: SuitabilityDetail } | { card: 'rotations'; payload: Strategy | RotationResponse } | { card: 'suitability_matrix'; payload: SuitabilityMatrix } | { card: 'greenhouse' | 'water'; payload: unknown }
 export type ThreadMessage = ChatMessage & { cards?: ChatCard[]; error?: string }
 
 interface ChatState {

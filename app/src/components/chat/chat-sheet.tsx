@@ -2,8 +2,9 @@ import { AnimatePresence, motion } from 'motion/react'
 import { ArrowUp, Check, Loader2, MessageCircle, Sparkles, Sprout } from 'lucide-react'
 import { Fragment, useCallback, useEffect, useRef, useState, type ReactNode } from 'react'
 import { getApi, isDemoMode } from '@/api/client'
-import type { Field, Strategy, SuitabilityDetail } from '@/api/types'
-import { CROP_BY_ID } from '@/api/mock/engine/crops'
+import { ApiError } from '@/api/errors'
+import type { Field, RotationResponse, Strategy, SuitabilityDetail } from '@/api/types'
+import { useCrops } from '@/hooks/api'
 import { Sheet } from '@/components/ui/sheet'
 import { Chip, StatusPill } from '@/components/ui/status'
 import { suitLabel, suitToLevel } from '@/lib/status'
@@ -44,6 +45,8 @@ function RichText({ text }: { text: string }) {
 }
 
 function CardView({ card }: { card: ChatCard }) {
+  const catalog = useCrops()
+  const CROP_BY_ID = new Map((catalog.data ?? []).map((c) => [c.id, c]))
   if (card.card === 'suitability') {
     const d = card.payload as SuitabilityDetail
     const crop = CROP_BY_ID.get(d.crop_id)
@@ -64,7 +67,9 @@ function CardView({ card }: { card: ChatCard }) {
     )
   }
   if (card.card === 'rotations') {
-    const s = card.payload as Strategy
+    const payload = card.payload as Strategy | RotationResponse
+    const s = 'strategies' in payload ? payload.strategies.find((s) => s.id === payload.recommended_id) : payload
+    if (!s) return null
     return (
       <div className="mt-2 rounded-2xl border border-line bg-surface p-3">
         <div className="flex items-center gap-2 text-sm font-semibold text-ink">
@@ -81,6 +86,7 @@ function CardView({ card }: { card: ChatCard }) {
       </div>
     )
   }
+  if (card.card === 'suitability_matrix') return <div className="mt-2 rounded-xl border border-line p-3 text-sm">Crop assessment: {card.payload.crops.length} crops across {card.payload.months.length} planting months. Open the What to plant tab for the full matrix.</div>
   return null
 }
 
@@ -88,19 +94,46 @@ function CardView({ card }: { card: ChatCard }) {
 const NO_MESSAGES: ThreadMessage[] = []
 
 function suggestions(field: Field) {
+  if (!isDemoMode) return ['When do I plant beans?', 'Which rotation is best for me?', 'How much risk of frost is there?', 'How is my soil?', 'What happens with 2 degrees more heat and 20% less rain?']
   if (field.kind === 'greenhouse') return ['Can my greenhouse withstand the wind?', 'When do I plant tomatoes?', 'How much risk of frost is there?', 'How will the climate change by 2040?']
   return ['When do I plant beans?', 'Which rotation is best for me?', 'How will the climate change by 2040?', 'How much risk of frost is there?', 'How is my soil?', ...(field.livestock ? ['Is the water safe for my cows?'] : [])]
 }
 
-function ChatBody({ field, ready }: { field: Field; ready: boolean }) {
+function ChatBody({ field }: { field: Field; ready: boolean }) {
   const msgs = useChat((s) => s.threads[field.id] ?? NO_MESSAGES)
   const update = useChat((s) => s.update)
   const consume = useChat((s) => s.consume)
   const pending = useChat((s) => s.pending)
   const [input, setInput] = useState('')
   const [busy, setBusy] = useState(false)
+  const [loadingHistory, setLoadingHistory] = useState(!isDemoMode)
+  const [historyError, setHistoryError] = useState<string | null>(null)
+  const [status, setStatus] = useState('Thinking...')
+  const [retryAt, setRetryAt] = useState<number | null>(null)
   const scroller = useRef<HTMLDivElement>(null)
   const abort = useRef<AbortController | null>(null)
+
+  useEffect(() => {
+    const controller = new AbortController()
+    let active = true
+    void getApi().then(async (api) => {
+      if (useChat.getState().threads[field.id]?.length) return
+      const history = await api.getChatHistory?.(field.id, controller.signal)
+      if (!active || !history) return
+      update(field.id, (existing) => existing.length ? existing : history.messages.map((m, i) => ({
+        id: m.message_id ?? `history-${i}`, role: m.role === 'user' ? 'user' : 'assistant', content: m.text,
+        cards: m.cards.map((c) => ({ card: c.type, payload: c.payload }) as ChatCard), citations: m.citations,
+        error: m.status === 'failed' ? 'This response did not finish.' : undefined,
+      })))
+    }).catch((error: Error) => { if (active) setHistoryError(error.message) }).finally(() => { if (active) setLoadingHistory(false) })
+    return () => { active = false; controller.abort() }
+  }, [field.id, update])
+
+  useEffect(() => {
+    if (retryAt == null) return
+    const timer = setTimeout(() => setRetryAt(null), Math.max(0, retryAt - Date.now()))
+    return () => clearTimeout(timer)
+  }, [retryAt])
 
   useEffect(() => {
     scroller.current?.scrollTo({ top: scroller.current.scrollHeight, behavior: 'smooth' })
@@ -109,7 +142,7 @@ function ChatBody({ field, ready }: { field: Field; ready: boolean }) {
   const send = useCallback(
     async (text: string) => {
       const q = text.trim()
-      if (!q || busy) return
+      if (!q || busy || loadingHistory || retryAt != null || q.length > 2000) return
       setInput('')
       setBusy(true)
       const id = crypto.randomUUID()
@@ -119,10 +152,11 @@ function ChatBody({ field, ready }: { field: Field; ready: boolean }) {
       try {
         const api = await getApi()
         await api.chat(
-          ready ? field.id : null,
+          field.id,
           q,
           (e) => {
-            if (e.type === 'tool')
+            if (e.type === 'status') setStatus(e.label ?? 'Thinking...')
+            else if (e.type === 'tool')
               patch((m) => {
                 const tools = [...(m.tools ?? [])]
                 const i = tools.findIndex((t) => t.name === e.name)
@@ -138,28 +172,37 @@ function ChatBody({ field, ready }: { field: Field; ready: boolean }) {
           abort.current.signal,
         )
       } catch (err) {
-        if ((err as Error).name !== 'AbortError') patch((m) => ({ ...m, error: 'I couldn\'t respond. Try again.' }))
+        if ((err as Error).name !== 'AbortError') {
+          const message = err instanceof Error ? err.message : 'Could not respond. Try again.'
+          if (err instanceof ApiError && err.retryAfter) setRetryAt(Date.now() + err.retryAfter * 1000)
+          patch((m) => ({ ...m, error: err instanceof ApiError && err.code === 'conversation_full' ? `${message} Start a new conversation below.` : message }))
+        }
       } finally {
         setBusy(false)
       }
     },
-    [busy, field.id, ready, update],
+    [busy, field.id, loadingHistory, retryAt, update],
   )
 
   // Pregunta enviada desde otra parte de la app (p. ej. "Preguntar al agrónomo").
   useEffect(() => {
-    if (!pending || busy) return
+    if (!pending || busy || loadingHistory || retryAt != null) return
     const t = setTimeout(() => {
       const q = consume()
       if (q) void send(q)
     }, 0)
     return () => clearTimeout(t)
-  }, [pending, busy, consume, send])
+  }, [pending, busy, loadingHistory, retryAt, consume, send])
 
   useEffect(() => () => abort.current?.abort(), [])
 
   return (
     <div className="flex h-full flex-col">
+      <div className="flex items-center justify-between gap-2 border-b border-line px-5 py-2 text-xs text-muted">
+        <span>{loadingHistory ? 'Loading conversation...' : busy ? status : retryAt != null ? 'Message limit reached. Please wait before sending again.' : 'Agronomy assistant'}</span>
+        <button disabled={busy || loadingHistory} className="cursor-pointer underline disabled:opacity-50" onClick={async () => { const api = await getApi(); api.newConversation?.(field.id); update(field.id, () => []); setHistoryError(null) }}>New conversation</button>
+      </div>
+      {historyError && <p role="alert" className="px-5 py-2 text-xs text-bad">{historyError}</p>}
       <div ref={scroller} className="flex-1 space-y-4 overflow-y-auto px-5 py-5">
         {msgs.length === 0 && (
           <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} className="space-y-4">
@@ -203,7 +246,7 @@ function ChatBody({ field, ready }: { field: Field; ready: boolean }) {
                     <div className="mb-2 flex flex-wrap gap-1.5">
                       {m.tools.map((t) => (
                         <motion.span key={t.name} initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} className="inline-flex items-center gap-1.5 rounded-full bg-surface-2 px-2.5 py-1 text-xs text-ink-2">
-                          {t.state === 'running' ? <Loader2 className="h-3 w-3 animate-spin" /> : <Check className="h-3 w-3 text-good" />}
+                          {t.state === 'running' ? <Loader2 className="h-3 w-3 animate-spin" /> : t.state === 'failed' ? <span className="text-bad">Failed</span> : <Check className="h-3 w-3 text-good" />}
                           {t.label ?? t.name}
                         </motion.span>
                       ))}
@@ -246,6 +289,7 @@ function ChatBody({ field, ready }: { field: Field; ready: boolean }) {
       >
         <div className="flex items-end gap-2 rounded-[1.25rem] border border-line-strong bg-surface p-1.5 pl-4 focus-within:border-accent">
           <textarea
+            maxLength={2000}
             value={input}
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={(e) => {
@@ -261,7 +305,7 @@ function ChatBody({ field, ready }: { field: Field; ready: boolean }) {
           <motion.button
             whileTap={{ scale: 0.9 }}
             type="submit"
-            disabled={!input.trim() || busy}
+            disabled={!input.trim() || busy || loadingHistory || retryAt != null}
             className="grid h-9 w-9 shrink-0 cursor-pointer place-items-center rounded-full bg-accent text-accent-ink transition-opacity disabled:opacity-30"
             aria-label="Send"
           >
@@ -298,7 +342,7 @@ export function ChatLauncher({ field, ready, fab = true }: { field: Field; ready
         <span className="text-sm font-semibold">Ask the agronomist</span>
       </motion.button>}
       <Sheet open={open} onOpenChange={setOpen} title="Virtual agronomist" description={field.name} wide>
-        <ChatBody field={field} ready={ready} />
+        <ChatBody key={field.id} field={field} ready={ready} />
       </Sheet>
     </>
   )

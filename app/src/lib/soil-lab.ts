@@ -79,7 +79,7 @@ export const LAB_PARAMS: LabParam[] = [
   },
   {
     key: 'p_ppm',
-    name: 'Phosphorus (Olsen)',
+    name: 'Phosphorus',
     unit: 'ppm',
     step: 1,
     hint: 'P Olsen or Bray',

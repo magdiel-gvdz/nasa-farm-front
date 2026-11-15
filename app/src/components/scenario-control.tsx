@@ -73,9 +73,10 @@ export function ScenarioControl({ value, onChange, compact, fieldId }: { value: 
           )
         })}
       </div>
+      <p className="mt-3 text-xs text-muted">Hypothetical sensitivity scenario. It is not a weather forecast.</p>
       <div className={cn('mt-5 grid gap-5', !compact && 'sm:grid-cols-2')}>
-        <Slider label="Temperature" icon={<Thermometer className="h-4 w-4" />} value={local.delta_t_c} min={0} max={3} step={0.5} onChange={(v) => setLocal((s) => ({ ...s, delta_t_c: v }))} format={(v) => `${signed(v, 1)} °C`} />
-        <Slider label="Rain" icon={<Droplets className="h-4 w-4" />} value={local.delta_p_pct} min={-40} max={20} step={5} onChange={(v) => setLocal((s) => ({ ...s, delta_p_pct: v }))} format={(v) => `${signed(v)} %`} />
+        <Slider label="Temperature" icon={<Thermometer className="h-4 w-4" />} value={local.delta_t_c} min={-2} max={5} step={0.5} onChange={(v) => setLocal((s) => ({ ...s, delta_t_c: v }))} format={(v) => `${signed(v, 1)} °C`} />
+        <Slider label="Rain" icon={<Droplets className="h-4 w-4" />} value={local.delta_p_pct} min={-50} max={50} step={5} onChange={(v) => setLocal((s) => ({ ...s, delta_p_pct: v }))} format={(v) => `${signed(v)} %`} />
       </div>
     </div>
   )

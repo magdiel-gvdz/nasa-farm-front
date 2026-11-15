@@ -2,7 +2,8 @@ import { motion } from 'motion/react'
 import { CalendarCheck, Check, ChevronLeft, ChevronRight, MessageCircle, Minus, Search, Sprout, TreeDeciduous, Wheat } from 'lucide-react'
 import { useMemo, useState } from 'react'
 import type { Crop, CropCategory, Field, Scenario } from '@/api/types'
-import { searchCrops } from '@/api/mock/engine/crops'
+import { searchCrops } from '@/lib/crops'
+import { isDemoMode } from '@/api/client'
 import { SuitabilityGrid } from '@/components/charts/suitability-grid'
 import { useChat } from '@/components/chat/chat-store'
 import { ScenarioControl } from '@/components/scenario-control'
@@ -53,7 +54,7 @@ function CropDetail({ field, crop, month, scenario, onMonth }: { field: Field; c
         </Button>
       </div>
 
-      {!d ? (
+      {det.isError ? <p role="alert" className="text-sm text-bad">{det.error.message}</p> : !d ? (
         <div className="skeleton h-40" />
       ) : (
         <motion.div key={`${month}-${d.score}`} initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} className="space-y-6">
@@ -69,12 +70,13 @@ function CropDetail({ field, crop, month, scenario, onMonth }: { field: Field; c
                 </p>
               ) : (
                 <p className="mt-2 text-sm text-ink-2">
-                  Harvest between <b className="text-ink">{dateLong(d.harvest_window.from)}</b> and the <b className="text-ink">{dateLong(d.harvest_window.to)}</b>.
+                  Harvest between <b className="text-ink">{dateLong(d.harvest_window?.from)}</b> and the <b className="text-ink">{dateLong(d.harvest_window?.to)}</b>.
                 </p>
               )}
             </div>
           </div>
 
+          {crop.reviewed != null && <p className="text-xs text-muted">Catalog parameters: {crop.reviewed ? 'scientifically reviewed' : 'initial values, pending scientific review'}{crop.source_id ? ` / ${crop.source_id}` : ''}. Nitrogen balance: {num(crop.n_balance_kg_ha)} kg/ha per cycle. Residue: {crop.residue ?? 'unknown'}. Root depth: {crop.root_depth ?? 'unknown'}.</p>}
           <div>
             <h4 className="mb-2 text-sm font-semibold text-ink">Why?</h4>
             <ul className="space-y-2">
@@ -82,12 +84,13 @@ function CropDetail({ field, crop, month, scenario, onMonth }: { field: Field; c
                 <motion.li key={`${r.factor}-${i}`} initial={{ opacity: 0, x: -6 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: i * 0.05 }} className="flex items-start gap-2.5 rounded-xl bg-surface-2 p-3 text-sm text-ink-2">
                   <StatusIcon level={r.status} className="mt-0.5" />
                   <span className="flex-1">{r.detail}</span>
-                  <Chip className="shrink-0 bg-surface">{SOURCE_LABEL[r.source_id] ?? r.source_id}</Chip>
+                  <Chip className="shrink-0 bg-surface">{(r.source_id && SOURCE_LABEL[r.source_id]) ?? r.source_id ?? 'No source available'}</Chip>
                 </motion.li>
               ))}
             </ul>
           </div>
 
+          {d.scenario?.note && <p className="text-sm text-ink-2">{d.scenario.note}</p>}
           {y && (
             <div>
               <h4 className="mb-1 text-sm font-semibold text-ink">Expected yield{crop.perennial ? ' (mature orchard)' : ''}</h4>
@@ -249,7 +252,7 @@ export function CropsTab({ field, scenario, onScenario }: { field: Field; scenar
               )}
             </motion.div>
           ) : (
-            <div className="skeleton h-96" />
+            matrix.isError || crops.isError ? <p role="alert" className="text-sm text-bad">{matrix.error?.message ?? crops.error?.message}</p> : <div className="skeleton h-96" />
           )}
           <div className="mt-4 flex flex-wrap gap-4 text-xs text-ink-2">
             <span className="inline-flex items-center gap-1.5">
@@ -273,15 +276,16 @@ export function CropsTab({ field, scenario, onScenario }: { field: Field; scenar
       </Stagger>
 
       <div className="space-y-4 lg:sticky lg:top-32 lg:self-start">
+        {!isDemoMode && field.kind === 'greenhouse' && <p className="card p-4 text-sm text-ink-2">Crop suitability uses outdoor zonal climate. Greenhouse microclimate is not modeled.</p>}
         <ScenarioControl value={scenario} onChange={onScenario} compact fieldId={field.id} />
         <div className="card flex items-start gap-3 p-4 text-sm text-ink-2">
           <Sprout className="mt-0.5 h-4 w-4 shrink-0 text-accent" />
-          We check frost, heat during flowering, water, soil, salinity and slope for each crop and month. Confirm varieties with your agronomist.
+          We evaluate frost, heat, water and soil for each crop and planting month. Unknown factors are shown explicitly. Confirm varieties with your agronomist.
         </div>
-        <div className="card flex items-start gap-3 p-4 text-sm text-ink-2">
+        {isDemoMode && <div className="card flex items-start gap-3 p-4 text-sm text-ink-2">
           <TreeDeciduous className="mt-0.5 h-4 w-4 shrink-0 text-accent" />
           In fruit trees, vines and nuts we also review the chill hours of winter and frost during flowering.
-        </div>
+        </div>}
       </div>
 
       <Sheet

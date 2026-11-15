@@ -2,7 +2,7 @@
 // datos y motores, emitiendo los mismos eventos SSE que el backend real
 // (status → tool → text → citation → done) para que la UI sea idéntica.
 
-import type { ChatEvent, Field, FieldProfile, FutureClimate, RotationResponse, Scenario, SuitabilityDetail } from '../types'
+import type { ChatEvent, Field, FieldProfile, FutureClimate, RotationResponse, Scenario, SuitabilityDetail } from './types'
 import { CROP_BY_ID, findCropInText } from './engine/crops'
 import { interpret, LAB_PARAMS } from '@/lib/soil-lab'
 

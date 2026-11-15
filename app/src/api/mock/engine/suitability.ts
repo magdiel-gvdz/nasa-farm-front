@@ -1,6 +1,6 @@
 // Motor de aptitud cultivo × mes de siembra (reglas explicables, §7.2).
 
-import type { Crop, FieldProfile, Level, SuitabilityDetail, SuitabilityMatrix, SuitabilityReason, SuitStatus } from '../../types.ts'
+import type { Crop, FieldProfile, Level, SuitabilityDetail, SuitabilityMatrix, SuitabilityReason, SuitStatus } from '../types.ts'
 import { type ClimateModel, MID_DOY, chillHours, cycleDemand, cycleMonths, doyToLabel } from './agro.ts'
 import { AGRO, CROPS } from './crops.ts'
 

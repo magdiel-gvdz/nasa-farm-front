@@ -10,7 +10,7 @@ import type {
   HeatMonth,
   RainMonth,
   RiskWeek,
-} from '../../types.ts'
+} from '../types.ts'
 
 export interface DailySeries {
   dates: Date[] // UTC, ordenadas

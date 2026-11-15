@@ -1,5 +1,5 @@
 import { keepPreviousData, useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { getApi } from '@/api/client'
+import { capabilities, getApi } from '@/api/client'
 import type { FieldInput, FieldProfile, RotationRequest, Scenario, SoilLab } from '@/api/types'
 
 const api = () => getApi()
@@ -48,7 +48,7 @@ export function useYield(id: string, cropId: string | null, month: number | null
   return useQuery({
     queryKey: ['yield', id, cropId, month, irrigated, scenario],
     queryFn: async () => (await api()).predictYield(id, { crop_id: cropId!, planting_month: month!, irrigated, scenario }),
-    enabled: !!cropId && !!month,
+    enabled: capabilities.yield && !!cropId && !!month,
   })
 }
 
@@ -66,7 +66,7 @@ export function useGreenhouse(id: string, enabled: boolean) {
 }
 
 export function useWaterQuality(id: string, enabled: boolean) {
-  return useQuery({ queryKey: ['water', id], queryFn: async () => (await api()).getWaterQuality(id), enabled })
+  return useQuery({ queryKey: ['water', id], queryFn: async () => (await api()).getWaterQuality(id), enabled: enabled && capabilities.waterQuality })
 }
 
 export function useCreateField() {
@@ -86,11 +86,14 @@ export function useDeleteField() {
 }
 
 export function useFutureClimate(id: string, enabled = true) {
-  return useQuery({ queryKey: ['future', id], queryFn: async () => (await api()).getFutureClimate(id), enabled, staleTime: Infinity, retry: 1 })
+  return useQuery({ queryKey: ['future', id], queryFn: async () => (await api()).getFutureClimate(id), enabled: enabled && capabilities.futureClimate, staleTime: Infinity, retry: 1 })
 }
 
 export function useExtractSoilReport(id: string) {
-  return useMutation({ mutationFn: async (file: File) => (await api()).extractSoilReport(id, file) })
+  const qc = useQueryClient()
+  return useMutation({ mutationFn: async (file: File) => (await api()).extractSoilReport(id, file),
+    onSuccess: (result) => result.applied ? Promise.all(['field', 'profile', 'suitability', 'rotations'].map((k) => qc.invalidateQueries({ queryKey: [k, id] }))) : undefined,
+  })
 }
 
 /** Guarda o borra el análisis de laboratorio y recalcula todo lo que depende del suelo. */
@@ -100,4 +103,16 @@ export function useSaveSoilLab(id: string) {
     mutationFn: async (lab: SoilLab | null) => (await api()).saveSoilLab(id, lab),
     onSuccess: () => Promise.all(['profile', 'suitability', 'rotations', 'yield'].map((k) => qc.invalidateQueries({ queryKey: [k, id] }))),
   })
+}
+
+export function useUpdateField(id: string) {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: async (patch: Partial<Omit<FieldInput, 'kind'>>) => (await api()).updateField(id, patch),
+    onSuccess: () => Promise.all(['fields', 'field', 'profile', 'suitability', 'rotations', 'greenhouse'].map((k) => qc.invalidateQueries({ queryKey: k === 'fields' ? [k] : [k, id] }))),
+  })
+}
+
+export function useSources() {
+  return useQuery({ queryKey: ['sources'], queryFn: async () => (await api()).getSources(), staleTime: 60 * 60 * 1000 })
 }

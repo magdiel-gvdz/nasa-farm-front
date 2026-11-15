@@ -111,7 +111,7 @@ export function WaterBalanceChart({ water }: { water: WaterProfile }) {
     v: b.p_minus_et0_mm,
     pos: Math.max(0, b.p_minus_et0_mm),
     neg: Math.min(0, b.p_minus_et0_mm),
-    et0: water.et.by_month[i].et0_mm,
+    et0: water.et?.by_month[i]?.et0_mm,
   }))
   return (
     <div>
@@ -130,7 +130,7 @@ export function WaterBalanceChart({ water }: { water: WaterProfile }) {
                   <TooltipCard
                     title={monthName(d.month)}
                     rows={[
-                      { label: d.v >= 0 ? 'Too much water' : 'No water', value: `${num(Math.abs(d.v))} mm`, color: d.v >= 0 ? 'var(--s-1)' : 'var(--s-8)' },
+                      { label: d.v >= 0 ? 'Too much water' : 'Water deficit', value: `${num(Math.abs(d.v))} mm`, color: d.v >= 0 ? 'var(--s-1)' : 'var(--s-8)' },
                       { label: 'Potential evaporation', value: `${num(d.et0)} mm` },
                     ]}
                   />
@@ -142,14 +142,14 @@ export function WaterBalanceChart({ water }: { water: WaterProfile }) {
       <Legend
         items={[
           { label: 'Excess water (rain > evaporation)', color: 'var(--s-1)' },
-          { label: 'No water', color: 'var(--s-8)' },
+          { label: 'Water deficit', color: 'var(--s-8)' },
         ]}
       />
     </div>
   )
 }
 
-export function LightChart({ light }: { light: GreenhouseReport['light'] }) {
+export function LightChart({ light }: { light: NonNullable<GreenhouseReport['light']> }) {
   const data = light.by_month.map((b) => ({ m: monthShort(b.month), ...b }))
   return (
     <div>
@@ -187,7 +187,7 @@ export function LightChart({ light }: { light: GreenhouseReport['light'] }) {
   )
 }
 
-export function HeatingChart({ temperature }: { temperature: GreenhouseReport['temperature'] }) {
+export function HeatingChart({ temperature }: { temperature: NonNullable<GreenhouseReport['temperature']> }) {
   const data = temperature.by_month.map((b) => ({ m: monthShort(b.month), ...b }))
   return (
     <div className="h-52">

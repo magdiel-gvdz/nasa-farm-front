@@ -1,5 +1,6 @@
 import type {
   ChatEvent,
+  ConversationHistory,
   Crop,
   Field,
   FieldInput,
@@ -11,6 +12,7 @@ import type {
   Scenario,
   SuitabilityDetail,
   SoilLab,
+  Source,
   SoilReportExtraction,
   SuitabilityMatrix,
   WaterQualityReport,
@@ -23,11 +25,11 @@ export interface Api {
   listFields(): Promise<Field[]>
   getField(id: string): Promise<Field>
   createField(input: FieldInput): Promise<Field>
-  updateField(id: string, patch: Partial<FieldInput>): Promise<Field>
+  updateField(id: string, patch: Partial<Omit<FieldInput, 'kind'>>): Promise<Field>
   deleteField(id: string): Promise<void>
   getProfile(id: string): Promise<ProfileResponse>
-  refreshProfile(id: string): Promise<void>
   getCrops(): Promise<Crop[]>
+  getSources(): Promise<Source[]>
   getSuitabilityMatrix(id: string, scenario: Scenario): Promise<SuitabilityMatrix>
   getSuitability(id: string, cropId: string, month: number, scenario: Scenario): Promise<SuitabilityDetail>
   getRotations(id: string, req: RotationRequest): Promise<RotationResponse>
@@ -40,12 +42,18 @@ export interface Api {
   saveSoilLab(id: string, lab: SoilLab | null): Promise<void>
   /** Cambio proyectado del clima (2031–2050 vs 1991–2020) para esta parcela. */
   getFutureClimate(id: string): Promise<FutureClimate>
+  getChatHistory?(fieldId: string | null, signal?: AbortSignal): Promise<ConversationHistory | null>
+  newConversation?(fieldId: string | null): void
   chat(fieldId: string | null, content: string, onEvent: (e: ChatEvent) => void, signal?: AbortSignal): Promise<void>
 }
 
 export const NO_SCENARIO: Scenario = { delta_t_c: 0, delta_p_pct: 0 }
 
-const apiUrl = import.meta.env.VITE_API_URL as string | undefined
+const apiUrl = (import.meta.env.VITE_API_URL as string | undefined)?.trim()
+export const capabilities = {
+  yield: !apiUrl, waterQuality: !apiUrl, futureClimate: !apiUrl, manualSoilLab: !apiUrl,
+  soilReportAutoSaves: !!apiUrl,
+}
 
 let instance: Promise<Api> | null = null
 

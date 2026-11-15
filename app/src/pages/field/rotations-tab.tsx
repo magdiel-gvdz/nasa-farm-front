@@ -2,7 +2,7 @@ import { AnimatePresence, LayoutGroup, motion } from 'motion/react'
 import { ArrowDown, ArrowUp, Beef, Bug, ChevronDown, Coins, Droplets, Hand, Sparkles, Sprout, TreeDeciduous } from 'lucide-react'
 import { useEffect, useMemo, useState } from 'react'
 import type { CropRole, Field, FieldProfile, Priorities, RotationRequest, Scenario, Strategy } from '@/api/types'
-import { CROP_BY_ID } from '@/api/mock/engine/crops'
+import { useCrops } from '@/hooks/api'
 import { ScenarioControl } from '@/components/scenario-control'
 import { AnimatedNumber } from '@/components/ui/animated-number'
 import { Segmented } from '@/components/ui/segmented'
@@ -34,6 +34,8 @@ function useDebounced<T>(value: T, ms = 220) {
 }
 
 function Timeline({ s, years }: { s: Strategy; years: number }) {
+  const catalog = useCrops()
+  const CROP_BY_ID = new Map((catalog.data ?? []).map((c) => [c.id, c]))
   return (
     <div className="grid gap-1.5" style={{ gridTemplateColumns: `repeat(${years}, minmax(0, 1fr))` }}>
       {Array.from({ length: years }, (_, y) => (
@@ -42,7 +44,7 @@ function Timeline({ s, years }: { s: Strategy; years: number }) {
           {(['spring_summer', 'fall_winter'] as const).map((season) => {
             const step = s.sequence.find((x) => x.year === y + 1 && x.season === season)
             const crop = step?.crop_id ? CROP_BY_ID.get(step.crop_id) : null
-            const role = ROLE[step?.role ?? 'bare']
+            const role = ROLE[step?.role as keyof typeof ROLE] ?? ROLE.bare
             return (
               <div
                 key={season}
@@ -106,12 +108,13 @@ function Section({ title, items, icon, defaultOpen }: { title: string; items: Re
 function StrategyCard({ s, base, recommended, years }: { s: Strategy; base: Strategy; recommended: boolean; years: number }) {
   const m = s.metrics
   const b = base.metrics
-  const scores: [string, number][] = [
+  const scores: [string, number | null][] = [
     ['Water saving', s.scores.save_water],
     ['Soil health', s.scores.soil_health],
     ['Income', s.scores.income],
     ['Forage', s.scores.forage],
     ['Pest control', s.scores.pest_break],
+    ['Less work', s.scores.low_labor ?? null],
   ]
   return (
     <motion.article
@@ -150,7 +153,7 @@ function StrategyCard({ s, base, recommended, years }: { s: Strategy; base: Stra
           { k: 'Irrigation required', v: `${num(m.irrigation_need_mm_per_year)} mm/year`, d: <Delta value={m.irrigation_need_mm_per_year} base={b.irrigation_need_mm_per_year} unit="mm" lowerIsBetter /> },
           { k: 'Bare soil', v: `${num(m.bare_soil_days_per_year)} days/year`, d: <Delta value={m.bare_soil_days_per_year} base={b.bare_soil_days_per_year} unit="days" lowerIsBetter /> },
           { k: 'Nitrogen', v: `${signed(m.n_balance_kg_ha_per_year)} kg/ha`, d: <Delta value={m.n_balance_kg_ha_per_year} base={b.n_balance_kg_ha_per_year} unit="kg" /> },
-          { k: 'Erosion', v: `${num(m.erosion_t_ha_per_year, 1)} t/ha`, d: <Delta value={m.erosion_t_ha_per_year} base={b.erosion_t_ha_per_year} unit="t" lowerIsBetter digits={1} /> },
+          { k: m.erosion_exposure_index != null ? 'Erosion exposure index' : 'Demo erosion estimate', v: m.erosion_exposure_index != null ? num(m.erosion_exposure_index, 2) : `${num(m.erosion_t_ha_per_year, 1)} t/ha`, d: m.erosion_exposure_index != null && b.erosion_exposure_index != null ? <Delta value={m.erosion_exposure_index} base={b.erosion_exposure_index} unit="index" lowerIsBetter digits={2} /> : null },
         ].map((x) => (
           <div key={x.k} className="rounded-xl bg-surface-2 p-2.5">
             <dt className="text-[11px] text-muted">{x.k}</dt>
@@ -165,9 +168,9 @@ function StrategyCard({ s, base, recommended, years }: { s: Strategy; base: Stra
           <div key={label} className="flex items-center gap-3 text-xs">
             <span className="w-28 shrink-0 text-ink-2">{label}</span>
             <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-surface-3">
-              <motion.div className="h-full rounded-full bg-accent" initial={{ width: 0 }} animate={{ width: `${(v / 5) * 100}%` }} transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }} />
+              <motion.div className="h-full rounded-full bg-accent" initial={{ width: 0 }} animate={{ width: `${((v ?? 0) / 5) * 100}%` }} transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }} />
             </div>
-            <span className="tabular w-6 text-right text-ink-2">{num(v, 1)}</span>
+            <span className="tabular w-6 text-right text-ink-2">{v == null ? 'N/A' : num(v, 1)}</span>
           </div>
         ))}
       </div>
@@ -178,7 +181,7 @@ function StrategyCard({ s, base, recommended, years }: { s: Strategy; base: Stra
           title="Evidence"
           items={s.evidence.map((e) => (
             <span key={e.claim}>
-              {e.claim} <Chip className="ml-1">{SOURCE[e.source_id] ?? e.source_id}</Chip>
+              {e.claim} <Chip className="ml-1">{(e.source_id && SOURCE[e.source_id]) ?? e.source_id ?? 'No source available'}</Chip>
             </span>
           ))}
         />
@@ -191,9 +194,16 @@ function StrategyCard({ s, base, recommended, years }: { s: Strategy; base: Stra
 
 export function RotationsTab({ field, profile, scenario, onScenario }: { field: Field; profile: FieldProfile; scenario: Scenario; onScenario: (s: Scenario) => void }) {
   const [pri, setPri] = useState<Priorities>({ save_water: 4, income: 3, soil_health: 4, forage: field.livestock ? 3 : 1, pest_break: 2, low_labor: 1 })
+  const catalog = useCrops()
+  const CROP_BY_ID = new Map((catalog.data ?? []).map((c) => [c.id, c]))
   const [years, setYears] = useState(4)
+  const [limit, setLimit] = useState(4)
+  const [water, setWater] = useState(field.irrigation?.max_mm_per_year == null ? '' : String(field.irrigation.max_mm_per_year))
+  const [equipment, setEquipment] = useState<string[]>([])
+  const [excluded, setExcluded] = useState<string[]>([])
+
   const debounced = useDebounced(pri)
-  const req: RotationRequest = useMemo(() => ({ priorities: debounced, constraints: { horizon_years: years, irrigation_mm_per_year: field.irrigation?.max_mm_per_year }, scenario, max_strategies: 4 }), [debounced, years, scenario, field.irrigation])
+  const req: RotationRequest = useMemo(() => ({ priorities: debounced, constraints: { horizon_years: years, irrigation_mm_per_year: water === '' ? undefined : Number(water), equipment, exclude_crops: excluded }, scenario, max_strategies: limit }), [debounced, years, scenario, water, equipment, excluded, limit])
   const rot = useRotations(field.id, req, true)
   const orchard = (field.current_rotation ?? []).map((r) => (r.crop_id ? CROP_BY_ID.get(r.crop_id) : null)).find((c) => c?.perennial)
   const data = rot.data
@@ -223,8 +233,21 @@ export function RotationsTab({ field, profile, scenario, onScenario }: { field: 
           </div>
           <div className="mt-5 flex items-center justify-between">
             <span className="text-sm font-medium text-ink">Plan for</span>
-            <Segmented size="sm" value={years} onChange={setYears} options={[3, 4, 5].map((y) => ({ value: y, label: `${y} years` }))} />
+            <Segmented size="sm" value={years} onChange={setYears} options={[1, 2, 3, 4, 5, 6].map((y) => ({ value: y, label: `${y} years` }))} />
           </div>
+        </div>
+        <div className="card space-y-4 p-5">
+          <h3 className="font-semibold text-ink">Constraints</h3>
+          <label className="block text-sm">Irrigation budget (mm/year)
+            <input aria-label="Irrigation budget" type="number" min={0} value={water} onChange={(e) => setWater(e.target.value === '' ? '' : String(Math.max(0, Number(e.target.value))))} placeholder="Use field setting" className="mt-1 w-full rounded-lg border border-line bg-surface p-2" />
+          </label>
+          <Slider label="Strategies to compare" value={limit} min={3} max={6} step={1} onChange={setLimit} />
+          <details><summary className="cursor-pointer text-sm">Available equipment</summary><p className="mt-2 text-xs text-muted">Leave empty for no equipment restriction.</p>
+            {['tractor', 'planter', 'seed_drill', 'combine', 'forage_harvester', 'baler', 'manual_harvest'].map((id) => <label key={id} className="mt-2 flex items-center gap-2 text-sm"><input type="checkbox" checked={equipment.includes(id)} onChange={(e) => setEquipment((v) => e.target.checked ? [...v, id] : v.filter((x) => x !== id))} />{id.replaceAll('_', ' ')}</label>)}
+          </details>
+          <details><summary className="cursor-pointer text-sm">Exclude crops ({excluded.length})</summary>
+            {(catalog.data ?? []).map((crop) => <label key={crop.id} className="mt-2 flex items-center gap-2 text-sm"><input type="checkbox" checked={excluded.includes(crop.id)} onChange={(e) => setExcluded((v) => e.target.checked ? [...v, crop.id] : v.filter((x) => x !== crop.id))} />{crop.name.en}</label>)}
+          </details>
         </div>
         <ScenarioControl value={scenario} onChange={onScenario} compact fieldId={field.id} />
       </aside>
@@ -247,7 +270,7 @@ export function RotationsTab({ field, profile, scenario, onScenario }: { field: 
             </span>
           ))}
         </div>
-        {!data || !base ? (
+        {rot.isError ? <p role="alert" className="card p-5 text-sm text-bad">{rot.error.message}</p> : !data || !base ? (
           <div className="grid gap-4 xl:grid-cols-2">
             {[0, 1, 2, 3].map((i) => (
               <div key={i} className="skeleton h-[520px]" />
@@ -267,7 +290,7 @@ export function RotationsTab({ field, profile, scenario, onScenario }: { field: 
         {data && (
           <p className="mt-5 flex items-start gap-2 text-sm text-ink-2">
             <StatusIcon level="warn" className="mt-0.5" />
-            {data.disclaimer} Data: {profile.sources.slice(0, 4).map((s) => s.dataset).join(', ')}.
+            {data.scenario.note} {data.disclaimer} Data: {profile.sources.slice(0, 4).map((s) => s.dataset).join(', ')}.
           </p>
         )}
       </div>

@@ -2,7 +2,7 @@ import { motion } from 'motion/react'
 import type { Level } from '@/api/types'
 import { AnimatedNumber } from '@/components/ui/animated-number'
 
-const COLOR: Record<Level, string> = { ok: 'var(--good)', warn: 'var(--warn)', bad: 'var(--bad)' }
+const COLOR: Record<Level, string> = { unknown: 'var(--muted)', ok: 'var(--good)', warn: 'var(--warn)', bad: 'var(--bad)' }
 
 export function ScoreRing({ score, level, size = 88 }: { score: number; level: Level; size?: number }) {
   const r = 42

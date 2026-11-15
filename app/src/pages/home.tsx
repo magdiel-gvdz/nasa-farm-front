@@ -1,12 +1,13 @@
 import { motion } from 'motion/react'
 import { ArrowRight, CloudRain, Droplets, Layers, Map as MapIcon, MapPinned, MessageCircle, Satellite, Snowflake, Sprout, Sun } from 'lucide-react'
 import { Link } from 'react-router'
+import { isDemoMode } from '@/api/client'
 import type { Field } from '@/api/types'
 import { DEMOS } from '@/api/mock/demos'
 import { FieldShape } from '@/components/map/field-mini-map'
 import { Button } from '@/components/ui/button'
 import { fadeUp, stagger } from '@/components/ui/motion'
-import { useFields } from '@/hooks/api'
+import { useFields, useSources } from '@/hooks/api'
 import { num } from '@/lib/format'
 import { KIND } from '@/lib/kinds'
 
@@ -105,11 +106,14 @@ const STEPS = [
 ]
 
 export function HomePage() {
-  const { data: fields } = useFields()
+  const fieldsQuery = useFields()
+  const fields = fieldsQuery.data
+  const sources = useSources()
   const mine = fields?.filter((f) => !f.is_demo) ?? []
 
   return (
     <div className="mx-auto w-full max-w-7xl px-4 pb-20 sm:px-6">
+      {fieldsQuery.isError && <div role="alert" className="card mt-5 p-4 text-sm text-bad">{fieldsQuery.error.message}<Button variant="outline" className="ml-3" onClick={() => fieldsQuery.refetch()}>Retry</Button></div>}
       {/* Hero */}
       <section className="grid items-center gap-10 py-12 md:grid-cols-[1.1fr_1fr] md:py-20">
         <motion.div variants={stagger(0.08)} initial="hidden" animate="show">
@@ -128,14 +132,14 @@ export function HomePage() {
                 <MapPinned className="h-5 w-5" /> Draw my field
               </Button>
             </Link>
-            <Link to={`/parcela/${DEMOS[0].field.id}`}>
+            {isDemoMode && <Link to={`/parcela/${DEMOS[0].field.id}`}>
               <Button size="lg" variant="outline">
                 See an example <ArrowRight className="h-4 w-4" />
               </Button>
-            </Link>
+            </Link>}
           </motion.div>
           <motion.p variants={fadeUp} className="mt-4 text-sm text-muted">
-            No registration. Free. Your fields are saved on this device.
+            No registration. Free. Your fields are linked to this browser.
           </motion.p>
         </motion.div>
         <motion.div initial={{ opacity: 0, scale: 0.92 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}>
@@ -159,7 +163,7 @@ export function HomePage() {
       )}
 
       {/* Examples */}
-      <section className="mb-16">
+      {isDemoMode && <section className="mb-16">
         <div className="mb-4 flex items-end justify-between gap-4">
           <div>
             <h2 className="text-lg font-semibold text-ink">Explore an example</h2>
@@ -172,7 +176,7 @@ export function HomePage() {
             <FieldCard key={d.field.id} field={d.field} story={d.story} />
           ))}
         </motion.div>
-      </section>
+      </section>}
 
       {/* Cómo funciona */}
       <section>
@@ -192,7 +196,7 @@ export function HomePage() {
           ))}
         </motion.ol>
         <p className="mt-10 text-center text-xs text-pretty text-muted">
-          Data: NASA POWER · SMAP · GPM IMERG · MODIS · ECOSTRESS · SRTM · GRACE-FO · SoilGrids · USDA · CONAGUA. Support tool: it does not replace the judgment of your agronomist.
+          Sources: {sources.data?.map((s) => s.dataset).join(' / ') ?? 'listed in each zonal profile'}. Data gaps are listed with each assessment. Review decisions with your agronomist.
         </p>
       </section>
     </div>

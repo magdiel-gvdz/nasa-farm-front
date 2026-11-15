@@ -4,12 +4,14 @@ import { ArrowLeft, Check, Crosshair, Loader2, LocateFixed, Search, Trash2, Tria
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { useNavigate } from 'react-router'
 import type { Crop, FieldInput, FieldKind, GreenhouseInfo, Geometry } from '@/api/types'
-import { CROP_BY_ID, CROPS, searchCrops } from '@/api/mock/engine/crops'
+import { isDemoMode } from '@/api/client'
+import { ApiError } from '@/api/errors'
+import { searchCrops } from '@/lib/crops'
 import { type Basemap, drawField, drawFieldCollection, useMap } from '@/components/map/use-map'
 import { Button } from '@/components/ui/button'
 import { Segmented } from '@/components/ui/segmented'
 import { Slider } from '@/components/ui/slider'
-import { useCreateField, useFields } from '@/hooks/api'
+import { useCreateField, useCrops, useFields } from '@/hooks/api'
 import { cn } from '@/lib/cn'
 import { num } from '@/lib/format'
 import { areaHa, type Place, searchPlaces, selfIntersects } from '@/lib/geo'
@@ -19,7 +21,7 @@ type Step = 'draw' | 'details'
 type Pt = [number, number]
 
 const SUMMER = ['maiz', 'frijol', 'sorgo', 'alfalfa', 'chile', 'melon', 'algodon']
-const WINTER = ['avena', 'trigo', 'cebada', 'veza', 'garbanzo', 'ajo']
+const WINTER = ['avena_forrajera', 'avena', 'trigo', 'cebada', 'veza', 'garbanzo', 'ajo']
 const ORCHARD = ['uva', 'nogal', 'manzana', 'durazno', 'membrillo', 'nopal']
 
 function PlaceSearch({ onPick }: { onPick: (p: Place) => void }) {
@@ -108,10 +110,11 @@ function CropPicker({
 }) {
   const [open, setOpen] = useState(false)
   const [q, setQ] = useState('')
-  const quick = value && !options.includes(value) ? [...options, value] : options
+  const cropById = new Map(pool.map((c) => [c.id, c]))
+  const quick = (value && !options.includes(value) ? [...options, value] : options).filter((id) => cropById.has(id))
   const results = open ? searchCrops(q, pool).slice(0, 14) : []
   const chip = (id: string | null) => {
-    const crop = id ? CROP_BY_ID.get(id) : null
+    const crop = id ? cropById.get(id) : null
     const active = value === id
     return (
       <button
@@ -172,13 +175,14 @@ function CropPicker({
   )
 }
 
-const ANNUALS = CROPS.filter((c) => !c.perennial)
-const PERENNIALS = CROPS.filter((c) => c.perennial && c.category !== 'vegetable')
-const GH = CROPS.filter((c) => c.greenhouse_ok)
-
 export function NewFieldPage() {
   const navigate = useNavigate()
   const create = useCreateField()
+  const catalog = useCrops()
+  const crops = catalog.data ?? []
+  const ANNUALS = crops.filter((c) => !c.perennial)
+  const PERENNIALS = crops.filter((c) => c.perennial && c.category !== 'vegetable')
+  const GH = isDemoMode ? crops.filter((c) => c.greenhouse_ok) : crops
   const [basemap, setBasemap] = useState<Basemap>('satellite')
   const { container, map } = useMap({ center: [-101.27, 25.27], zoom: 13, basemap })
   const [history, setHistory] = useState<Pt[][]>([[]])
@@ -327,12 +331,14 @@ export function NewFieldPage() {
               { year: 1, season: 'spring_summer', crop_id: summer },
               { year: 1, season: 'fall_winter', crop_id: winter },
             ],
-      irrigation: { available: irrigation || kind === 'greenhouse', source: 'well', max_mm_per_year: irrigation ? irrMm : 0 },
+      irrigation: { available: irrigation || kind === 'greenhouse', source: 'well', max_mm_per_year: irrigation || kind === 'greenhouse' ? irrMm : 0 },
       livestock: livestock ? { species: 'bovino', head } : null,
       ...(kind === 'greenhouse' ? { greenhouse: { structure: 'multitunel', cover, rated_wind_kmh: rated, heated: false, co2_enrichment: false } } : {}),
     }
-    const f = await create.mutateAsync(input)
-    navigate(`/parcela/${f.id}`)
+    try {
+      const f = await create.mutateAsync(input)
+      navigate(`/parcela/${f.id}`)
+    } catch { /* The mutation error is displayed below. */ }
   }
 
   return (
@@ -363,6 +369,7 @@ export function NewFieldPage() {
         transition={{ type: 'spring', stiffness: 260, damping: 28, delay: 0.1 }}
         className="absolute inset-x-3 bottom-3 z-10 max-h-[70dvh] overflow-y-auto rounded-[1.5rem] border border-line bg-surface/95 p-5 shadow-2xl max-sm:p-4 backdrop-blur-xl sm:top-4 sm:right-auto sm:bottom-auto sm:left-4 sm:max-h-[calc(100%-2rem)] sm:w-[400px]"
       >
+        {!isDemoMode && <p className="mb-3 rounded-xl bg-surface-2 p-3 text-xs text-ink-2">Pilot coverage: Sureste, La Laguna, Norte and Centro-Desierto in Coahuila. Results describe a 9 km cell.</p>}
         <AnimatePresence mode="wait" initial={false}>
           {step === 'draw' ? (
             <motion.div key="draw" initial={{ opacity: 0, x: -12 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -12 }} className="space-y-5 max-sm:space-y-3">
@@ -440,7 +447,7 @@ export function NewFieldPage() {
                 </button>
                 <h1 className="mt-1 text-xl font-semibold tracking-tight text-ink">Tell us a little</h1>
                 <p className="mt-1 text-sm text-ink-2">
-                  {KIND[kind].label} of {num(area, area < 10 ? 2 : 1)} hectares. Everything is optional; you can change it later.
+                  {KIND[kind].label} of {num(area, area < 10 ? 2 : 1)} hectares. You can edit these details later.
                 </p>
               </div>
 
@@ -449,7 +456,7 @@ export function NewFieldPage() {
                 <input value={name} onChange={(e) => setName(e.target.value)} className="h-11 w-full rounded-xl border border-line-strong bg-surface px-3.5 text-sm text-ink outline-none focus:border-accent" />
               </label>
 
-              {kind === 'field' && (
+              {kind === 'field' && PERENNIALS.length > 0 && (
                 <CropPicker label="Do you have an orchard, vineyard, or pecan grove?" options={ORCHARD} pool={PERENNIALS} value={orchard} onChange={setOrchard} noneLabel="No" />
               )}
               {kind === 'field' && orchard ? (
@@ -505,10 +512,12 @@ export function NewFieldPage() {
                 </>
               )}
 
-              <Button variant="accent" size="lg" className="w-full justify-center" onClick={submit} disabled={create.isPending}>
+              <Button variant="accent" size="lg" className="w-full justify-center" onClick={submit} disabled={create.isPending || catalog.isLoading || catalog.isError}>
                 {create.isPending ? <Loader2 className="h-5 w-5 animate-spin" /> : <Check className="h-5 w-5" />}
                 Analyze my field
               </Button>
+              {catalog.isError && <p className="text-sm text-bad">Could not load the crop catalog. Reload to try again.</p>}
+              {create.error instanceof ApiError && create.error.code === 'out_of_region' && <p className="text-sm text-ink-2">Coverage: Sureste, La Laguna, Norte and Centro-Desierto in Coahuila. The centroid must fall in a published 9 km cell.</p>}
               {create.error && <p className="text-sm text-bad">{(create.error as Error).message}</p>}
             </motion.div>
           )}

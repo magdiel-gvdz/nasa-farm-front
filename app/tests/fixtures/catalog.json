@@ -1,0 +1,258 @@
+[
+  {
+    "id": "maiz",
+    "name": {
+      "es": "Maíz",
+      "en": "Maize"
+    },
+    "family": "poaceae",
+    "roles": [
+      "cash"
+    ],
+    "cycle_days": [
+      100,
+      150
+    ],
+    "temp_opt_c": [
+      18.0,
+      33.0
+    ],
+    "temp_abs_c": [
+      10.0,
+      40.0
+    ],
+    "frost_tolerant": false,
+    "heat_critical_c": 35.0,
+    "water_need_mm": [
+      500.0,
+      800.0
+    ],
+    "ph": [
+      5.5,
+      7.5
+    ],
+    "kc": {
+      "ini": 0.3,
+      "mid": 1.2,
+      "end": 0.6
+    },
+    "n_fixing": false,
+    "n_balance_kg_ha": -120.0,
+    "residue": "high",
+    "root_depth": "medium",
+    "equipment": [
+      "tractor",
+      "planter",
+      "combine"
+    ],
+    "margin_index": null,
+    "source_id": "fao_ecocrop",
+    "reviewed": false
+  },
+  {
+    "id": "frijol",
+    "name": {
+      "es": "Frijol",
+      "en": "Common bean"
+    },
+    "family": "fabaceae",
+    "roles": [
+      "cash",
+      "legume"
+    ],
+    "cycle_days": [
+      80,
+      110
+    ],
+    "temp_opt_c": [
+      16.0,
+      27.0
+    ],
+    "temp_abs_c": [
+      8.0,
+      35.0
+    ],
+    "frost_tolerant": false,
+    "heat_critical_c": 32.0,
+    "water_need_mm": [
+      300.0,
+      500.0
+    ],
+    "ph": [
+      5.5,
+      7.5
+    ],
+    "kc": {
+      "ini": 0.4,
+      "mid": 1.15,
+      "end": 0.35
+    },
+    "n_fixing": true,
+    "n_balance_kg_ha": 30.0,
+    "residue": "low",
+    "root_depth": "shallow",
+    "equipment": [
+      "tractor",
+      "planter",
+      "combine"
+    ],
+    "margin_index": null,
+    "source_id": "fao_ecocrop",
+    "reviewed": false
+  },
+  {
+    "id": "sorgo",
+    "name": {
+      "es": "Sorgo",
+      "en": "Sorghum"
+    },
+    "family": "poaceae",
+    "roles": [
+      "cash",
+      "forage",
+      "drought_tolerant"
+    ],
+    "cycle_days": [
+      100,
+      130
+    ],
+    "temp_opt_c": [
+      22.0,
+      35.0
+    ],
+    "temp_abs_c": [
+      12.0,
+      42.0
+    ],
+    "frost_tolerant": false,
+    "heat_critical_c": 38.0,
+    "water_need_mm": [
+      400.0,
+      650.0
+    ],
+    "ph": [
+      5.5,
+      8.5
+    ],
+    "kc": {
+      "ini": 0.3,
+      "mid": 1.05,
+      "end": 0.55
+    },
+    "n_fixing": false,
+    "n_balance_kg_ha": -90.0,
+    "residue": "high",
+    "root_depth": "deep",
+    "equipment": [
+      "tractor",
+      "planter",
+      "combine"
+    ],
+    "margin_index": null,
+    "source_id": "fao_ecocrop",
+    "reviewed": false
+  },
+  {
+    "id": "avena_forrajera",
+    "name": {
+      "es": "Avena forrajera",
+      "en": "Forage oat"
+    },
+    "family": "poaceae",
+    "roles": [
+      "forage",
+      "cover"
+    ],
+    "cycle_days": [
+      90,
+      130
+    ],
+    "temp_opt_c": [
+      12.0,
+      22.0
+    ],
+    "temp_abs_c": [
+      2.0,
+      32.0
+    ],
+    "frost_tolerant": true,
+    "heat_critical_c": 30.0,
+    "water_need_mm": [
+      350.0,
+      550.0
+    ],
+    "ph": [
+      5.5,
+      8.0
+    ],
+    "kc": {
+      "ini": 0.3,
+      "mid": 1.15,
+      "end": 0.25
+    },
+    "n_fixing": false,
+    "n_balance_kg_ha": -70.0,
+    "residue": "medium",
+    "root_depth": "medium",
+    "equipment": [
+      "tractor",
+      "seed_drill",
+      "forage_harvester",
+      "baler"
+    ],
+    "margin_index": null,
+    "source_id": "fao_ecocrop",
+    "reviewed": false
+  },
+  {
+    "id": "veza",
+    "name": {
+      "es": "Veza",
+      "en": "Vetch"
+    },
+    "family": "fabaceae",
+    "roles": [
+      "cover",
+      "legume",
+      "forage"
+    ],
+    "cycle_days": [
+      110,
+      160
+    ],
+    "temp_opt_c": [
+      10.0,
+      22.0
+    ],
+    "temp_abs_c": [
+      0.0,
+      30.0
+    ],
+    "frost_tolerant": true,
+    "heat_critical_c": 30.0,
+    "water_need_mm": [
+      300.0,
+      450.0
+    ],
+    "ph": [
+      6.0,
+      8.0
+    ],
+    "kc": {
+      "ini": 0.4,
+      "mid": 1.0,
+      "end": 0.35
+    },
+    "n_fixing": true,
+    "n_balance_kg_ha": 80.0,
+    "residue": "medium",
+    "root_depth": "medium",
+    "equipment": [
+      "tractor",
+      "seed_drill"
+    ],
+    "margin_index": null,
+    "source_id": "fao_ecocrop",
+    "reviewed": false
+  }
+]
