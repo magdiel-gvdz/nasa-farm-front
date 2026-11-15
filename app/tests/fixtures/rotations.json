@@ -1,0 +1,333 @@
+{
+  "scenario": {
+    "delta_t_c": 0.0,
+    "delta_p_pct": 0.0,
+    "daily_origin": null,
+    "not_recomputed": [],
+    "note": null
+  },
+  "strategies": [
+    {
+      "id": "current",
+      "name": "Maize – fallow",
+      "is_current": true,
+      "sequence": [
+        {
+          "year": 1,
+          "season": "spring_summer",
+          "crop_id": "maiz",
+          "role": "cash",
+          "plant": "05-01",
+          "harvest": "09-03"
+        },
+        {
+          "year": 1,
+          "season": "fall_winter",
+          "crop_id": null,
+          "role": "bare",
+          "plant": null,
+          "harvest": null
+        }
+      ],
+      "metrics": {
+        "water_demand_mm_per_year": 623.0,
+        "irrigation_need_mm_per_year": 527.0,
+        "n_balance_kg_ha_per_year": -120.0,
+        "om_trend": "stable",
+        "erosion_exposure_index": 0.71,
+        "bare_soil_days_per_year": 243.0,
+        "pest_break_score": 0.0,
+        "gross_margin_index": null
+      },
+      "scores": {
+        "save_water": 2.4,
+        "income": null,
+        "soil_health": 1.7,
+        "forage": 0.0,
+        "pest_break": 0.0,
+        "low_labor": 5.0,
+        "overall": 36.0
+      },
+      "why": [
+        "This is your current rotation: it is the baseline the alternatives are compared against."
+      ],
+      "evidence": [
+        {
+          "claim": "Water demand of 623 mm per year and irrigation need of 527 mm, with the evapotranspiration and median rain of your zone.",
+          "source_id": "nasa_power"
+        },
+        {
+          "claim": "The sequence leaves 243 bare-soil days per year; 71% of the heavy-rain risk of your zone falls in those ten-day periods.",
+          "source_id": "nasa_power"
+        },
+        {
+          "claim": "The estimated soil pH of your zone is 8.0.",
+          "source_id": "soilgrids"
+        }
+      ],
+      "benefits": [
+        "It needs no change in management, seed or equipment."
+      ],
+      "gaps": [
+        "The calculations use data for your zone (9 km cell), not measurements from your plot.",
+        "There is no laboratory soil analysis: nitrogen and organic matter are approximations.",
+        "There is no economic margin data for the crops: the income priority is left out of the score.",
+        "The requirements of some crops are initial values not yet reviewed by a specialist."
+      ],
+      "risks_local_review": [
+        "Pests, diseases, varieties and the local market cannot be seen from satellites: validate the rotation with a local agronomist or grower.",
+        "It needs 527 mm of irrigation per year and your limit is 400 mm: 127 mm are missing.",
+        "Maize planted in May is not fully suitable in your zone (score 62 out of 100)."
+      ],
+      "confidence": "medium"
+    },
+    {
+      "id": "legume",
+      "name": "Maize – fallow – Vetch – fallow",
+      "is_current": false,
+      "sequence": [
+        {
+          "year": 1,
+          "season": "spring_summer",
+          "crop_id": "maiz",
+          "role": "cash",
+          "plant": "05-01",
+          "harvest": "09-03"
+        },
+        {
+          "year": 1,
+          "season": "fall_winter",
+          "crop_id": null,
+          "role": "bare",
+          "plant": null,
+          "harvest": null
+        },
+        {
+          "year": 2,
+          "season": "spring_summer",
+          "crop_id": "veza",
+          "role": "legume",
+          "plant": "05-01",
+          "harvest": "09-13"
+        },
+        {
+          "year": 2,
+          "season": "fall_winter",
+          "crop_id": null,
+          "role": "bare",
+          "plant": null,
+          "harvest": null
+        }
+      ],
+      "metrics": {
+        "water_demand_mm_per_year": 570.0,
+        "irrigation_need_mm_per_year": 464.0,
+        "n_balance_kg_ha_per_year": -20.0,
+        "om_trend": "stable",
+        "erosion_exposure_index": 0.57,
+        "bare_soil_days_per_year": 238.0,
+        "pest_break_score": 5.0,
+        "gross_margin_index": null
+      },
+      "scores": {
+        "save_water": 2.7,
+        "income": null,
+        "soil_health": 2.5,
+        "forage": 2.5,
+        "pest_break": 5.0,
+        "low_labor": 5.0,
+        "overall": 71.0
+      },
+      "why": [
+        "Vetch is a legume that fixes nitrogen: the approximate balance goes from -120 to -20 kg N/ha per year.",
+        "Alternating botanical families breaks pest cycles: the break score goes from 0 to 5 out of 5."
+      ],
+      "evidence": [
+        {
+          "claim": "Water demand of 570 mm per year and irrigation need of 464 mm, with the evapotranspiration and median rain of your zone.",
+          "source_id": "nasa_power"
+        },
+        {
+          "claim": "The sequence leaves 238 bare-soil days per year; 57% of the heavy-rain risk of your zone falls in those ten-day periods.",
+          "source_id": "nasa_power"
+        },
+        {
+          "claim": "The estimated soil pH of your zone is 8.0.",
+          "source_id": "soilgrids"
+        }
+      ],
+      "benefits": [
+        "It needs 63 mm less irrigation per year than your current rotation.",
+        "It leaves about 100 kg N/ha more per year than your current rotation.",
+        "It cuts bare soil from 243 to 238 days per year.",
+        "It improves the pest-cycle break from 0 to 5 out of 5.",
+        "It adds forage production."
+      ],
+      "gaps": [
+        "The calculations use data for your zone (9 km cell), not measurements from your plot.",
+        "There is no laboratory soil analysis: nitrogen and organic matter are approximations.",
+        "There is no economic margin data for the crops: the income priority is left out of the score.",
+        "The requirements of some crops are initial values not yet reviewed by a specialist."
+      ],
+      "risks_local_review": [
+        "Pests, diseases, varieties and the local market cannot be seen from satellites: validate the rotation with a local agronomist or grower.",
+        "It needs 464 mm of irrigation per year and your limit is 400 mm: 64 mm are missing.",
+        "Maize planted in May is not fully suitable in your zone (score 62 out of 100)."
+      ],
+      "confidence": "medium"
+    },
+    {
+      "id": "drought",
+      "name": "Sorghum – fallow",
+      "is_current": false,
+      "sequence": [
+        {
+          "year": 1,
+          "season": "spring_summer",
+          "crop_id": "sorgo",
+          "role": "drought_tolerant",
+          "plant": "05-01",
+          "harvest": "08-24"
+        },
+        {
+          "year": 1,
+          "season": "fall_winter",
+          "crop_id": null,
+          "role": "bare",
+          "plant": null,
+          "harvest": null
+        }
+      ],
+      "metrics": {
+        "water_demand_mm_per_year": 525.0,
+        "irrigation_need_mm_per_year": 441.0,
+        "n_balance_kg_ha_per_year": -90.0,
+        "om_trend": "stable",
+        "erosion_exposure_index": 0.71,
+        "bare_soil_days_per_year": 253.0,
+        "pest_break_score": 0.0,
+        "gross_margin_index": null
+      },
+      "scores": {
+        "save_water": 2.8,
+        "income": null,
+        "soil_health": 1.9,
+        "forage": 5.0,
+        "pest_break": 0.0,
+        "low_labor": 5.0,
+        "overall": 59.0
+      },
+      "why": [
+        "Sorghum is drought tolerant and replaces Maize: the estimated irrigation need goes from 527 to 441 mm per year."
+      ],
+      "evidence": [
+        {
+          "claim": "Water demand of 525 mm per year and irrigation need of 441 mm, with the evapotranspiration and median rain of your zone.",
+          "source_id": "nasa_power"
+        },
+        {
+          "claim": "The sequence leaves 253 bare-soil days per year; 71% of the heavy-rain risk of your zone falls in those ten-day periods.",
+          "source_id": "nasa_power"
+        },
+        {
+          "claim": "The estimated soil pH of your zone is 8.0.",
+          "source_id": "soilgrids"
+        }
+      ],
+      "benefits": [
+        "It needs 86 mm less irrigation per year than your current rotation.",
+        "It leaves about 30 kg N/ha more per year than your current rotation.",
+        "It adds forage production."
+      ],
+      "gaps": [
+        "The calculations use data for your zone (9 km cell), not measurements from your plot.",
+        "There is no laboratory soil analysis: nitrogen and organic matter are approximations.",
+        "There is no economic margin data for the crops: the income priority is left out of the score.",
+        "The requirements of some crops are initial values not yet reviewed by a specialist."
+      ],
+      "risks_local_review": [
+        "Pests, diseases, varieties and the local market cannot be seen from satellites: validate the rotation with a local agronomist or grower.",
+        "It needs 441 mm of irrigation per year and your limit is 400 mm: 41 mm are missing."
+      ],
+      "confidence": "medium"
+    },
+    {
+      "id": "cover",
+      "name": "Maize – Forage oat",
+      "is_current": false,
+      "sequence": [
+        {
+          "year": 1,
+          "season": "spring_summer",
+          "crop_id": "maiz",
+          "role": "cash",
+          "plant": "05-01",
+          "harvest": "09-03"
+        },
+        {
+          "year": 1,
+          "season": "fall_winter",
+          "crop_id": "avena_forrajera",
+          "role": "cover",
+          "plant": "10-01",
+          "harvest": "01-19"
+        }
+      ],
+      "metrics": {
+        "water_demand_mm_per_year": 876.0,
+        "irrigation_need_mm_per_year": 768.0,
+        "n_balance_kg_ha_per_year": -190.0,
+        "om_trend": "improving",
+        "erosion_exposure_index": 0.43,
+        "bare_soil_days_per_year": 132.0,
+        "pest_break_score": 0.0,
+        "gross_margin_index": null
+      },
+      "scores": {
+        "save_water": 1.2,
+        "income": null,
+        "soil_health": 2.8,
+        "forage": 5.0,
+        "pest_break": 0.0,
+        "low_labor": 2.5,
+        "overall": 46.0
+      },
+      "why": [
+        "Forage oat covers the soil in the season that is now fallow: bare-soil days drop from 243 to 132 per year."
+      ],
+      "evidence": [
+        {
+          "claim": "Water demand of 876 mm per year and irrigation need of 768 mm, with the evapotranspiration and median rain of your zone.",
+          "source_id": "nasa_power"
+        },
+        {
+          "claim": "The sequence leaves 132 bare-soil days per year; 43% of the heavy-rain risk of your zone falls in those ten-day periods.",
+          "source_id": "nasa_power"
+        },
+        {
+          "claim": "The estimated soil pH of your zone is 8.0.",
+          "source_id": "soilgrids"
+        }
+      ],
+      "benefits": [
+        "It cuts bare soil from 243 to 132 days per year.",
+        "It adds forage production.",
+        "More cover and residue: organic matter tends to improve."
+      ],
+      "gaps": [
+        "The calculations use data for your zone (9 km cell), not measurements from your plot.",
+        "There is no laboratory soil analysis: nitrogen and organic matter are approximations.",
+        "There is no economic margin data for the crops: the income priority is left out of the score.",
+        "The requirements of some crops are initial values not yet reviewed by a specialist."
+      ],
+      "risks_local_review": [
+        "Pests, diseases, varieties and the local market cannot be seen from satellites: validate the rotation with a local agronomist or grower.",
+        "It needs 768 mm of irrigation per year and your limit is 400 mm: 368 mm are missing.",
+        "Maize planted in May is not fully suitable in your zone (score 62 out of 100)."
+      ],
+      "confidence": "medium"
+    }
+  ],
+  "recommended_id": "legume",
+  "disclaimer": "Decision-support tool: it describes your zone (9 km cell) with historical data and does not replace the judgment of a local agronomist or grower."
+}

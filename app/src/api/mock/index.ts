@@ -3,13 +3,13 @@
 // para aptitud, rotaciones, invernadero, agua y rendimiento.
 
 import type { Api } from '../client'
-import type { ClimateProfile, Field, FieldInput, FieldProfile, ProfileStep, Scenario, SoilLab } from '../types'
+import type { ClimateProfile, Field, FieldInput, FieldProfile, ProfileStep, Scenario, SoilLab } from './types'
 import { areaHa, centroid, reverseGeocode } from '@/lib/geo'
 import { mockChat } from './chat'
 import { DEMO_BY_ID, DEMOS } from './demos'
 import { buildClimateModel } from './engine/agro'
 import { CROP_BY_ID, CROPS } from './engine/crops'
-import { buildProfile, greenhouseReport, predictYield, waterQualityReport } from './engine/profile'
+import { SOURCES, buildProfile, greenhouseReport, predictYield, waterQualityReport } from './engine/profile'
 import { compareRotations } from './engine/rotations'
 import { evaluateCrop, type SuitContext, suitabilityMatrix } from './engine/suitability'
 import { fetchFuture } from './future'
@@ -108,6 +108,7 @@ export function createMockApi(): Api {
 
   return {
     mode: 'demo',
+    getSources: async () => Object.values(SOURCES),
 
     async listFields() {
       await delay()
@@ -202,12 +203,6 @@ export function createMockApi(): Api {
       })
       if (j.error) throw new Error(`Could not download NASA POWER weather: ${j.error}`)
       return { status: 'processing', steps }
-    },
-
-    async refreshProfile(id) {
-      jobs.delete(id)
-      const f = await field(id)
-      startJob(f)
     },
 
     async getCrops() {

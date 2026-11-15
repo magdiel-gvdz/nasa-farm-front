@@ -1,7 +1,7 @@
 import { AnimatePresence, motion } from 'motion/react'
 import { FileText, FlaskConical, Info, Loader2, Pencil, Trash2, Upload } from 'lucide-react'
 import { useRef, useState } from 'react'
-import { isDemoMode } from '@/api/client'
+import { capabilities, isDemoMode } from '@/api/client'
 import type { Field, FieldProfile, SoilLab, SoilReportExtraction } from '@/api/types'
 import { Button } from '@/components/ui/button'
 import { Card, CardHeader } from '@/components/ui/card'
@@ -13,8 +13,12 @@ import { hasLabValues, interpret, LAB_PARAMS, type LabKey } from '@/lib/soil-lab
 
 const ACCEPT = 'application/pdf,image/jpeg,image/png,image/heic,image/webp'
 
-export function SoilTab({ field, profile }: { field: Field; profile: FieldProfile }) {
-  const lab = profile.soil.lab
+export function SoilTab(props: { field: Field; profile: FieldProfile }) {
+  return capabilities.manualSoilLab ? <DemoSoilTab {...props} /> : <LiveSoilTab {...props} />
+}
+
+function DemoSoilTab({ field, profile }: { field: Field; profile: FieldProfile }) {
+  const lab = profile.soil?.lab ?? null
   const [draft, setDraft] = useState<{ lab: SoilLab; extraction?: SoilReportExtraction } | null>(null)
   const extract = useExtractSoilReport(field.id)
   const save = useSaveSoilLab(field.id)
@@ -211,13 +215,13 @@ function LabForm({ initial, extraction, saving, onSave, onCancel }: { initial: S
 }
 
 function Interpretation({ profile, lab }: { profile: FieldProfile; lab: SoilLab | null }) {
-  const est = profile.soil.layers[0]
+  const est = profile.soil?.layers[0]
   const estimated: Partial<Record<LabKey, number | null>> = { om_pct: est?.om_pct, ph: est?.ph, cec_cmol_kg: est?.cec_cmol_kg }
   const estSource = profile.sources.some((s) => s.id === 'ssurgo') ? 'USDA SSURGO' : 'SoilGrids'
   const withLab = hasLabValues(lab)
   return (
     <Card>
-      <CardHeader title="How is your soil?" subtitle={`${profile.soil.texture_class} · ${withLab ? 'according to your analysis' : `estimated with ${estSource}`}`} />
+      <CardHeader title="How is your soil?" subtitle={`${profile.soil?.texture_class ?? 'Texture unavailable'} · ${withLab ? 'according to your analysis' : `estimated with ${estSource}`}`} />
       <ul className="divide-y divide-line">
         {LAB_PARAMS.map((p) => {
           const fromLab = lab?.[p.key]
@@ -245,4 +249,37 @@ function Interpretation({ profile, lab }: { profile: FieldProfile; lab: SoilLab 
       <p className="mt-4 text-xs text-muted">General ranges for 0–30 cm. Your agronomist adjusts them according to the crop and the laboratory method.</p>
     </Card>
   )
+}
+
+function LiveSoilTab({ field, profile }: { field: Field; profile: FieldProfile }) {
+  const upload = useExtractSoilReport(field.id)
+  const input = useRef<HTMLInputElement>(null)
+  const lab = profile.soil?.lab ?? null
+  return <div className="grid gap-4 lg:grid-cols-2">
+    <div className="space-y-4">
+      <Card>
+        <CardHeader title="Laboratory soil report" subtitle={lab ? [lab.lab_name, lab.sample_date, lab.depth_label].filter(Boolean).join(' / ') : 'Upload your soil report to improve the zonal assessment.'} />
+        <p className="mb-4 text-sm text-ink-2">PDF, JPG or PNG, up to 10 MB. Accepted values are saved immediately. The crop assessment uses laboratory pH when available.</p>
+        <p className="mb-4 text-xs text-muted">Remove names, addresses and tax identifiers before uploading.</p>
+        <input ref={input} type="file" accept="application/pdf,image/jpeg,image/png" className="hidden" aria-label="Soil report file" onChange={async (e) => {
+          const file = e.target.files?.[0]
+          if (!file) return
+          try { await upload.mutateAsync(file) } catch { /* Mutation error shown below. */ }
+          e.target.value = ''
+        }} />
+        <Button disabled={upload.isPending} onClick={() => input.current?.click()}><Upload className="h-4 w-4" />{upload.isPending ? 'Reading report...' : lab ? 'Upload replacement report' : 'Upload soil report'}</Button>
+        {upload.isError && <p role="alert" className="mt-3 text-sm text-bad">{upload.error.message}</p>}
+        {upload.data && <div role="status" className="mt-4 text-sm">
+          <p>{upload.data.applied ? 'Accepted values were saved and the assessment was updated.' : 'No usable values were found. The previous analysis was kept.'}</p>
+          {!!upload.data.unreadable_reasons?.length && <details className="mt-3"><summary className="cursor-pointer">Values not read or outside the accepted range</summary><ul className="mt-2 space-y-1 text-xs text-muted">{upload.data.unreadable_reasons.map((v) => <li key={v.field}>{v.field}: {v.reason}</li>)}</ul></details>}
+        </div>}
+      </Card>
+      <Card><CardHeader title="Model uncertainty" /><p className="text-sm text-ink-2">SoilGrids describes the analysis zone. Its uncertainty range belongs to the model; it does not measure variation within your field.</p></Card>
+    </div>
+    <div className="space-y-4"><Interpretation profile={profile} lab={lab} />
+      {profile.soil?.layers.map((layer, i) => <Card key={i}><CardHeader title={`Soil depth ${layer.depth_cm.join('-')} cm`} subtitle="SoilGrids model uncertainty (P05-P95)" />
+        <dl className="space-y-2 text-xs">{Object.entries(layer.uncertainty ?? {}).map(([name, range]) => <div key={name} className="flex justify-between gap-2"><dt>{name}</dt><dd>{num(range.p05, 2)} - {num(range.p95, 2)}</dd></div>)}</dl>
+      </Card>)}
+    </div>
+  </div>
 }

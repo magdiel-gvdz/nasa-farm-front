@@ -12,7 +12,7 @@
 //   gh      común en invernadero                         agro  [rend. t/ha, valor 0–1, residuo, factor C, forraje 0–1, N kg/ha, mano de obra 0–1]
 //   per     perennes: horas frío [bajo req., tradicional], mes sensible a helada, años a 1.ª cosecha, meses de cosecha, meses para plantar
 
-import type { Crop, CropCategory, CropRole } from '../../types.ts'
+import type { Crop, CropCategory, CropRole } from '../types.ts'
 
 interface R {
   id: string

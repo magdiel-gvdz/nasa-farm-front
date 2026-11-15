@@ -3,9 +3,9 @@ import { AnimatePresence, motion } from 'motion/react'
 import { ArrowLeft, ArrowRight, CloudRain, Layers, Loader2, MessageCircle, Plus, Snowflake, Sun, Wind } from 'lucide-react'
 import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react'
 import { Link, useSearchParams } from 'react-router'
-import { NO_SCENARIO } from '@/api/client'
+import { isDemoMode, NO_SCENARIO } from '@/api/client'
 import type { Field, FieldKind, FieldProfile } from '@/api/types'
-import { CROP_BY_ID } from '@/api/mock/engine/crops'
+
 import { ChatLauncher } from '@/components/chat/chat-sheet'
 import { useChat } from '@/components/chat/chat-store'
 import { FieldShape } from '@/components/map/field-mini-map'
@@ -13,7 +13,7 @@ import { type Basemap, drawFieldCollection, fitAll, useMap } from '@/components/
 import { Button } from '@/components/ui/button'
 import { Segmented } from '@/components/ui/segmented'
 import { StatusPill } from '@/components/ui/status'
-import { isReady, useFields, useProfile, useSuitabilityMatrix } from '@/hooks/api'
+import { isReady, useCrops, useFields, useProfile, useSuitabilityMatrix } from '@/hooks/api'
 import { cn } from '@/lib/cn'
 import { dateLong, monthName, num } from '@/lib/format'
 import { KIND } from '@/lib/kinds'
@@ -184,10 +184,10 @@ export function MapPage() {
                 ))}
                 {!isLoading && visible.length === 0 && <li className="rounded-2xl bg-surface-2 p-4 text-sm text-ink-2">No fields match this filter.</li>}
               </ul>
-              <label className="flex cursor-pointer items-center gap-2 text-sm text-ink-2">
+              {isDemoMode && <label className="flex cursor-pointer items-center gap-2 text-sm text-ink-2">
                 <input type="checkbox" checked={showDemos} onChange={(e) => setShowDemos(e.target.checked)} className="h-4 w-4 accent-[var(--accent)]" />
                 Show examples
-              </label>
+              </label>}
             </motion.div>
           )}
         </AnimatePresence>
@@ -218,6 +218,8 @@ function Stat({ icon, label, value, children }: { icon: ReactNode; label: string
 }
 
 function FieldDetail({ field, onBack }: { field: Field; onBack: () => void }) {
+  const catalog = useCrops()
+  const CROP_BY_ID = useMemo(() => new Map((catalog.data ?? []).map((c) => [c.id, c])), [catalog.data])
   const profile = useProfile(field.id)
   const p = profile.data
   const ready = isReady(p)
@@ -271,6 +273,8 @@ function FieldDetail({ field, onBack }: { field: Field; onBack: () => void }) {
 }
 
 function QuickFacts({ field, profile }: { field: Field; profile: FieldProfile }) {
+  const catalog = useCrops()
+  const CROP_BY_ID = useMemo(() => new Map((catalog.data ?? []).map((c) => [c.id, c])), [catalog.data])
   const c = profile.climate
   const month = new Date().getMonth() + 1
   const matrix = useSuitabilityMatrix(field.id, NO_SCENARIO, true)
@@ -283,17 +287,17 @@ function QuickFacts({ field, profile }: { field: Field; profile: FieldProfile })
       .map((c) => ({ id: c.crop_id, score: c.scores[i], status: c.status[i] }))
       .sort((a, b) => b.score - a.score)
       .slice(0, 3)
-  }, [matrix.data, month])
+  }, [matrix.data, month, CROP_BY_ID])
   const frostFree = (c.frost.share_years_without_frost ?? 0) >= 0.9
   const hot = c.heat.by_month[c.heat.hottest_month - 1]
-  const gust10 = c.wind.return_levels_kmh[0]?.estimated_gust_kmh ?? null
+  const gust10 = c.wind?.return_levels_kmh[0]?.estimated_gust_kmh ?? null
   const rated = field.greenhouse?.rated_wind_kmh ?? null
-  const om = profile.soil.lab?.om_pct ?? profile.soil.layers[0]?.om_pct
+  const om = profile.soil?.lab?.om_pct ?? profile.soil?.layers[0]?.om_pct
 
   return (
     <div className="space-y-3">
       <div className="grid grid-cols-2 gap-2">
-        <Stat icon={<Snowflake className="h-3.5 w-3.5" />} label="Frost-safe planting from" value={frostFree ? 'All year round' : dateLong(c.frost.last_spring_frost.p90?.date)} />
+        <Stat icon={<Snowflake className="h-3.5 w-3.5" />} label="Frost-safe planting from" value={frostFree ? 'All year round' : dateLong(c.frost.last_spring_frost?.p90?.date)} />
         <Stat icon={<CloudRain className="h-3.5 w-3.5" />} label="Rainfall per year" value={`${num(c.rain.annual_mean_mm)} mm`} />
         <Stat icon={<Sun className="h-3.5 w-3.5" />} label="Hottest month" value={<span className="capitalize">{monthName(c.heat.hottest_month)} · {num(hot.mean_tmax_c)} °C</span>} />
         {field.kind === 'greenhouse' ? (
@@ -302,7 +306,7 @@ function QuickFacts({ field, profile }: { field: Field; profile: FieldProfile })
           </Stat>
         ) : (
           <Stat icon={<Layers className="h-3.5 w-3.5" />} label="Organic matter" value={`${num(om, 1)} %`}>
-            <span className="mt-0.5 block text-[11px] text-muted">{profile.soil.lab ? 'From your analysis' : 'Estimated'}</span>
+            <span className="mt-0.5 block text-[11px] text-muted">{profile.soil?.lab ? 'From your analysis' : 'Estimated'}</span>
           </Stat>
         )}
       </div>

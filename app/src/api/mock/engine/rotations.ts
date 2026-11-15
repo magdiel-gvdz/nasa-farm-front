@@ -1,7 +1,7 @@
 // Motor de rotaciones (§7.3): candidatos + simulación simple de 3–5 años +
 // puntaje según prioridades del agricultor + textos explicativos.
 
-import type { CropRole, Field, FieldProfile, Priorities, RotationRequest, RotationResponse, Season, Strategy, StrategyStep } from '../../types.ts'
+import type { CropRole, Field, FieldProfile, Priorities, RotationRequest, RotationResponse, Season, Strategy, StrategyStep } from '../types.ts'
 import { cycleDemand, doyToLabel, MID_DOY } from './agro.ts'
 import { AGRO, CROP_BY_ID } from './crops.ts'
 import { evaluateCrop, type SuitContext } from './suitability.ts'

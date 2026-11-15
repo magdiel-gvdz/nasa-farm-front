@@ -3,10 +3,10 @@
 // marcadas como tales en `gaps` hasta que el backend las traiga de
 // SoilGrids / SRTM / SMAP / MODIS / GRACE.
 
-import type { ClimateProfile, Field, FieldProfile, GreenhouseReport, Source, WaterQualityReport, YieldPrediction } from '../../types.ts'
+import type { ClimateProfile, Field, FieldProfile, GreenhouseReport, Source, WaterQualityReport, YieldPrediction } from '../types.ts'
 import { buildClimateModel, cycleMonths, et0Hargreaves, MID_DOY } from './agro.ts'
 import { AGRO, CROP_BY_ID } from './crops.ts'
-import type { SuitabilityDetail } from '../../types.ts'
+import type { SuitabilityDetail } from '../types.ts'
 
 export const SOURCES: Record<string, Source> = {
   nasa_power: { id: 'nasa_power', dataset: 'NASA POWER Daily (AG)', provider: 'NASA Langley', resolution: '0.5° × 0.625° (~50 km)', url: 'https://power.larc.nasa.gov/' },

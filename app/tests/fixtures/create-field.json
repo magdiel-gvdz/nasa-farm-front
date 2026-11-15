@@ -1,0 +1,62 @@
+{
+  "id": "fld_test",
+  "name": "Frontend integration validation",
+  "kind": "field",
+  "geometry": {
+    "type": "Polygon",
+    "coordinates": [
+      [
+        [
+          -101.02,
+          25.41
+        ],
+        [
+          -101.0,
+          25.41
+        ],
+        [
+          -101.0,
+          25.43
+        ],
+        [
+          -101.02,
+          25.43
+        ],
+        [
+          -101.02,
+          25.41
+        ]
+      ]
+    ]
+  },
+  "current_rotation": [
+    {
+      "year": 1,
+      "season": "spring_summer",
+      "crop_id": "maiz"
+    }
+  ],
+  "irrigation": {
+    "available": true,
+    "source": null,
+    "max_mm_per_year": 400.0
+  },
+  "livestock": null,
+  "greenhouse": null,
+  "area_ha": 445.7941,
+  "centroid": [
+    -101.01,
+    25.42
+  ],
+  "cell_id": "E9_r0463_c0846",
+  "zone_id": "coah-sureste",
+  "cell_assignment": "centroid",
+  "country": "MX",
+  "admin": {
+    "state": "Coahuila",
+    "municipality": null
+  },
+  "created_at": "2026-11-15T00:00:00Z",
+  "profile_status": "ready",
+  "soil_lab": null
+}

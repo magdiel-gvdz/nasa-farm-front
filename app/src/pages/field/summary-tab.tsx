@@ -1,5 +1,6 @@
 import { motion } from 'motion/react'
 import { ArrowRight, CloudRain, Database, Droplets, Layers, Shovel, Snowflake, Sun, Telescope, Wind, type LucideIcon } from 'lucide-react'
+import { capabilities } from '@/api/client'
 import type { ReactNode } from 'react'
 import type { Field, FieldProfile, Level, Scenario } from '@/api/types'
 import { FieldMiniMap } from '@/components/map/field-mini-map'
@@ -38,12 +39,12 @@ function insights(field: Field, p: FieldProfile): Insight[] {
   const c = p.climate
   const out: Insight[] = []
   const frostFree = (c.frost.share_years_without_frost ?? 0) >= 0.9
-  if (!frostFree && c.frost.last_spring_frost.p90) {
+  if (!frostFree && c.frost.last_spring_frost?.p90) {
     out.push({
       level: 'warn',
       text: (
         <>
-          Plant cold-sensitive crops <b>after {dateLong(c.frost.last_spring_frost.p90.date)}</b>. Before, 1 in 10 years it still freezes.
+          Plant cold-sensitive crops <b>after {dateLong(c.frost.last_spring_frost?.p90.date)}</b>. Before, 1 in 10 years it still freezes.
         </>
       ),
       tab: 'calendario',
@@ -52,7 +53,7 @@ function insights(field: Field, p: FieldProfile): Insight[] {
   }
   const total = c.rain.by_month.reduce((a, b) => a + (b.mean_mm ?? 0), 0)
   const rainy = c.rain.by_month.filter((b) => c.rain.rainy_months.includes(b.month)).reduce((a, b) => a + (b.mean_mm ?? 0), 0)
-  if (c.rain.rainy_months.length) {
+  if (c.rain.rainy_months.length && total > 0) {
     out.push({
       level: total < 500 ? 'warn' : 'ok',
       text: (
@@ -64,12 +65,12 @@ function insights(field: Field, p: FieldProfile): Insight[] {
       cta: 'See water',
     })
   }
-  if (p.vegetation.bare_soil_months.length >= 3 && field.kind !== 'greenhouse') {
+  if ((p.vegetation?.bare_soil_months.length ?? 0) >= 3 && field.kind !== 'greenhouse') {
     out.push({
       level: 'warn',
       text: (
         <>
-          Your field is <b>uncovered {p.vegetation.bare_soil_months.length} months</b> ({monthRange(p.vegetation.bare_soil_months)}). It's a good window for a cover crop to protect the soil.
+          Your field is <b>uncovered {p.vegetation!.bare_soil_months.length} months</b> ({monthRange(p.vegetation!.bare_soil_months)}). It's a good window for a cover crop to protect the soil.
         </>
       ),
       tab: 'rotaciones',
@@ -89,7 +90,7 @@ function insights(field: Field, p: FieldProfile): Insight[] {
       cta: 'See crops',
     })
   }
-  if (p.water.groundwater.trend_cm_per_year < -0.5) {
+  if (p.water.groundwater && p.water.groundwater.trend_cm_per_year < -0.5) {
     out.push({
       level: 'bad',
       text: (
@@ -149,9 +150,9 @@ function FutureCard({ field, onUse }: { field: Field; onUse: (s: Scenario) => vo
 
 export function SummaryTab({ field, profile, onNavigate, onScenario }: { field: Field; profile: FieldProfile; onNavigate: (t: TabId) => void; onScenario: (s: Scenario) => void }) {
   const c = profile.climate
-  const soil = profile.soil.layers[0]
-  const om = profile.soil.lab?.om_pct ?? soil.om_pct ?? 0
-  const gw = profile.water.groundwater.trend_cm_per_year
+  const soil = profile.soil?.layers[0]
+  const om = profile.soil?.lab?.om_pct ?? soil?.om_pct ?? null
+  const gw = profile.water.groundwater?.trend_cm_per_year ?? null
   const hot = c.heat.by_month[c.heat.hottest_month - 1]
   const frostFree = (c.frost.share_years_without_frost ?? 0) >= 0.9
   const items = insights(field, profile)
@@ -166,8 +167,8 @@ export function SummaryTab({ field, profile, onNavigate, onScenario }: { field: 
         <Kpi
           icon={Snowflake}
           label="Frost-safe planting from"
-          value={frostFree ? 'All year round' : dateLong(c.frost.last_spring_frost.p90?.date)}
-          sub={frostFree ? 'It almost never freezes here' : <>Typical last frost: {dateLong(c.frost.last_spring_frost.p50?.date)}</>}
+          value={frostFree ? 'All year round' : dateLong(c.frost.last_spring_frost?.p90?.date)}
+          sub={frostFree ? 'It almost never freezes here' : <>Typical last frost: {dateLong(c.frost.last_spring_frost?.p50?.date)}</>}
         />
         <Kpi
           icon={CloudRain}
@@ -196,11 +197,11 @@ export function SummaryTab({ field, profile, onNavigate, onScenario }: { field: 
             label="10-year wind gust"
             value={
               <>
-                <AnimatedNumber value={c.wind.return_levels_kmh[0]?.estimated_gust_kmh ?? 0} /> <span className="text-lg font-medium text-ink-2">km/h</span>
+                {c.wind ? <AnimatedNumber value={c.wind.return_levels_kmh[0]?.estimated_gust_kmh ?? 0} /> : '—'} <span className="text-lg font-medium text-ink-2">km/h</span>
               </>
             }
-            sub={<>More wind in {monthName(c.wind.windiest_month)}</>}
-            status={field.greenhouse?.rated_wind_kmh && field.greenhouse.rated_wind_kmh < (c.wind.return_levels_kmh[0]?.estimated_gust_kmh ?? 0) ? { level: 'bad', label: 'Exceeds structure rating' } : undefined}
+            sub={c.wind ? <>More wind in {monthName(c.wind.windiest_month)}</> : 'No wind data available'}
+            status={field.greenhouse?.rated_wind_kmh && field.greenhouse.rated_wind_kmh < (c.wind?.return_levels_kmh[0]?.estimated_gust_kmh ?? 0) ? { level: 'bad', label: 'Exceeds structure rating' } : undefined}
           />
         ) : (
           <Kpi
@@ -208,17 +209,17 @@ export function SummaryTab({ field, profile, onNavigate, onScenario }: { field: 
             label="Groundwater"
             value={
               <>
-                <AnimatedNumber value={gw} digits={1} /> <span className="text-lg font-medium text-ink-2">cm/year</span>
+                {gw == null ? '—' : <AnimatedNumber value={gw} digits={1} />} <span className="text-lg font-medium text-ink-2">cm/year</span>
               </>
             }
-            sub="Regional trend since 2002 (GRACE-FO)"
-            status={gw < -1 ? { level: 'bad', label: 'Declining rapidly' } : gw < 0 ? { level: 'warn', label: 'Declining' } : { level: 'ok', label: 'Stable' }}
+            sub={gw == null ? 'No groundwater source available' : 'Regional groundwater trend'}
+            status={gw == null ? undefined : gw < -1 ? { level: 'bad', label: 'Declining rapidly' } : gw < 0 ? { level: 'warn', label: 'Declining' } : { level: 'ok', label: 'Stable' }}
           />
         )}
       </div>
 
       <Card className="lg:col-span-2">
-        <CardHeader title="Key insights" subtitle="What 35 years of data say about your land." />
+        <CardHeader title="Key insights" subtitle={`Zonal climate record: ${c.years[0]}?${c.years[1]}.`} />
         <ul className="divide-y divide-line">
           {items.map((it, i) => (
             <motion.li key={i} initial={{ opacity: 0, x: -6 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.15 + i * 0.07 }} className="flex items-start gap-3 py-3 first:pt-0 last:pb-0">
@@ -238,16 +239,16 @@ export function SummaryTab({ field, profile, onNavigate, onScenario }: { field: 
       <Card>
         <CardHeader
           title="Your soil"
-          subtitle={profile.soil.texture_class}
+          subtitle={profile.soil?.texture_class ?? 'No soil data available'}
           icon={<Layers className="h-4 w-4" />}
-          action={<StatusPill level={om < 1.5 ? 'bad' : om < 3 ? 'warn' : 'ok'} label={om < 1.5 ? 'Low OM' : om < 3 ? 'Moderate OM' : 'Good OM'} />}
+          action={om == null ? undefined : <StatusPill level={om < 1.5 ? 'bad' : om < 3 ? 'warn' : 'ok'} label={om < 1.5 ? 'Low OM' : om < 3 ? 'Moderate OM' : 'Good OM'} />}
         />
         <dl className="grid grid-cols-2 gap-3">
           {[
             ['Organic matter', `${num(om, 1)} %`],
-            ['pH', num(profile.soil.lab?.ph ?? soil.ph, 1)],
-            ['Total Nitrogen', `${num(soil.n_total_g_kg, 2)} g/kg`],
-            ['Clay/sand', `${num(soil.clay_pct)} / ${num(soil.sand_pct)} %`],
+            ['pH', num(profile.soil?.lab?.ph ?? soil?.ph, 1)],
+            ['Total Nitrogen', `${num(soil?.n_total_g_kg, 2)} g/kg`],
+            ['Clay/sand', `${num(soil?.clay_pct)} / ${num(soil?.sand_pct)} %`],
           ].map(([k, v]) => (
             <div key={k} className="rounded-xl bg-surface-2 p-3">
               <dt className="text-xs text-muted">{k}</dt>
@@ -255,10 +256,10 @@ export function SummaryTab({ field, profile, onNavigate, onScenario }: { field: 
             </div>
           ))}
         </dl>
-        {profile.soil.lab ? (
+        {profile.soil?.lab ? (
           <p className="mt-3 flex items-start gap-2 text-xs text-muted">
             <Shovel className="mt-0.5 h-3.5 w-3.5 shrink-0" />
-            With your laboratory analysis{profile.soil.lab.sample_date ? ` (${profile.soil.lab.sample_date})` : ''}.
+            With your laboratory analysis{profile.soil?.lab.sample_date ? ` (${profile.soil?.lab.sample_date})` : ''}.
           </p>
         ) : (
           <button onClick={() => onNavigate('suelo')} className="no-print mt-3 flex w-full cursor-pointer items-center gap-2 rounded-xl border border-dashed border-line-strong p-3 text-left text-sm text-ink-2 hover:border-accent hover:text-ink">
@@ -269,20 +270,20 @@ export function SummaryTab({ field, profile, onNavigate, onScenario }: { field: 
         )}
       </Card>
 
-      <FutureCard
+      {capabilities.futureClimate && <FutureCard
         field={field}
         onUse={(sc) => {
           onScenario(sc)
           onNavigate('sembrar')
         }}
-      />
+      />}
 
       <Card>
         <CardHeader title="Sources" icon={<Database className="h-4 w-4" />} />
         <div className="flex flex-wrap gap-1.5">
           {profile.sources.map((s) => (
-            <a key={s.id} href={s.url} target="_blank" rel="noreferrer" title={`${s.provider} · ${s.resolution}${s.period ? ` · ${s.period}` : ''}`}>
-              <Chip className="hover:text-ink">{s.dataset}</Chip>
+            <a key={s.id} href={s.url} target="_blank" rel="noreferrer" title={`${s.data_class ?? 'demo'} / ${s.license ?? ''} / ${s.provider} · ${s.resolution}${s.period ? ` · ${s.period}` : ''}`}>
+              <Chip className="hover:text-ink">{s.dataset}{s.data_class ? ` (${s.data_class})` : ''}</Chip>
             </a>
           ))}
         </div>

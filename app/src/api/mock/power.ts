@@ -1,4 +1,4 @@
-import type { ClimateProfile } from '../types'
+import type { ClimateProfile } from './types'
 import { parsePower, summarizeClimate } from './engine/climate'
 import { POWER_PARAMS, POWER_URL } from './power-params'
 

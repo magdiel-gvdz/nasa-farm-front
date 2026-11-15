@@ -1,96 +1,117 @@
-// Cliente del backend real (contrato en docs/backend-handoff.md §6).
-
 import type { Api } from './client'
-import type { ChatEvent, Scenario } from './types'
+import type { BackendSchemas as B } from './backend'
+import type { ChatEvent, ConversationHistory, Scenario } from './types'
+import { cropFromBackend, fieldFromBackend, greenhouseFromBackend, profileFromBackend, soilReportFromBackend, sourceFromBackend } from './adapters'
+import { ApiError, responseError } from './errors'
 import { clientId } from '@/lib/client-id'
 
-class ApiError extends Error {
-  status: number
-  code: string
-  constructor(status: number, code: string, message: string) {
-    super(message)
-    this.status = status
-    this.code = code
+export async function readChatStream(body: ReadableStream<Uint8Array>, onEvent: (event: ChatEvent) => void) {
+  const reader = body.getReader()
+  const decoder = new TextDecoder()
+  let buffer = ''
+  let ended = false
+  function dispatch(chunk: string) {
+    const lines = chunk.split(/\r?\n/)
+    const event = lines.find((line) => line.startsWith('event:'))?.slice(6).trim()
+    const data = lines.filter((line) => line.startsWith('data:')).map((line) => line.slice(5).trimStart()).join('\n')
+    if (!event || !data) return
+    const payload = JSON.parse(data)
+    if (event === 'card') onEvent({ type: 'card', card: payload.type, payload: payload.payload })
+    else onEvent({ ...payload, type: event } as ChatEvent)
+    ended ||= event === 'done' || event === 'error'
+  }
+  try {
+    while (!ended) {
+      const { value, done } = await reader.read()
+      buffer += done ? decoder.decode() : decoder.decode(value, { stream: true })
+      let match: RegExpExecArray | null
+      while ((match = /\r?\n\r?\n/.exec(buffer))) {
+        dispatch(buffer.slice(0, match.index))
+        buffer = buffer.slice(match.index + match[0].length)
+        if (ended) break
+      }
+      if (done) { if (buffer.trim() && !ended) dispatch(buffer); break }
+    }
+    if (!ended) throw new ApiError(502, 'stream_interrupted', 'The response was interrupted. Please try again.')
+  } finally {
+    await reader.cancel().catch(() => {})
+    reader.releaseLock()
   }
 }
 
 export function createHttpApi(baseUrl: string): Api {
-  const base = `${baseUrl.replace(/\/$/, '')}/api/v1`
+  const base = `${baseUrl.trim().replace(/\/+$/, '').replace(/\/api\/v1$/, '')}/api/v1`
   const headers = () => ({ 'Content-Type': 'application/json', 'X-Client-Id': clientId(), 'Accept-Language': 'en' })
-
   async function req<T>(path: string, init: RequestInit = {}): Promise<T> {
     const res = await fetch(`${base}${path}`, { ...init, headers: { ...headers(), ...init.headers } })
+    if (!res.ok) throw await responseError(res)
     if (res.status === 204) return undefined as T
-    const body = await res.json().catch(() => ({}))
-    if (!res.ok && res.status !== 202) throw new ApiError(res.status, body?.error?.code ?? 'http_error', body?.error?.message ?? res.statusText)
-    return body as T
+    return res.json() as Promise<T>
   }
-
-  const sc = (s: Scenario) => `delta_t_c=${s.delta_t_c}&delta_p_pct=${s.delta_p_pct}`
+  const unavailable = async (): Promise<never> => { throw new ApiError(501, 'feature_unavailable', 'This feature is available in demo mode only.') }
+  const sc = (s: Scenario) => new URLSearchParams({ delta_t_c: String(s.delta_t_c), delta_p_pct: String(s.delta_p_pct) })
   const conversations = new Map<string, string>()
-
+  const keyFor = (fieldId: string | null) => `fs-conversation:${base}:${clientId()}:${fieldId ?? '_'}`
+  function conversation(fieldId: string | null) {
+    const key = keyFor(fieldId)
+    try { return localStorage.getItem(key) ?? conversations.get(key) } catch { return conversations.get(key) }
+  }
+  function remember(fieldId: string | null, id: string) {
+    conversations.set(keyFor(fieldId), id)
+    try { localStorage.setItem(keyFor(fieldId), id) } catch { /* In-memory fallback. */ }
+  }
+  function forget(fieldId: string | null) {
+    conversations.delete(keyFor(fieldId))
+    try { localStorage.removeItem(keyFor(fieldId)) } catch { /* In-memory fallback. */ }
+  }
   return {
     mode: 'live',
-    listFields: () => req('/fields'),
-    getField: (id) => req(`/fields/${id}`),
-    createField: (input) => req('/fields', { method: 'POST', body: JSON.stringify(input) }),
-    updateField: (id, patch) => req(`/fields/${id}`, { method: 'PATCH', body: JSON.stringify(patch) }),
+    listFields: async () => (await req<B['Field'][]>('/fields')).map(fieldFromBackend),
+    getField: async (id) => fieldFromBackend(await req(`/fields/${id}`)),
+    createField: async (input) => fieldFromBackend(await req('/fields', { method: 'POST', body: JSON.stringify(input satisfies B['FieldCreate']) })),
+    updateField: async (id, patch) => fieldFromBackend(await req(`/fields/${id}`, { method: 'PATCH', body: JSON.stringify(patch) })),
     deleteField: (id) => req(`/fields/${id}`, { method: 'DELETE' }),
-    getProfile: (id) => req(`/fields/${id}/profile`),
-    refreshProfile: (id) => req(`/fields/${id}/profile:refresh`, { method: 'POST' }),
-    getCrops: () => req('/crops'),
-    getSuitabilityMatrix: (id, s) => req(`/fields/${id}/suitability?${sc(s)}`),
-    getSuitability: (id, crop, month, s) => req(`/fields/${id}/suitability?crop_id=${crop}&planting_month=${month}&${sc(s)}`),
-    getRotations: (id, body) => req(`/fields/${id}/rotations`, { method: 'POST', body: JSON.stringify(body) }),
-    getGreenhouse: (id) => req(`/fields/${id}/greenhouse`),
-    // 204 o null = no hay estación cercana; React Query no acepta undefined.
-    getWaterQuality: (id) => req<import('./types').WaterQualityReport | null>(`/fields/${id}/water-quality`).then((r) => r ?? null),
-    predictYield: (id, body) => req(`/fields/${id}/predict-yield`, { method: 'POST', body: JSON.stringify(body) }),
+    getProfile: async (id) => profileFromBackend(await req(`/fields/${id}/profile`)),
+    getCrops: async () => (await req<B['Crop'][]>('/crops')).map(cropFromBackend),
+    getSources: async () => (await req<B['Source'][]>('/sources')).map(sourceFromBackend),
+    getSuitabilityMatrix: (id, s) => req<B['SuitabilityMatrix']>(`/fields/${id}/suitability?${sc(s)}`),
+    getSuitability: (id, crop, month, s) => req<B['SuitabilityDetail']>(`/fields/${id}/suitability?crop_id=${encodeURIComponent(crop)}&planting_month=${month}&${sc(s)}`),
+    getRotations: (id, body) => req<B['RotationResponse']>(`/fields/${id}/rotations`, { method: 'POST', body: JSON.stringify(body) }),
+    getGreenhouse: async (id) => greenhouseFromBackend(await req(`/fields/${id}/greenhouse`)),
+    getWaterQuality: unavailable, predictYield: unavailable, saveSoilLab: unavailable, getFutureClimate: unavailable,
     async extractSoilReport(id, file) {
+      if (file.size > 10 * 1024 * 1024) throw new ApiError(413, 'file_too_large', 'Choose a file no larger than 10 MB.')
+      if (!/\.(pdf|jpe?g|png)$/i.test(file.name)) throw new ApiError(415, 'unsupported_file_type', 'Choose a PDF, JPG or PNG file.')
       const form = new FormData()
       form.append('file', file)
-      // Sin Content-Type: el navegador pone el boundary del multipart.
       const res = await fetch(`${base}/fields/${id}/soil-report`, { method: 'POST', body: form, headers: { 'X-Client-Id': clientId(), 'Accept-Language': 'en' } })
-      const body = await res.json().catch(() => ({}))
-      if (!res.ok) throw new ApiError(res.status, body?.error?.code ?? 'http_error', body?.error?.message ?? 'No se pudo leer el archivo')
-      return body
+      if (!res.ok) throw await responseError(res)
+      return soilReportFromBackend(await res.json() as B['SoilReportResult'])
     },
-    saveSoilLab: (id, lab) => (lab ? req(`/fields/${id}/soil-lab`, { method: 'PUT', body: JSON.stringify(lab) }) : req(`/fields/${id}/soil-lab`, { method: 'DELETE' })),
-    getFutureClimate: (id) => req(`/fields/${id}/future-climate`),
-
+    newConversation: forget,
+    async getChatHistory(fieldId, signal) {
+      const id = conversation(fieldId)
+      if (!id) return null
+      try { return await req<ConversationHistory>(`/chat/conversations/${id}`, { signal }) }
+      catch (error) {
+        if (error instanceof ApiError && error.status === 404) { forget(fieldId); return null }
+        throw error
+      }
+    },
     async chat(fieldId, content, onEvent, signal) {
-      const key = fieldId ?? '_'
-      let conv = conversations.get(key)
-      if (!conv) {
-        const created = await req<{ conversation_id: string }>('/chat/conversations', { method: 'POST', body: JSON.stringify({ field_id: fieldId }) })
-        conv = created.conversation_id
-        conversations.set(key, conv)
+      let id = conversation(fieldId)
+      if (!id) {
+        const created = await req<B['Conversation']>('/chat/conversations', { method: 'POST', body: JSON.stringify({ field_id: fieldId } satisfies B['ConversationCreate']), signal })
+        id = created.conversation_id
+        remember(fieldId, id)
       }
-      const res = await fetch(`${base}/chat/conversations/${conv}/messages`, {
-        method: 'POST',
-        headers: { ...headers(), Accept: 'text/event-stream' },
-        body: JSON.stringify({ content, active_field_id: fieldId }),
-        signal,
+      const res = await fetch(`${base}/chat/conversations/${id}/messages`, {
+        method: 'POST', headers: { ...headers(), Accept: 'text/event-stream' },
+        body: JSON.stringify({ text: content, field_id: fieldId } satisfies B['MessageCreate']), signal,
       })
-      if (!res.ok || !res.body) throw new ApiError(res.status, 'chat_error', 'Could not connect to agronomist')
-      const reader = res.body.pipeThrough(new TextDecoderStream()).getReader()
-      let buffer = ''
-      for (;;) {
-        const { value, done } = await reader.read()
-        if (done) break
-        buffer += value
-        let idx: number
-        while ((idx = buffer.indexOf('\n\n')) >= 0) {
-          const chunk = buffer.slice(0, idx)
-          buffer = buffer.slice(idx + 2)
-          const event = /^event: (.*)$/m.exec(chunk)?.[1]?.trim()
-          const data = /^data: (.*)$/m.exec(chunk)?.[1]
-          if (!event || !data) continue
-          const payload = JSON.parse(data)
-          if (event === 'card') onEvent({ type: 'card', card: payload.type, payload: payload.payload })
-          else onEvent({ type: event, ...payload } as ChatEvent)
-        }
-      }
+      if (!res.ok) throw await responseError(res)
+      if (!res.body) throw new ApiError(502, 'stream_unavailable', 'The response stream is unavailable.')
+      await readChatStream(res.body, onEvent)
     },
   }
 }

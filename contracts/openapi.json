@@ -1,0 +1,5609 @@
+{
+  "components": {
+    "schemas": {
+      "Admin": {
+        "properties": {
+          "municipality": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Municipality"
+          },
+          "state": {
+            "title": "State",
+            "type": "string"
+          }
+        },
+        "required": [
+          "state",
+          "municipality"
+        ],
+        "title": "Admin",
+        "type": "object"
+      },
+      "Body_upload_soil_report_api_v1_fields__field_id__soil_report_post": {
+        "properties": {
+          "file": {
+            "contentMediaType": "application/octet-stream",
+            "description": "Análisis en PDF, JPG o PNG; sin datos personales",
+            "title": "File",
+            "type": "string"
+          }
+        },
+        "required": [
+          "file"
+        ],
+        "title": "Body_upload_soil_report_api_v1_fields__field_id__soil_report_post",
+        "type": "object"
+      },
+      "Climate": {
+        "properties": {
+          "elevation_m": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Elevation M"
+          },
+          "frost": {
+            "$ref": "#/components/schemas/Frost"
+          },
+          "heat": {
+            "$ref": "#/components/schemas/Heat"
+          },
+          "light": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Light"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "rain": {
+            "$ref": "#/components/schemas/Rain"
+          },
+          "risk_calendar": {
+            "items": {
+              "$ref": "#/components/schemas/RiskDecade"
+            },
+            "title": "Risk Calendar",
+            "type": "array"
+          },
+          "source_id": {
+            "title": "Source Id",
+            "type": "string"
+          },
+          "wind": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Wind"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "years": {
+            "maxItems": 2,
+            "minItems": 2,
+            "prefixItems": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "integer"
+              }
+            ],
+            "title": "Years",
+            "type": "array"
+          }
+        },
+        "required": [
+          "source_id",
+          "years",
+          "elevation_m",
+          "frost",
+          "rain",
+          "heat",
+          "wind",
+          "light",
+          "risk_calendar"
+        ],
+        "title": "Climate",
+        "type": "object"
+      },
+      "Constraints": {
+        "additionalProperties": false,
+        "properties": {
+          "equipment": {
+            "items": {
+              "type": "string"
+            },
+            "maxItems": 30,
+            "title": "Equipment",
+            "type": "array"
+          },
+          "exclude_crops": {
+            "items": {
+              "type": "string"
+            },
+            "maxItems": 50,
+            "title": "Exclude Crops",
+            "type": "array"
+          },
+          "horizon_years": {
+            "default": 4,
+            "maximum": 6.0,
+            "minimum": 1.0,
+            "title": "Horizon Years",
+            "type": "integer"
+          },
+          "irrigation_mm_per_year": {
+            "anyOf": [
+              {
+                "minimum": 0.0,
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Irrigation Mm Per Year"
+          }
+        },
+        "title": "Constraints",
+        "type": "object"
+      },
+      "Conversation": {
+        "properties": {
+          "conversation_id": {
+            "title": "Conversation Id",
+            "type": "string"
+          },
+          "created_at": {
+            "title": "Created At",
+            "type": "string"
+          },
+          "field_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Field Id"
+          }
+        },
+        "required": [
+          "conversation_id",
+          "field_id",
+          "created_at"
+        ],
+        "title": "Conversation",
+        "type": "object"
+      },
+      "ConversationCreate": {
+        "additionalProperties": false,
+        "properties": {
+          "field_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Geocerca activa de la conversación",
+            "title": "Field Id"
+          }
+        },
+        "title": "ConversationCreate",
+        "type": "object"
+      },
+      "ConversationHistory": {
+        "properties": {
+          "conversation_id": {
+            "title": "Conversation Id",
+            "type": "string"
+          },
+          "created_at": {
+            "title": "Created At",
+            "type": "string"
+          },
+          "field_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Field Id"
+          },
+          "messages": {
+            "items": {
+              "$ref": "#/components/schemas/VisibleMessage"
+            },
+            "title": "Messages",
+            "type": "array"
+          }
+        },
+        "required": [
+          "conversation_id",
+          "field_id",
+          "created_at",
+          "messages"
+        ],
+        "title": "ConversationHistory",
+        "type": "object"
+      },
+      "Crop": {
+        "additionalProperties": false,
+        "properties": {
+          "cycle_days": {
+            "description": "Días de siembra a cosecha: mínimo y máximo",
+            "maxItems": 2,
+            "minItems": 2,
+            "prefixItems": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "integer"
+              }
+            ],
+            "title": "Cycle Days",
+            "type": "array"
+          },
+          "equipment": {
+            "items": {
+              "enum": [
+                "tractor",
+                "planter",
+                "seed_drill",
+                "combine",
+                "forage_harvester",
+                "baler",
+                "manual_harvest"
+              ],
+              "type": "string"
+            },
+            "title": "Equipment",
+            "type": "array"
+          },
+          "family": {
+            "enum": [
+              "poaceae",
+              "fabaceae",
+              "solanaceae",
+              "cucurbitaceae",
+              "brassicaceae",
+              "amaranthaceae",
+              "asteraceae",
+              "malvaceae",
+              "amaryllidaceae",
+              "apiaceae",
+              "rosaceae",
+              "juglandaceae",
+              "vitaceae"
+            ],
+            "title": "Family",
+            "type": "string"
+          },
+          "frost_tolerant": {
+            "title": "Frost Tolerant",
+            "type": "boolean"
+          },
+          "heat_critical_c": {
+            "description": "Tmax a partir de la cual el cultivo sufre daño",
+            "title": "Heat Critical C",
+            "type": "number"
+          },
+          "id": {
+            "pattern": "^[a-z][a-z0-9_]*$",
+            "title": "Id",
+            "type": "string"
+          },
+          "kc": {
+            "$ref": "#/components/schemas/CropCoefficients"
+          },
+          "margin_index": {
+            "anyOf": [
+              {
+                "minimum": 0.0,
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Margen relativo entre cultivos; sin unidad",
+            "title": "Margin Index"
+          },
+          "n_balance_kg_ha": {
+            "description": "Balance aproximado de nitrógeno por ciclo; positivo si el cultivo aporta",
+            "title": "N Balance Kg Ha",
+            "type": "number"
+          },
+          "n_fixing": {
+            "title": "N Fixing",
+            "type": "boolean"
+          },
+          "name": {
+            "$ref": "#/components/schemas/LocalizedName"
+          },
+          "ph": {
+            "maxItems": 2,
+            "minItems": 2,
+            "prefixItems": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "number"
+              }
+            ],
+            "title": "Ph",
+            "type": "array"
+          },
+          "residue": {
+            "description": "Rastrojo que deja en el suelo",
+            "enum": [
+              "low",
+              "medium",
+              "high"
+            ],
+            "title": "Residue",
+            "type": "string"
+          },
+          "reviewed": {
+            "description": "Si el rol científico revisó los valores",
+            "title": "Reviewed",
+            "type": "boolean"
+          },
+          "roles": {
+            "items": {
+              "enum": [
+                "cash",
+                "legume",
+                "cover",
+                "forage",
+                "deep_root",
+                "drought_tolerant"
+              ],
+              "type": "string"
+            },
+            "minItems": 1,
+            "title": "Roles",
+            "type": "array"
+          },
+          "root_depth": {
+            "enum": [
+              "shallow",
+              "medium",
+              "deep"
+            ],
+            "title": "Root Depth",
+            "type": "string"
+          },
+          "source_id": {
+            "description": "Fuente bibliográfica de los valores",
+            "minLength": 1,
+            "title": "Source Id",
+            "type": "string"
+          },
+          "temp_abs_c": {
+            "description": "Temperaturas límite que el cultivo soporta",
+            "maxItems": 2,
+            "minItems": 2,
+            "prefixItems": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "number"
+              }
+            ],
+            "title": "Temp Abs C",
+            "type": "array"
+          },
+          "temp_opt_c": {
+            "description": "Temperatura media óptima",
+            "maxItems": 2,
+            "minItems": 2,
+            "prefixItems": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "number"
+              }
+            ],
+            "title": "Temp Opt C",
+            "type": "array"
+          },
+          "water_need_mm": {
+            "description": "Agua por ciclo",
+            "maxItems": 2,
+            "minItems": 2,
+            "prefixItems": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "number"
+              }
+            ],
+            "title": "Water Need Mm",
+            "type": "array"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "family",
+          "roles",
+          "cycle_days",
+          "temp_opt_c",
+          "temp_abs_c",
+          "frost_tolerant",
+          "heat_critical_c",
+          "water_need_mm",
+          "ph",
+          "kc",
+          "n_fixing",
+          "n_balance_kg_ha",
+          "residue",
+          "root_depth",
+          "equipment",
+          "source_id",
+          "reviewed"
+        ],
+        "title": "Crop",
+        "type": "object"
+      },
+      "CropCoefficients": {
+        "additionalProperties": false,
+        "description": "Coeficientes de cultivo de FAO-56 por etapa.",
+        "properties": {
+          "end": {
+            "exclusiveMinimum": 0.0,
+            "maximum": 1.5,
+            "title": "End",
+            "type": "number"
+          },
+          "ini": {
+            "exclusiveMinimum": 0.0,
+            "maximum": 1.5,
+            "title": "Ini",
+            "type": "number"
+          },
+          "mid": {
+            "exclusiveMinimum": 0.0,
+            "maximum": 1.5,
+            "title": "Mid",
+            "type": "number"
+          }
+        },
+        "required": [
+          "ini",
+          "mid",
+          "end"
+        ],
+        "title": "CropCoefficients",
+        "type": "object"
+      },
+      "CropSuitabilityRow": {
+        "properties": {
+          "crop_id": {
+            "title": "Crop Id",
+            "type": "string"
+          },
+          "scores": {
+            "items": {
+              "maximum": 100.0,
+              "minimum": 0.0,
+              "type": "number"
+            },
+            "maxItems": 12,
+            "minItems": 12,
+            "title": "Scores",
+            "type": "array"
+          },
+          "status": {
+            "items": {
+              "enum": [
+                "suitable",
+                "marginal",
+                "unsuitable"
+              ],
+              "type": "string"
+            },
+            "maxItems": 12,
+            "minItems": 12,
+            "title": "Status",
+            "type": "array"
+          }
+        },
+        "required": [
+          "crop_id",
+          "scores",
+          "status"
+        ],
+        "title": "CropSuitabilityRow",
+        "type": "object"
+      },
+      "Elevation": {
+        "properties": {
+          "max": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Max"
+          },
+          "mean": {
+            "title": "Mean",
+            "type": "number"
+          },
+          "min": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Min"
+          }
+        },
+        "required": [
+          "mean",
+          "min",
+          "max"
+        ],
+        "title": "Elevation",
+        "type": "object"
+      },
+      "ErrorBody": {
+        "properties": {
+          "code": {
+            "title": "Code",
+            "type": "string"
+          },
+          "details": {
+            "additionalProperties": true,
+            "title": "Details",
+            "type": "object"
+          },
+          "message": {
+            "title": "Message",
+            "type": "string"
+          }
+        },
+        "required": [
+          "code",
+          "message",
+          "details"
+        ],
+        "title": "ErrorBody",
+        "type": "object"
+      },
+      "ErrorResponse": {
+        "properties": {
+          "error": {
+            "$ref": "#/components/schemas/ErrorBody"
+          }
+        },
+        "required": [
+          "error"
+        ],
+        "title": "ErrorResponse",
+        "type": "object"
+      },
+      "Evapotranspiration": {
+        "properties": {
+          "by_month": {
+            "items": {
+              "$ref": "#/components/schemas/EvapotranspirationMonth"
+            },
+            "title": "By Month",
+            "type": "array"
+          },
+          "method": {
+            "title": "Method",
+            "type": "string"
+          },
+          "source_id": {
+            "title": "Source Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "source_id",
+          "method",
+          "by_month"
+        ],
+        "title": "Evapotranspiration",
+        "type": "object"
+      },
+      "EvapotranspirationMonth": {
+        "properties": {
+          "et0_mm": {
+            "title": "Et0 Mm",
+            "type": "number"
+          },
+          "et_mm": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Et Mm"
+          },
+          "month": {
+            "maximum": 12.0,
+            "minimum": 1.0,
+            "title": "Month",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "month",
+          "et_mm",
+          "et0_mm"
+        ],
+        "title": "EvapotranspirationMonth",
+        "type": "object"
+      },
+      "Evidence": {
+        "properties": {
+          "claim": {
+            "title": "Claim",
+            "type": "string"
+          },
+          "source_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Source Id"
+          }
+        },
+        "required": [
+          "claim",
+          "source_id"
+        ],
+        "title": "Evidence",
+        "type": "object"
+      },
+      "Field": {
+        "properties": {
+          "admin": {
+            "$ref": "#/components/schemas/Admin"
+          },
+          "area_ha": {
+            "exclusiveMinimum": 0.0,
+            "title": "Area Ha",
+            "type": "number"
+          },
+          "cell_assignment": {
+            "const": "centroid",
+            "title": "Cell Assignment",
+            "type": "string"
+          },
+          "cell_id": {
+            "examples": [
+              "E9_r0463_c0846"
+            ],
+            "title": "Cell Id",
+            "type": "string"
+          },
+          "centroid": {
+            "description": "`[lon, lat]`",
+            "maxItems": 2,
+            "minItems": 2,
+            "prefixItems": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "number"
+              }
+            ],
+            "title": "Centroid",
+            "type": "array"
+          },
+          "country": {
+            "title": "Country",
+            "type": "string"
+          },
+          "created_at": {
+            "format": "date-time",
+            "title": "Created At",
+            "type": "string"
+          },
+          "current_rotation": {
+            "anyOf": [
+              {
+                "items": {
+                  "$ref": "#/components/schemas/RotationSlot"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Current Rotation"
+          },
+          "geometry": {
+            "$ref": "#/components/schemas/Geometry"
+          },
+          "greenhouse": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Greenhouse"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "id": {
+            "examples": [
+              "fld_01KA0Z5T9M3X8Q2W4E6R7T8Y9A"
+            ],
+            "title": "Id",
+            "type": "string"
+          },
+          "irrigation": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Irrigation"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "kind": {
+            "enum": [
+              "field",
+              "greenhouse"
+            ],
+            "title": "Kind",
+            "type": "string"
+          },
+          "livestock": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Livestock"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "profile_status": {
+            "const": "ready",
+            "title": "Profile Status",
+            "type": "string"
+          },
+          "soil_lab": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/SoilLab"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "zone_id": {
+            "examples": [
+              "coah-sureste"
+            ],
+            "title": "Zone Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "kind",
+          "geometry",
+          "current_rotation",
+          "irrigation",
+          "livestock",
+          "greenhouse",
+          "area_ha",
+          "centroid",
+          "cell_id",
+          "zone_id",
+          "cell_assignment",
+          "country",
+          "admin",
+          "created_at",
+          "profile_status"
+        ],
+        "title": "Field",
+        "type": "object"
+      },
+      "FieldCreate": {
+        "additionalProperties": false,
+        "properties": {
+          "current_rotation": {
+            "anyOf": [
+              {
+                "items": {
+                  "$ref": "#/components/schemas/RotationSlot"
+                },
+                "maxItems": 40,
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Current Rotation"
+          },
+          "geometry": {
+            "$ref": "#/components/schemas/Geometry"
+          },
+          "greenhouse": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Greenhouse"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "irrigation": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Irrigation"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "kind": {
+            "default": "field",
+            "enum": [
+              "field",
+              "greenhouse"
+            ],
+            "title": "Kind",
+            "type": "string"
+          },
+          "livestock": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Livestock"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "name": {
+            "maxLength": 120,
+            "minLength": 1,
+            "title": "Name",
+            "type": "string"
+          }
+        },
+        "required": [
+          "name",
+          "geometry"
+        ],
+        "title": "FieldCreate",
+        "type": "object"
+      },
+      "FieldProfile": {
+        "properties": {
+          "cell_id": {
+            "title": "Cell Id",
+            "type": "string"
+          },
+          "climate": {
+            "$ref": "#/components/schemas/Climate"
+          },
+          "computed_at": {
+            "format": "date-time",
+            "title": "Computed At",
+            "type": "string"
+          },
+          "data_version": {
+            "description": "Versión de los datos de DATA con la que se calculó",
+            "title": "Data Version",
+            "type": "string"
+          },
+          "field_id": {
+            "title": "Field Id",
+            "type": "string"
+          },
+          "gaps": {
+            "items": {
+              "$ref": "#/components/schemas/Gap"
+            },
+            "title": "Gaps",
+            "type": "array"
+          },
+          "hazards": {
+            "$ref": "#/components/schemas/Hazards"
+          },
+          "land_use": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/LandUse"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "pipeline_version": {
+            "title": "Pipeline Version",
+            "type": "string"
+          },
+          "resolution_m": {
+            "description": "Lado de la celda de análisis; el dato es zonal",
+            "title": "Resolution M",
+            "type": "integer"
+          },
+          "soil": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Soil"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "sources": {
+            "items": {
+              "$ref": "#/components/schemas/Source"
+            },
+            "title": "Sources",
+            "type": "array"
+          },
+          "status": {
+            "const": "ready",
+            "title": "Status",
+            "type": "string"
+          },
+          "terrain": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Terrain"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "vegetation": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Vegetation"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "water": {
+            "$ref": "#/components/schemas/Water"
+          },
+          "zone_id": {
+            "title": "Zone Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "status",
+          "field_id",
+          "cell_id",
+          "zone_id",
+          "resolution_m",
+          "computed_at",
+          "pipeline_version",
+          "data_version",
+          "climate",
+          "soil",
+          "terrain",
+          "water",
+          "vegetation",
+          "land_use",
+          "hazards",
+          "sources",
+          "gaps"
+        ],
+        "title": "FieldProfile",
+        "type": "object"
+      },
+      "FieldUpdate": {
+        "additionalProperties": false,
+        "description": "Solo se modifican los campos enviados; `null` borra un campo opcional.",
+        "properties": {
+          "current_rotation": {
+            "anyOf": [
+              {
+                "items": {
+                  "$ref": "#/components/schemas/RotationSlot"
+                },
+                "maxItems": 40,
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Current Rotation"
+          },
+          "geometry": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Geometry"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "greenhouse": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Greenhouse"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "irrigation": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Irrigation"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "livestock": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Livestock"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "name": {
+            "anyOf": [
+              {
+                "maxLength": 120,
+                "minLength": 1,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Name"
+          }
+        },
+        "title": "FieldUpdate",
+        "type": "object"
+      },
+      "Frost": {
+        "properties": {
+          "by_month": {
+            "items": {
+              "$ref": "#/components/schemas/FrostMonth"
+            },
+            "title": "By Month",
+            "type": "array"
+          },
+          "first_fall_frost": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/FrostDates"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "frost_free_days": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/FrostFreeDays"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "last_spring_frost": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/FrostDates"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "severe_threshold_c": {
+            "title": "Severe Threshold C",
+            "type": "number"
+          },
+          "share_years_without_frost": {
+            "anyOf": [
+              {
+                "maximum": 1.0,
+                "minimum": 0.0,
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Share Years Without Frost"
+          },
+          "threshold_c": {
+            "title": "Threshold C",
+            "type": "number"
+          },
+          "years_analyzed": {
+            "title": "Years Analyzed",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "threshold_c",
+          "severe_threshold_c",
+          "years_analyzed",
+          "last_spring_frost",
+          "first_fall_frost",
+          "frost_free_days",
+          "share_years_without_frost",
+          "by_month"
+        ],
+        "title": "Frost",
+        "type": "object"
+      },
+      "FrostDate": {
+        "properties": {
+          "date": {
+            "pattern": "^(0[1-9]|1[0-2])-(0[1-9]|[12]\\d|3[01])$",
+            "title": "Date",
+            "type": "string"
+          },
+          "doy": {
+            "maximum": 366.0,
+            "minimum": 1.0,
+            "title": "Doy",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "doy",
+          "date"
+        ],
+        "title": "FrostDate",
+        "type": "object"
+      },
+      "FrostDates": {
+        "properties": {
+          "p10": {
+            "$ref": "#/components/schemas/FrostDate"
+          },
+          "p50": {
+            "$ref": "#/components/schemas/FrostDate"
+          },
+          "p90": {
+            "$ref": "#/components/schemas/FrostDate"
+          }
+        },
+        "required": [
+          "p10",
+          "p50",
+          "p90"
+        ],
+        "title": "FrostDates",
+        "type": "object"
+      },
+      "FrostFreeDays": {
+        "properties": {
+          "p10": {
+            "title": "P10",
+            "type": "integer"
+          },
+          "p50": {
+            "title": "P50",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "p10",
+          "p50"
+        ],
+        "title": "FrostFreeDays",
+        "type": "object"
+      },
+      "FrostMonth": {
+        "properties": {
+          "mean_frost_days": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Mean Frost Days"
+          },
+          "mean_severe_frost_days": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Mean Severe Frost Days"
+          },
+          "month": {
+            "maximum": 12.0,
+            "minimum": 1.0,
+            "title": "Month",
+            "type": "integer"
+          },
+          "prob_any_frost": {
+            "maximum": 1.0,
+            "minimum": 0.0,
+            "title": "Prob Any Frost",
+            "type": "number"
+          },
+          "record_tmin_c": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Record Tmin C"
+          }
+        },
+        "required": [
+          "month",
+          "prob_any_frost",
+          "mean_frost_days",
+          "mean_severe_frost_days",
+          "record_tmin_c"
+        ],
+        "title": "FrostMonth",
+        "type": "object"
+      },
+      "Gap": {
+        "properties": {
+          "code": {
+            "title": "Code",
+            "type": "string"
+          },
+          "message": {
+            "title": "Message",
+            "type": "string"
+          },
+          "severity": {
+            "enum": [
+              "low",
+              "medium",
+              "high"
+            ],
+            "title": "Severity",
+            "type": "string"
+          }
+        },
+        "required": [
+          "code",
+          "severity",
+          "message"
+        ],
+        "title": "Gap",
+        "type": "object"
+      },
+      "Geometry": {
+        "description": "GeoJSON `Polygon` o `MultiPolygon` en WGS84, posiciones `[lon, lat]`.\n\nEl esquema solo fija la forma general; anillos, rangos, vértices y superficie se validan\ndespués y se informan con `invalid_geometry`.",
+        "properties": {
+          "coordinates": {
+            "items": {},
+            "title": "Coordinates",
+            "type": "array"
+          },
+          "type": {
+            "enum": [
+              "Polygon",
+              "MultiPolygon"
+            ],
+            "title": "Type",
+            "type": "string"
+          }
+        },
+        "required": [
+          "type",
+          "coordinates"
+        ],
+        "title": "Geometry",
+        "type": "object"
+      },
+      "Greenhouse": {
+        "additionalProperties": false,
+        "properties": {
+          "co2_enrichment": {
+            "default": false,
+            "title": "Co2 Enrichment",
+            "type": "boolean"
+          },
+          "cover": {
+            "enum": [
+              "polietileno",
+              "policarbonato",
+              "vidrio",
+              "malla"
+            ],
+            "title": "Cover",
+            "type": "string"
+          },
+          "heated": {
+            "default": false,
+            "title": "Heated",
+            "type": "boolean"
+          },
+          "rated_wind_kmh": {
+            "anyOf": [
+              {
+                "exclusiveMinimum": 0.0,
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Rated Wind Kmh"
+          },
+          "structure": {
+            "enum": [
+              "multitunel",
+              "capilla",
+              "macrotunel",
+              "casa_sombra",
+              "otro"
+            ],
+            "title": "Structure",
+            "type": "string"
+          }
+        },
+        "required": [
+          "structure",
+          "cover"
+        ],
+        "title": "Greenhouse",
+        "type": "object"
+      },
+      "GreenhouseAssessment": {
+        "properties": {
+          "cell_id": {
+            "title": "Cell Id",
+            "type": "string"
+          },
+          "co2": {
+            "title": "Co2",
+            "type": "null"
+          },
+          "confidence": {
+            "enum": [
+              "high",
+              "medium",
+              "low"
+            ],
+            "title": "Confidence",
+            "type": "string"
+          },
+          "field_id": {
+            "title": "Field Id",
+            "type": "string"
+          },
+          "gaps": {
+            "items": {
+              "$ref": "#/components/schemas/Gap"
+            },
+            "title": "Gaps",
+            "type": "array"
+          },
+          "hail": {
+            "title": "Hail",
+            "type": "null"
+          },
+          "heating": {
+            "title": "Heating",
+            "type": "null"
+          },
+          "light": {
+            "description": "Fuera de alcance; ver `gaps`",
+            "title": "Light",
+            "type": "null"
+          },
+          "recommendations": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Recommendations",
+            "type": "array"
+          },
+          "structure": {
+            "$ref": "#/components/schemas/Greenhouse"
+          },
+          "wind": {
+            "$ref": "#/components/schemas/GreenhouseWind"
+          }
+        },
+        "required": [
+          "field_id",
+          "cell_id",
+          "structure",
+          "wind",
+          "recommendations",
+          "confidence",
+          "gaps"
+        ],
+        "title": "GreenhouseAssessment",
+        "type": "object"
+      },
+      "GreenhouseWind": {
+        "properties": {
+          "annual_exceedance_probability": {
+            "anyOf": [
+              {
+                "maximum": 1.0,
+                "minimum": 0.0,
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Probabilidad anual de que la ráfaga estimada supere la resistencia",
+            "title": "Annual Exceedance Probability"
+          },
+          "daily_origin": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Daily Origin"
+          },
+          "gust_factor_assumed": {
+            "title": "Gust Factor Assumed",
+            "type": "number"
+          },
+          "note": {
+            "title": "Note",
+            "type": "string"
+          },
+          "rated_wind_kmh": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Rated Wind Kmh"
+          },
+          "return_levels_kmh": {
+            "anyOf": [
+              {
+                "items": {
+                  "$ref": "#/components/schemas/ReturnLevel"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "10, 25 y 50 años; `null` si el registro es demasiado corto",
+            "title": "Return Levels Kmh"
+          },
+          "riskiest_months": {
+            "items": {
+              "maximum": 12.0,
+              "minimum": 1.0,
+              "type": "integer"
+            },
+            "title": "Riskiest Months",
+            "type": "array"
+          },
+          "source_id": {
+            "title": "Source Id",
+            "type": "string"
+          },
+          "status": {
+            "anyOf": [
+              {
+                "enum": [
+                  "ok",
+                  "warn",
+                  "bad"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Status"
+          },
+          "years_used": {
+            "description": "Años completos con dato de viento",
+            "title": "Years Used",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "source_id",
+          "daily_origin",
+          "years_used",
+          "gust_factor_assumed",
+          "return_levels_kmh",
+          "rated_wind_kmh",
+          "annual_exceedance_probability",
+          "status",
+          "riskiest_months",
+          "note"
+        ],
+        "title": "GreenhouseWind",
+        "type": "object"
+      },
+      "Groundwater": {
+        "properties": {
+          "source_id": {
+            "title": "Source Id",
+            "type": "string"
+          },
+          "trend_cm_per_year": {
+            "title": "Trend Cm Per Year",
+            "type": "number"
+          },
+          "years": {
+            "maxItems": 2,
+            "minItems": 2,
+            "prefixItems": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "integer"
+              }
+            ],
+            "title": "Years",
+            "type": "array"
+          }
+        },
+        "required": [
+          "source_id",
+          "trend_cm_per_year",
+          "years"
+        ],
+        "title": "Groundwater",
+        "type": "object"
+      },
+      "Hail": {
+        "properties": {
+          "evidence": {
+            "enum": [
+              "high",
+              "medium",
+              "low"
+            ],
+            "title": "Evidence",
+            "type": "string"
+          },
+          "level": {
+            "enum": [
+              "low",
+              "medium",
+              "high"
+            ],
+            "title": "Level",
+            "type": "string"
+          },
+          "months_of_concern": {
+            "items": {
+              "maximum": 12.0,
+              "minimum": 1.0,
+              "type": "integer"
+            },
+            "title": "Months Of Concern",
+            "type": "array"
+          },
+          "note": {
+            "title": "Note",
+            "type": "string"
+          },
+          "source_id": {
+            "title": "Source Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "source_id",
+          "level",
+          "evidence",
+          "months_of_concern",
+          "note"
+        ],
+        "title": "Hail",
+        "type": "object"
+      },
+      "HarvestWindow": {
+        "properties": {
+          "from": {
+            "pattern": "^(0[1-9]|1[0-2])-(0[1-9]|[12]\\d|3[01])$",
+            "title": "From",
+            "type": "string"
+          },
+          "to": {
+            "pattern": "^(0[1-9]|1[0-2])-(0[1-9]|[12]\\d|3[01])$",
+            "title": "To",
+            "type": "string"
+          }
+        },
+        "required": [
+          "from",
+          "to"
+        ],
+        "title": "HarvestWindow",
+        "type": "object"
+      },
+      "Hazards": {
+        "properties": {
+          "hail": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Hail"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "hail"
+        ],
+        "title": "Hazards",
+        "type": "object"
+      },
+      "Health": {
+        "properties": {
+          "environment": {
+            "title": "Environment",
+            "type": "string"
+          },
+          "status": {
+            "const": "ok",
+            "title": "Status",
+            "type": "string"
+          },
+          "version": {
+            "title": "Version",
+            "type": "string"
+          }
+        },
+        "required": [
+          "status",
+          "environment",
+          "version"
+        ],
+        "title": "Health",
+        "type": "object"
+      },
+      "Heat": {
+        "properties": {
+          "annual_gdd_base10": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Annual Gdd Base10"
+          },
+          "annual_mean_c": {
+            "title": "Annual Mean C",
+            "type": "number"
+          },
+          "by_month": {
+            "items": {
+              "$ref": "#/components/schemas/HeatMonth"
+            },
+            "title": "By Month",
+            "type": "array"
+          },
+          "hottest_month": {
+            "maximum": 12.0,
+            "minimum": 1.0,
+            "title": "Hottest Month",
+            "type": "integer"
+          },
+          "thresholds_c": {
+            "description": "Umbrales de Tmax con los que se cuentan días",
+            "items": {
+              "type": "number"
+            },
+            "title": "Thresholds C",
+            "type": "array"
+          },
+          "trend_c_per_decade": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Tendencia por cada 10 años",
+            "title": "Trend C Per Decade"
+          }
+        },
+        "required": [
+          "thresholds_c",
+          "annual_mean_c",
+          "trend_c_per_decade",
+          "hottest_month",
+          "annual_gdd_base10",
+          "by_month"
+        ],
+        "title": "Heat",
+        "type": "object"
+      },
+      "HeatMonth": {
+        "properties": {
+          "mean_days_over_30c": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Mean Days Over 30C"
+          },
+          "mean_days_over_32c": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Mean Days Over 32C"
+          },
+          "mean_days_over_35c": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Mean Days Over 35C"
+          },
+          "mean_days_over_38c": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Mean Days Over 38C"
+          },
+          "mean_gdd_base10": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Mean Gdd Base10"
+          },
+          "mean_tmax_c": {
+            "title": "Mean Tmax C",
+            "type": "number"
+          },
+          "mean_tmin_c": {
+            "title": "Mean Tmin C",
+            "type": "number"
+          },
+          "month": {
+            "maximum": 12.0,
+            "minimum": 1.0,
+            "title": "Month",
+            "type": "integer"
+          },
+          "record_tmax_c": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Record Tmax C"
+          }
+        },
+        "required": [
+          "month",
+          "mean_tmax_c",
+          "mean_tmin_c",
+          "record_tmax_c",
+          "mean_gdd_base10",
+          "mean_days_over_30c",
+          "mean_days_over_35c",
+          "mean_days_over_38c"
+        ],
+        "title": "HeatMonth",
+        "type": "object"
+      },
+      "Irrigation": {
+        "additionalProperties": false,
+        "properties": {
+          "available": {
+            "title": "Available",
+            "type": "boolean"
+          },
+          "max_mm_per_year": {
+            "anyOf": [
+              {
+                "minimum": 0.0,
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Max Mm Per Year"
+          },
+          "source": {
+            "anyOf": [
+              {
+                "maxLength": 60,
+                "minLength": 1,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Source"
+          }
+        },
+        "required": [
+          "available"
+        ],
+        "title": "Irrigation",
+        "type": "object"
+      },
+      "LandUse": {
+        "properties": {
+          "detected_rotation": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Detected Rotation",
+            "type": "array"
+          },
+          "history": {
+            "items": {
+              "$ref": "#/components/schemas/LandUseYear"
+            },
+            "title": "History",
+            "type": "array"
+          },
+          "source_id": {
+            "title": "Source Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "source_id",
+          "history",
+          "detected_rotation"
+        ],
+        "title": "LandUse",
+        "type": "object"
+      },
+      "LandUseYear": {
+        "properties": {
+          "crop": {
+            "title": "Crop",
+            "type": "string"
+          },
+          "share": {
+            "maximum": 1.0,
+            "minimum": 0.0,
+            "title": "Share",
+            "type": "number"
+          },
+          "year": {
+            "title": "Year",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "year",
+          "crop",
+          "share"
+        ],
+        "title": "LandUseYear",
+        "type": "object"
+      },
+      "Light": {
+        "properties": {
+          "annual_mean_dli_mol_m2_day": {
+            "title": "Annual Mean Dli Mol M2 Day",
+            "type": "number"
+          },
+          "by_month": {
+            "items": {
+              "$ref": "#/components/schemas/LightMonth"
+            },
+            "title": "By Month",
+            "type": "array"
+          }
+        },
+        "required": [
+          "annual_mean_dli_mol_m2_day",
+          "by_month"
+        ],
+        "title": "Light",
+        "type": "object"
+      },
+      "LightMonth": {
+        "properties": {
+          "mean_dli_mol_m2_day": {
+            "title": "Mean Dli Mol M2 Day",
+            "type": "number"
+          },
+          "mean_solar_mj_m2_day": {
+            "title": "Mean Solar Mj M2 Day",
+            "type": "number"
+          },
+          "month": {
+            "maximum": 12.0,
+            "minimum": 1.0,
+            "title": "Month",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "month",
+          "mean_solar_mj_m2_day",
+          "mean_dli_mol_m2_day"
+        ],
+        "title": "LightMonth",
+        "type": "object"
+      },
+      "Livestock": {
+        "additionalProperties": false,
+        "properties": {
+          "head": {
+            "minimum": 0.0,
+            "title": "Head",
+            "type": "integer"
+          },
+          "species": {
+            "maxLength": 60,
+            "minLength": 1,
+            "title": "Species",
+            "type": "string"
+          }
+        },
+        "required": [
+          "species",
+          "head"
+        ],
+        "title": "Livestock",
+        "type": "object"
+      },
+      "LocalizedName": {
+        "additionalProperties": false,
+        "properties": {
+          "en": {
+            "minLength": 1,
+            "title": "En",
+            "type": "string"
+          },
+          "es": {
+            "minLength": 1,
+            "title": "Es",
+            "type": "string"
+          }
+        },
+        "required": [
+          "es",
+          "en"
+        ],
+        "title": "LocalizedName",
+        "type": "object"
+      },
+      "MessageCreate": {
+        "additionalProperties": false,
+        "properties": {
+          "field_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Cambia la geocerca activa para este mensaje",
+            "title": "Field Id"
+          },
+          "text": {
+            "description": "Hasta 2,000 caracteres",
+            "minLength": 1,
+            "title": "Text",
+            "type": "string"
+          }
+        },
+        "required": [
+          "text"
+        ],
+        "title": "MessageCreate",
+        "type": "object"
+      },
+      "NdviMonth": {
+        "properties": {
+          "mean": {
+            "title": "Mean",
+            "type": "number"
+          },
+          "month": {
+            "maximum": 12.0,
+            "minimum": 1.0,
+            "title": "Month",
+            "type": "integer"
+          },
+          "p10": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "P10"
+          },
+          "p90": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "P90"
+          }
+        },
+        "required": [
+          "month",
+          "mean",
+          "p10",
+          "p90"
+        ],
+        "title": "NdviMonth",
+        "type": "object"
+      },
+      "Priorities": {
+        "additionalProperties": false,
+        "description": "Pesos de 0 a 5 que el agricultor asigna a cada prioridad.",
+        "properties": {
+          "forage": {
+            "default": 3,
+            "maximum": 5.0,
+            "minimum": 0.0,
+            "title": "Forage",
+            "type": "integer"
+          },
+          "income": {
+            "default": 3,
+            "maximum": 5.0,
+            "minimum": 0.0,
+            "title": "Income",
+            "type": "integer"
+          },
+          "low_labor": {
+            "default": 3,
+            "maximum": 5.0,
+            "minimum": 0.0,
+            "title": "Low Labor",
+            "type": "integer"
+          },
+          "pest_break": {
+            "default": 3,
+            "maximum": 5.0,
+            "minimum": 0.0,
+            "title": "Pest Break",
+            "type": "integer"
+          },
+          "save_water": {
+            "default": 3,
+            "maximum": 5.0,
+            "minimum": 0.0,
+            "title": "Save Water",
+            "type": "integer"
+          },
+          "soil_health": {
+            "default": 3,
+            "maximum": 5.0,
+            "minimum": 0.0,
+            "title": "Soil Health",
+            "type": "integer"
+          }
+        },
+        "title": "Priorities",
+        "type": "object"
+      },
+      "Rain": {
+        "properties": {
+          "annual_cv": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Annual Cv"
+          },
+          "annual_mean_mm": {
+            "title": "Annual Mean Mm",
+            "type": "number"
+          },
+          "annual_p20_mm": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Annual P20 Mm"
+          },
+          "annual_p80_mm": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Annual P80 Mm"
+          },
+          "by_month": {
+            "items": {
+              "$ref": "#/components/schemas/RainMonth"
+            },
+            "title": "By Month",
+            "type": "array"
+          },
+          "heavy_rain_threshold_mm": {
+            "title": "Heavy Rain Threshold Mm",
+            "type": "number"
+          },
+          "rainy_months": {
+            "items": {
+              "maximum": 12.0,
+              "minimum": 1.0,
+              "type": "integer"
+            },
+            "title": "Rainy Months",
+            "type": "array"
+          },
+          "source_id": {
+            "title": "Source Id",
+            "type": "string"
+          },
+          "trend_mm_per_decade": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Tendencia por cada 10 años",
+            "title": "Trend Mm Per Decade"
+          }
+        },
+        "required": [
+          "source_id",
+          "annual_mean_mm",
+          "annual_p20_mm",
+          "annual_p80_mm",
+          "annual_cv",
+          "trend_mm_per_decade",
+          "rainy_months",
+          "heavy_rain_threshold_mm",
+          "by_month"
+        ],
+        "title": "Rain",
+        "type": "object"
+      },
+      "RainMonth": {
+        "properties": {
+          "mean_heavy_rain_days": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Mean Heavy Rain Days"
+          },
+          "mean_mm": {
+            "title": "Mean Mm",
+            "type": "number"
+          },
+          "month": {
+            "maximum": 12.0,
+            "minimum": 1.0,
+            "title": "Month",
+            "type": "integer"
+          },
+          "p20_mm": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "P20 Mm"
+          },
+          "p80_mm": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "P80 Mm"
+          }
+        },
+        "required": [
+          "month",
+          "mean_mm",
+          "p20_mm",
+          "p80_mm",
+          "mean_heavy_rain_days"
+        ],
+        "title": "RainMonth",
+        "type": "object"
+      },
+      "Ready": {
+        "properties": {
+          "data_version": {
+            "title": "Data Version",
+            "type": "string"
+          },
+          "environment": {
+            "title": "Environment",
+            "type": "string"
+          },
+          "status": {
+            "const": "ready",
+            "title": "Status",
+            "type": "string"
+          }
+        },
+        "required": [
+          "status",
+          "environment",
+          "data_version"
+        ],
+        "title": "Ready",
+        "type": "object"
+      },
+      "ReturnLevel": {
+        "properties": {
+          "estimated_gust_kmh": {
+            "description": "Sostenido × `gust_factor_assumed`",
+            "title": "Estimated Gust Kmh",
+            "type": "number"
+          },
+          "return_period_years": {
+            "title": "Return Period Years",
+            "type": "integer"
+          },
+          "sustained_kmh": {
+            "description": "Máximo de medias horarias del modelo",
+            "title": "Sustained Kmh",
+            "type": "number"
+          }
+        },
+        "required": [
+          "return_period_years",
+          "sustained_kmh",
+          "estimated_gust_kmh"
+        ],
+        "title": "ReturnLevel",
+        "type": "object"
+      },
+      "RiskDecade": {
+        "description": "Una decena del año: días 1-10, 11-20 y 21 a fin de cada mes.",
+        "properties": {
+          "decade": {
+            "maximum": 36.0,
+            "minimum": 1.0,
+            "title": "Decade",
+            "type": "integer"
+          },
+          "et0_p50_mm": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Et0 P50 Mm"
+          },
+          "month": {
+            "maximum": 12.0,
+            "minimum": 1.0,
+            "title": "Month",
+            "type": "integer"
+          },
+          "p_bare_soil": {
+            "anyOf": [
+              {
+                "maximum": 1.0,
+                "minimum": 0.0,
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "P Bare Soil"
+          },
+          "p_frost": {
+            "anyOf": [
+              {
+                "maximum": 1.0,
+                "minimum": 0.0,
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "P Frost"
+          },
+          "p_frost_severe": {
+            "anyOf": [
+              {
+                "maximum": 1.0,
+                "minimum": 0.0,
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "P Frost Severe"
+          },
+          "p_heat_30c": {
+            "anyOf": [
+              {
+                "maximum": 1.0,
+                "minimum": 0.0,
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "P Heat 30C"
+          },
+          "p_heat_32c": {
+            "anyOf": [
+              {
+                "maximum": 1.0,
+                "minimum": 0.0,
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "P Heat 32C"
+          },
+          "p_heat_35c": {
+            "anyOf": [
+              {
+                "maximum": 1.0,
+                "minimum": 0.0,
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "P Heat 35C"
+          },
+          "p_heat_38c": {
+            "anyOf": [
+              {
+                "maximum": 1.0,
+                "minimum": 0.0,
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "P Heat 38C"
+          },
+          "p_heavy_rain": {
+            "anyOf": [
+              {
+                "maximum": 1.0,
+                "minimum": 0.0,
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "P Heavy Rain"
+          },
+          "p_strong_wind": {
+            "anyOf": [
+              {
+                "maximum": 1.0,
+                "minimum": 0.0,
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "P Strong Wind"
+          },
+          "p_water_stress": {
+            "anyOf": [
+              {
+                "maximum": 1.0,
+                "minimum": 0.0,
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "P Water Stress"
+          },
+          "precip_p50_mm": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Precip P50 Mm"
+          },
+          "starts": {
+            "pattern": "^(0[1-9]|1[0-2])-(0[1-9]|[12]\\d|3[01])$",
+            "title": "Starts",
+            "type": "string"
+          },
+          "vulnerable": {
+            "title": "Vulnerable",
+            "type": "boolean"
+          },
+          "vulnerable_reasons": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Vulnerable Reasons",
+            "type": "array"
+          }
+        },
+        "required": [
+          "decade",
+          "month",
+          "starts",
+          "p_frost",
+          "p_frost_severe",
+          "p_heat_35c",
+          "p_heavy_rain",
+          "p_water_stress",
+          "p_bare_soil",
+          "precip_p50_mm",
+          "et0_p50_mm",
+          "vulnerable",
+          "vulnerable_reasons"
+        ],
+        "title": "RiskDecade",
+        "type": "object"
+      },
+      "RotationRequest": {
+        "additionalProperties": false,
+        "properties": {
+          "constraints": {
+            "$ref": "#/components/schemas/Constraints"
+          },
+          "max_strategies": {
+            "default": 4,
+            "maximum": 6.0,
+            "minimum": 3.0,
+            "title": "Max Strategies",
+            "type": "integer"
+          },
+          "priorities": {
+            "$ref": "#/components/schemas/Priorities"
+          },
+          "scenario": {
+            "$ref": "#/components/schemas/Scenario"
+          }
+        },
+        "title": "RotationRequest",
+        "type": "object"
+      },
+      "RotationResponse": {
+        "properties": {
+          "disclaimer": {
+            "title": "Disclaimer",
+            "type": "string"
+          },
+          "recommended_id": {
+            "title": "Recommended Id",
+            "type": "string"
+          },
+          "scenario": {
+            "$ref": "#/components/schemas/ScenarioApplied"
+          },
+          "strategies": {
+            "items": {
+              "$ref": "#/components/schemas/Strategy"
+            },
+            "minItems": 3,
+            "title": "Strategies",
+            "type": "array"
+          }
+        },
+        "required": [
+          "scenario",
+          "strategies",
+          "recommended_id",
+          "disclaimer"
+        ],
+        "title": "RotationResponse",
+        "type": "object"
+      },
+      "RotationSlot": {
+        "additionalProperties": false,
+        "properties": {
+          "crop_id": {
+            "anyOf": [
+              {
+                "maxLength": 60,
+                "minLength": 1,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "`null` = suelo desnudo",
+            "title": "Crop Id"
+          },
+          "season": {
+            "enum": [
+              "spring_summer",
+              "fall_winter"
+            ],
+            "title": "Season",
+            "type": "string"
+          },
+          "year": {
+            "maximum": 10.0,
+            "minimum": 1.0,
+            "title": "Year",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "year",
+          "season",
+          "crop_id"
+        ],
+        "title": "RotationSlot",
+        "type": "object"
+      },
+      "Scenario": {
+        "additionalProperties": false,
+        "properties": {
+          "delta_p_pct": {
+            "default": 0,
+            "description": "Cambio de lluvia en %",
+            "maximum": 50.0,
+            "minimum": -50.0,
+            "title": "Delta P Pct",
+            "type": "number"
+          },
+          "delta_t_c": {
+            "default": 0,
+            "description": "Cambio de temperatura en °C",
+            "maximum": 5.0,
+            "minimum": -2.0,
+            "title": "Delta T C",
+            "type": "number"
+          }
+        },
+        "title": "Scenario",
+        "type": "object"
+      },
+      "ScenarioApplied": {
+        "description": "Escenario con el que se calculó la respuesta. Es hipotético, no un pronóstico.",
+        "properties": {
+          "daily_origin": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Origen de la serie diaria: `gold`, `power_live` o `synthetic`; `null` sin escenario",
+            "title": "Daily Origin"
+          },
+          "delta_p_pct": {
+            "title": "Delta P Pct",
+            "type": "number"
+          },
+          "delta_t_c": {
+            "title": "Delta T C",
+            "type": "number"
+          },
+          "not_recomputed": {
+            "description": "Indicadores que el escenario no cambia y se toman de los datos publicados",
+            "items": {
+              "type": "string"
+            },
+            "title": "Not Recomputed",
+            "type": "array"
+          },
+          "note": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Note"
+          }
+        },
+        "required": [
+          "delta_t_c",
+          "delta_p_pct",
+          "daily_origin",
+          "not_recomputed",
+          "note"
+        ],
+        "title": "ScenarioApplied",
+        "type": "object"
+      },
+      "SequenceStep": {
+        "properties": {
+          "crop_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "`null` = suelo desnudo",
+            "title": "Crop Id"
+          },
+          "harvest": {
+            "anyOf": [
+              {
+                "pattern": "^(0[1-9]|1[0-2])-(0[1-9]|[12]\\d|3[01])$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Harvest"
+          },
+          "plant": {
+            "anyOf": [
+              {
+                "pattern": "^(0[1-9]|1[0-2])-(0[1-9]|[12]\\d|3[01])$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Plant"
+          },
+          "role": {
+            "examples": [
+              "cash",
+              "legume",
+              "cover",
+              "forage",
+              "bare"
+            ],
+            "title": "Role",
+            "type": "string"
+          },
+          "season": {
+            "enum": [
+              "spring_summer",
+              "fall_winter"
+            ],
+            "title": "Season",
+            "type": "string"
+          },
+          "year": {
+            "minimum": 1.0,
+            "title": "Year",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "year",
+          "season",
+          "crop_id",
+          "role"
+        ],
+        "title": "SequenceStep",
+        "type": "object"
+      },
+      "Slope": {
+        "properties": {
+          "mean": {
+            "title": "Mean",
+            "type": "number"
+          },
+          "p90": {
+            "title": "P90",
+            "type": "number"
+          }
+        },
+        "required": [
+          "mean",
+          "p90"
+        ],
+        "title": "Slope",
+        "type": "object"
+      },
+      "Soil": {
+        "properties": {
+          "confidence": {
+            "enum": [
+              "high",
+              "medium",
+              "low"
+            ],
+            "title": "Confidence",
+            "type": "string"
+          },
+          "k_factor": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "K Factor"
+          },
+          "lab": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Valores del análisis de laboratorio",
+            "title": "Lab"
+          },
+          "layers": {
+            "items": {
+              "$ref": "#/components/schemas/SoilLayer"
+            },
+            "title": "Layers",
+            "type": "array"
+          },
+          "source_id": {
+            "title": "Source Id",
+            "type": "string"
+          },
+          "texture_class": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Texture Class"
+          }
+        },
+        "required": [
+          "source_id",
+          "confidence",
+          "texture_class",
+          "layers",
+          "lab",
+          "k_factor"
+        ],
+        "title": "Soil",
+        "type": "object"
+      },
+      "SoilLab": {
+        "description": "Valores aceptados del análisis de laboratorio subido por el agricultor.",
+        "properties": {
+          "depth_cm": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Depth Cm"
+          },
+          "file_key": {
+            "title": "File Key",
+            "type": "string"
+          },
+          "lab": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Lab"
+          },
+          "sample_date": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Sample Date"
+          },
+          "texture": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Texture"
+          },
+          "uploaded_at": {
+            "title": "Uploaded At",
+            "type": "string"
+          },
+          "values": {
+            "additionalProperties": {
+              "type": "number"
+            },
+            "description": "ph, om_pct, ec_ds_m, cec_cmol_kg, n_mg_kg, p_mg_kg, k_mg_kg",
+            "title": "Values",
+            "type": "object"
+          }
+        },
+        "required": [
+          "values",
+          "lab",
+          "sample_date",
+          "depth_cm",
+          "texture",
+          "uploaded_at",
+          "file_key"
+        ],
+        "title": "SoilLab",
+        "type": "object"
+      },
+      "SoilLayer": {
+        "properties": {
+          "awc_mm_per_m": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Awc Mm Per M"
+          },
+          "bulk_density_g_cm3": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Bulk Density G Cm3"
+          },
+          "cec_cmol_kg": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Cec Cmol Kg"
+          },
+          "clay_pct": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Clay Pct"
+          },
+          "depth_cm": {
+            "maxItems": 2,
+            "minItems": 2,
+            "prefixItems": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "integer"
+              }
+            ],
+            "title": "Depth Cm",
+            "type": "array"
+          },
+          "n_total_g_kg": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "N Total G Kg"
+          },
+          "om_pct": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Om Pct"
+          },
+          "ph": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Ph"
+          },
+          "sand_pct": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Sand Pct"
+          },
+          "silt_pct": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Silt Pct"
+          },
+          "soc_g_kg": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Soc G Kg"
+          },
+          "uncertainty": {
+            "additionalProperties": {
+              "$ref": "#/components/schemas/UncertaintyRange"
+            },
+            "description": "Rango P05-P95 por propiedad",
+            "title": "Uncertainty",
+            "type": "object"
+          }
+        },
+        "required": [
+          "depth_cm",
+          "soc_g_kg",
+          "om_pct",
+          "n_total_g_kg",
+          "ph",
+          "cec_cmol_kg",
+          "clay_pct",
+          "sand_pct",
+          "silt_pct",
+          "bulk_density_g_cm3",
+          "awc_mm_per_m"
+        ],
+        "title": "SoilLayer",
+        "type": "object"
+      },
+      "SoilMoisture": {
+        "properties": {
+          "by_month": {
+            "items": {
+              "$ref": "#/components/schemas/SoilMoistureMonth"
+            },
+            "title": "By Month",
+            "type": "array"
+          },
+          "source_id": {
+            "title": "Source Id",
+            "type": "string"
+          },
+          "years": {
+            "maxItems": 2,
+            "minItems": 2,
+            "prefixItems": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "integer"
+              }
+            ],
+            "title": "Years",
+            "type": "array"
+          }
+        },
+        "required": [
+          "source_id",
+          "years",
+          "by_month"
+        ],
+        "title": "SoilMoisture",
+        "type": "object"
+      },
+      "SoilMoistureMonth": {
+        "properties": {
+          "mean_m3_m3": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Mean M3 M3"
+          },
+          "month": {
+            "maximum": 12.0,
+            "minimum": 1.0,
+            "title": "Month",
+            "type": "integer"
+          },
+          "percentile_p10": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Percentile P10"
+          },
+          "percentile_p50": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Percentile P50"
+          },
+          "percentile_p90": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Percentile P90"
+          }
+        },
+        "required": [
+          "month",
+          "mean_m3_m3"
+        ],
+        "title": "SoilMoistureMonth",
+        "type": "object"
+      },
+      "SoilReportResult": {
+        "properties": {
+          "applied": {
+            "description": "Si al menos un valor se guardó en la geocerca",
+            "title": "Applied",
+            "type": "boolean"
+          },
+          "extracted": {
+            "additionalProperties": {
+              "anyOf": [
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "description": "Todos los campos; `null` si no se leyó",
+            "title": "Extracted",
+            "type": "object"
+          },
+          "field_id": {
+            "title": "Field Id",
+            "type": "string"
+          },
+          "unreadable_fields": {
+            "items": {
+              "$ref": "#/components/schemas/UnreadableField"
+            },
+            "title": "Unreadable Fields",
+            "type": "array"
+          }
+        },
+        "required": [
+          "field_id",
+          "extracted",
+          "unreadable_fields",
+          "applied"
+        ],
+        "title": "SoilReportResult",
+        "type": "object"
+      },
+      "Source": {
+        "properties": {
+          "data_class": {
+            "enum": [
+              "observation",
+              "model",
+              "derived",
+              "estimate",
+              "synthetic"
+            ],
+            "title": "Data Class",
+            "type": "string"
+          },
+          "id": {
+            "title": "Id",
+            "type": "string"
+          },
+          "license": {
+            "title": "License",
+            "type": "string"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "organization": {
+            "title": "Organization",
+            "type": "string"
+          },
+          "period": {
+            "title": "Period",
+            "type": "string"
+          },
+          "product": {
+            "title": "Product",
+            "type": "string"
+          },
+          "resolution": {
+            "title": "Resolution",
+            "type": "string"
+          },
+          "url": {
+            "title": "Url",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "organization",
+          "product",
+          "url",
+          "resolution",
+          "period",
+          "license",
+          "data_class"
+        ],
+        "title": "Source",
+        "type": "object"
+      },
+      "Strategy": {
+        "properties": {
+          "benefits": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Benefits",
+            "type": "array"
+          },
+          "confidence": {
+            "enum": [
+              "high",
+              "medium",
+              "low"
+            ],
+            "title": "Confidence",
+            "type": "string"
+          },
+          "evidence": {
+            "items": {
+              "$ref": "#/components/schemas/Evidence"
+            },
+            "title": "Evidence",
+            "type": "array"
+          },
+          "gaps": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Gaps",
+            "type": "array"
+          },
+          "id": {
+            "title": "Id",
+            "type": "string"
+          },
+          "is_current": {
+            "title": "Is Current",
+            "type": "boolean"
+          },
+          "metrics": {
+            "$ref": "#/components/schemas/StrategyMetrics"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "risks_local_review": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Risks Local Review",
+            "type": "array"
+          },
+          "scores": {
+            "$ref": "#/components/schemas/StrategyScores"
+          },
+          "sequence": {
+            "items": {
+              "$ref": "#/components/schemas/SequenceStep"
+            },
+            "title": "Sequence",
+            "type": "array"
+          },
+          "why": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Why",
+            "type": "array"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "is_current",
+          "sequence",
+          "metrics",
+          "scores",
+          "why",
+          "evidence",
+          "benefits",
+          "gaps",
+          "risks_local_review",
+          "confidence"
+        ],
+        "title": "Strategy",
+        "type": "object"
+      },
+      "StrategyMetrics": {
+        "properties": {
+          "bare_soil_days_per_year": {
+            "minimum": 0.0,
+            "title": "Bare Soil Days Per Year",
+            "type": "number"
+          },
+          "erosion_exposure_index": {
+            "description": "Decenas descubiertas × probabilidad de lluvia intensa",
+            "minimum": 0.0,
+            "title": "Erosion Exposure Index",
+            "type": "number"
+          },
+          "gross_margin_index": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Gross Margin Index"
+          },
+          "irrigation_need_mm_per_year": {
+            "title": "Irrigation Need Mm Per Year",
+            "type": "number"
+          },
+          "n_balance_kg_ha_per_year": {
+            "title": "N Balance Kg Ha Per Year",
+            "type": "number"
+          },
+          "om_trend": {
+            "enum": [
+              "declining",
+              "stable",
+              "improving"
+            ],
+            "title": "Om Trend",
+            "type": "string"
+          },
+          "pest_break_score": {
+            "title": "Pest Break Score",
+            "type": "number"
+          },
+          "water_demand_mm_per_year": {
+            "title": "Water Demand Mm Per Year",
+            "type": "number"
+          }
+        },
+        "required": [
+          "water_demand_mm_per_year",
+          "irrigation_need_mm_per_year",
+          "n_balance_kg_ha_per_year",
+          "om_trend",
+          "erosion_exposure_index",
+          "bare_soil_days_per_year",
+          "pest_break_score",
+          "gross_margin_index"
+        ],
+        "title": "StrategyMetrics",
+        "type": "object"
+      },
+      "StrategyScores": {
+        "properties": {
+          "forage": {
+            "maximum": 5.0,
+            "minimum": 0.0,
+            "title": "Forage",
+            "type": "number"
+          },
+          "income": {
+            "anyOf": [
+              {
+                "maximum": 5.0,
+                "minimum": 0.0,
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "`null` si el catálogo no trae índice de margen",
+            "title": "Income"
+          },
+          "low_labor": {
+            "maximum": 5.0,
+            "minimum": 0.0,
+            "title": "Low Labor",
+            "type": "number"
+          },
+          "overall": {
+            "maximum": 100.0,
+            "minimum": 0.0,
+            "title": "Overall",
+            "type": "number"
+          },
+          "pest_break": {
+            "maximum": 5.0,
+            "minimum": 0.0,
+            "title": "Pest Break",
+            "type": "number"
+          },
+          "save_water": {
+            "maximum": 5.0,
+            "minimum": 0.0,
+            "title": "Save Water",
+            "type": "number"
+          },
+          "soil_health": {
+            "maximum": 5.0,
+            "minimum": 0.0,
+            "title": "Soil Health",
+            "type": "number"
+          }
+        },
+        "required": [
+          "save_water",
+          "income",
+          "soil_health",
+          "forage",
+          "pest_break",
+          "low_labor",
+          "overall"
+        ],
+        "title": "StrategyScores",
+        "type": "object"
+      },
+      "SuitabilityDetail": {
+        "properties": {
+          "confidence": {
+            "enum": [
+              "high",
+              "medium",
+              "low"
+            ],
+            "title": "Confidence",
+            "type": "string"
+          },
+          "crop_id": {
+            "title": "Crop Id",
+            "type": "string"
+          },
+          "harvest_window": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/HarvestWindow"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "planting_month": {
+            "maximum": 12.0,
+            "minimum": 1.0,
+            "title": "Planting Month",
+            "type": "integer"
+          },
+          "reasons": {
+            "items": {
+              "$ref": "#/components/schemas/SuitabilityReason"
+            },
+            "title": "Reasons",
+            "type": "array"
+          },
+          "scenario": {
+            "$ref": "#/components/schemas/ScenarioApplied"
+          },
+          "score": {
+            "maximum": 100.0,
+            "minimum": 0.0,
+            "title": "Score",
+            "type": "number"
+          },
+          "status": {
+            "enum": [
+              "suitable",
+              "marginal",
+              "unsuitable"
+            ],
+            "title": "Status",
+            "type": "string"
+          }
+        },
+        "required": [
+          "crop_id",
+          "planting_month",
+          "status",
+          "score",
+          "harvest_window",
+          "reasons",
+          "confidence",
+          "scenario"
+        ],
+        "title": "SuitabilityDetail",
+        "type": "object"
+      },
+      "SuitabilityMatrix": {
+        "properties": {
+          "crops": {
+            "items": {
+              "$ref": "#/components/schemas/CropSuitabilityRow"
+            },
+            "title": "Crops",
+            "type": "array"
+          },
+          "months": {
+            "items": {
+              "maximum": 12.0,
+              "minimum": 1.0,
+              "type": "integer"
+            },
+            "maxItems": 12,
+            "minItems": 12,
+            "title": "Months",
+            "type": "array"
+          },
+          "scenario": {
+            "$ref": "#/components/schemas/ScenarioApplied"
+          }
+        },
+        "required": [
+          "months",
+          "crops",
+          "scenario"
+        ],
+        "title": "SuitabilityMatrix",
+        "type": "object"
+      },
+      "SuitabilityReason": {
+        "properties": {
+          "detail": {
+            "title": "Detail",
+            "type": "string"
+          },
+          "factor": {
+            "examples": [
+              "frost",
+              "heat",
+              "water",
+              "soil"
+            ],
+            "title": "Factor",
+            "type": "string"
+          },
+          "source_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Source Id"
+          },
+          "status": {
+            "enum": [
+              "ok",
+              "warn",
+              "bad",
+              "unknown"
+            ],
+            "title": "Status",
+            "type": "string"
+          }
+        },
+        "required": [
+          "factor",
+          "status",
+          "detail",
+          "source_id"
+        ],
+        "title": "SuitabilityReason",
+        "type": "object"
+      },
+      "Terrain": {
+        "properties": {
+          "aspect_dominant": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Aspect Dominant"
+          },
+          "cold_air_pooling_share": {
+            "anyOf": [
+              {
+                "maximum": 1.0,
+                "minimum": 0.0,
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Cold Air Pooling Share"
+          },
+          "elevation_m": {
+            "$ref": "#/components/schemas/Elevation"
+          },
+          "slope_pct": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Slope"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "source_id": {
+            "title": "Source Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "source_id",
+          "elevation_m",
+          "slope_pct",
+          "aspect_dominant",
+          "cold_air_pooling_share"
+        ],
+        "title": "Terrain",
+        "type": "object"
+      },
+      "UncertaintyRange": {
+        "description": "Capas Q0.05 y Q0.95 de SoilGrids: incertidumbre del modelo, no variación en la celda.",
+        "properties": {
+          "p05": {
+            "title": "P05",
+            "type": "number"
+          },
+          "p95": {
+            "title": "P95",
+            "type": "number"
+          }
+        },
+        "required": [
+          "p05",
+          "p95"
+        ],
+        "title": "UncertaintyRange",
+        "type": "object"
+      },
+      "UnreadableField": {
+        "properties": {
+          "field": {
+            "title": "Field",
+            "type": "string"
+          },
+          "reason": {
+            "enum": [
+              "missing",
+              "out_of_range",
+              "invalid"
+            ],
+            "title": "Reason",
+            "type": "string"
+          }
+        },
+        "required": [
+          "field",
+          "reason"
+        ],
+        "title": "UnreadableField",
+        "type": "object"
+      },
+      "Vegetation": {
+        "properties": {
+          "bare_soil_decades": {
+            "items": {
+              "type": "integer"
+            },
+            "title": "Bare Soil Decades",
+            "type": "array"
+          },
+          "bare_soil_months": {
+            "items": {
+              "maximum": 12.0,
+              "minimum": 1.0,
+              "type": "integer"
+            },
+            "title": "Bare Soil Months",
+            "type": "array"
+          },
+          "ndvi_by_month": {
+            "items": {
+              "$ref": "#/components/schemas/NdviMonth"
+            },
+            "title": "Ndvi By Month",
+            "type": "array"
+          },
+          "source_id": {
+            "title": "Source Id",
+            "type": "string"
+          },
+          "vigor_trend_per_decade": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Tendencia por cada 10 años",
+            "title": "Vigor Trend Per Decade"
+          }
+        },
+        "required": [
+          "source_id",
+          "ndvi_by_month",
+          "bare_soil_months",
+          "bare_soil_decades",
+          "vigor_trend_per_decade"
+        ],
+        "title": "Vegetation",
+        "type": "object"
+      },
+      "VisibleMessage": {
+        "properties": {
+          "cards": {
+            "default": [],
+            "items": {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            "title": "Cards",
+            "type": "array"
+          },
+          "citations": {
+            "default": [],
+            "items": {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            "title": "Citations",
+            "type": "array"
+          },
+          "created_at": {
+            "title": "Created At",
+            "type": "string"
+          },
+          "message_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Message Id"
+          },
+          "role": {
+            "title": "Role",
+            "type": "string"
+          },
+          "status": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Status"
+          },
+          "text": {
+            "title": "Text",
+            "type": "string"
+          }
+        },
+        "required": [
+          "role",
+          "text",
+          "created_at"
+        ],
+        "title": "VisibleMessage",
+        "type": "object"
+      },
+      "Water": {
+        "properties": {
+          "et": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Evapotranspiration"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "groundwater": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Groundwater"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "soil_moisture": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/SoilMoisture"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "water_balance_by_month": {
+            "items": {
+              "$ref": "#/components/schemas/WaterBalanceMonth"
+            },
+            "title": "Water Balance By Month",
+            "type": "array"
+          }
+        },
+        "required": [
+          "soil_moisture",
+          "et",
+          "water_balance_by_month",
+          "groundwater"
+        ],
+        "title": "Water",
+        "type": "object"
+      },
+      "WaterBalanceMonth": {
+        "properties": {
+          "month": {
+            "maximum": 12.0,
+            "minimum": 1.0,
+            "title": "Month",
+            "type": "integer"
+          },
+          "p_minus_et0_mm": {
+            "title": "P Minus Et0 Mm",
+            "type": "number"
+          }
+        },
+        "required": [
+          "month",
+          "p_minus_et0_mm"
+        ],
+        "title": "WaterBalanceMonth",
+        "type": "object"
+      },
+      "Wind": {
+        "properties": {
+          "annual_max_mean_kmh": {
+            "title": "Annual Max Mean Kmh",
+            "type": "number"
+          },
+          "by_month": {
+            "items": {
+              "$ref": "#/components/schemas/WindMonth"
+            },
+            "title": "By Month",
+            "type": "array"
+          },
+          "gust_factor_assumed": {
+            "title": "Gust Factor Assumed",
+            "type": "number"
+          },
+          "record_kmh": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Record Kmh"
+          },
+          "return_levels_kmh": {
+            "items": {
+              "$ref": "#/components/schemas/WindReturnLevel"
+            },
+            "title": "Return Levels Kmh",
+            "type": "array"
+          },
+          "windiest_month": {
+            "maximum": 12.0,
+            "minimum": 1.0,
+            "title": "Windiest Month",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "annual_max_mean_kmh",
+          "record_kmh",
+          "windiest_month",
+          "gust_factor_assumed",
+          "return_levels_kmh",
+          "by_month"
+        ],
+        "title": "Wind",
+        "type": "object"
+      },
+      "WindMonth": {
+        "properties": {
+          "mean_daily_max_kmh": {
+            "title": "Mean Daily Max Kmh",
+            "type": "number"
+          },
+          "month": {
+            "maximum": 12.0,
+            "minimum": 1.0,
+            "title": "Month",
+            "type": "integer"
+          },
+          "record_kmh": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Record Kmh"
+          }
+        },
+        "required": [
+          "month",
+          "mean_daily_max_kmh",
+          "record_kmh"
+        ],
+        "title": "WindMonth",
+        "type": "object"
+      },
+      "WindReturnLevel": {
+        "properties": {
+          "estimated_gust_kmh": {
+            "title": "Estimated Gust Kmh",
+            "type": "number"
+          },
+          "return_period_years": {
+            "title": "Return Period Years",
+            "type": "integer"
+          },
+          "sustained_kmh": {
+            "title": "Sustained Kmh",
+            "type": "number"
+          }
+        },
+        "required": [
+          "return_period_years",
+          "sustained_kmh",
+          "estimated_gust_kmh"
+        ],
+        "title": "WindReturnLevel",
+        "type": "object"
+      }
+    }
+  },
+  "info": {
+    "title": "Field Shift API",
+    "version": "0.1.0"
+  },
+  "openapi": "3.1.0",
+  "paths": {
+    "/api/v1/chat/conversations": {
+      "post": {
+        "operationId": "create_conversation_api_v1_chat_conversations_post",
+        "parameters": [
+          {
+            "description": "UUID que genera el frontend; separa los datos de cada cliente",
+            "in": "header",
+            "name": "x-client-id",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "UUID que genera el frontend; separa los datos de cada cliente",
+              "title": "X-Client-Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ConversationCreate"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Conversation"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Unprocessable Content"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Service Unavailable"
+          }
+        },
+        "summary": "Crear una conversación, opcionalmente ligada a una geocerca",
+        "tags": [
+          "chat"
+        ]
+      }
+    },
+    "/api/v1/chat/conversations/{conversation_id}": {
+      "get": {
+        "operationId": "get_conversation_api_v1_chat_conversations__conversation_id__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "conversation_id",
+            "required": true,
+            "schema": {
+              "title": "Conversation Id",
+              "type": "string"
+            }
+          },
+          {
+            "description": "UUID que genera el frontend; separa los datos de cada cliente",
+            "in": "header",
+            "name": "x-client-id",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "UUID que genera el frontend; separa los datos de cada cliente",
+              "title": "X-Client-Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ConversationHistory"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Unprocessable Content"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Service Unavailable"
+          }
+        },
+        "summary": "Historial visible de una conversación",
+        "tags": [
+          "chat"
+        ]
+      }
+    },
+    "/api/v1/chat/conversations/{conversation_id}/messages": {
+      "post": {
+        "operationId": "send_message_api_v1_chat_conversations__conversation_id__messages_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "conversation_id",
+            "required": true,
+            "schema": {
+              "title": "Conversation Id",
+              "type": "string"
+            }
+          },
+          {
+            "description": "UUID que genera el frontend; separa los datos de cada cliente",
+            "in": "header",
+            "name": "x-client-id",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "UUID que genera el frontend; separa los datos de cada cliente",
+              "title": "X-Client-Id"
+            }
+          },
+          {
+            "description": "`es` (por defecto) o `en`",
+            "in": "header",
+            "name": "accept-language",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "`es` (por defecto) o `en`",
+              "title": "Accept-Language"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MessageCreate"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {}
+              },
+              "text/event-stream": {}
+            },
+            "description": "Eventos `status`, `tool`, `text`, `card`, `citation` y un `done` o `error` final"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Conflict"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Unprocessable Content"
+          },
+          "429": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Too Many Requests"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Service Unavailable"
+          }
+        },
+        "summary": "Enviar un mensaje; la respuesta llega como flujo de eventos (SSE)",
+        "tags": [
+          "chat"
+        ]
+      }
+    },
+    "/api/v1/crops": {
+      "get": {
+        "operationId": "list_crops_api_v1_crops_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/Crop"
+                  },
+                  "title": "Response List Crops Api V1 Crops Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Unprocessable Content"
+          }
+        },
+        "summary": "Catálogo de cultivos",
+        "tags": [
+          "catalog"
+        ]
+      }
+    },
+    "/api/v1/fields": {
+      "get": {
+        "operationId": "list_fields_api_v1_fields_get",
+        "parameters": [
+          {
+            "description": "UUID que genera el frontend; separa los datos de cada cliente",
+            "in": "header",
+            "name": "x-client-id",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "UUID que genera el frontend; separa los datos de cada cliente",
+              "title": "X-Client-Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/Field"
+                  },
+                  "title": "Response List Fields Api V1 Fields Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Falta `X-Client-Id` o no es UUID"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Unprocessable Content"
+          }
+        },
+        "summary": "Listar las geocercas del cliente",
+        "tags": [
+          "fields"
+        ]
+      },
+      "post": {
+        "operationId": "create_field_api_v1_fields_post",
+        "parameters": [
+          {
+            "description": "UUID que genera el frontend; separa los datos de cada cliente",
+            "in": "header",
+            "name": "x-client-id",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "UUID que genera el frontend; separa los datos de cada cliente",
+              "title": "X-Client-Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/FieldCreate"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Field"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Falta `X-Client-Id` o no es UUID"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Tope de geocercas alcanzado"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Unprocessable Content"
+          }
+        },
+        "summary": "Crear una geocerca o un invernadero",
+        "tags": [
+          "fields"
+        ]
+      }
+    },
+    "/api/v1/fields/{field_id}": {
+      "delete": {
+        "operationId": "delete_field_api_v1_fields__field_id__delete",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "field_id",
+            "required": true,
+            "schema": {
+              "title": "Field Id",
+              "type": "string"
+            }
+          },
+          {
+            "description": "UUID que genera el frontend; separa los datos de cada cliente",
+            "in": "header",
+            "name": "x-client-id",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "UUID que genera el frontend; separa los datos de cada cliente",
+              "title": "X-Client-Id"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Falta `X-Client-Id` o no es UUID"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "No existe para este cliente"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Unprocessable Content"
+          }
+        },
+        "summary": "Borrar",
+        "tags": [
+          "fields"
+        ]
+      },
+      "get": {
+        "operationId": "get_field_api_v1_fields__field_id__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "field_id",
+            "required": true,
+            "schema": {
+              "title": "Field Id",
+              "type": "string"
+            }
+          },
+          {
+            "description": "UUID que genera el frontend; separa los datos de cada cliente",
+            "in": "header",
+            "name": "x-client-id",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "UUID que genera el frontend; separa los datos de cada cliente",
+              "title": "X-Client-Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Field"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Falta `X-Client-Id` o no es UUID"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "No existe para este cliente"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Unprocessable Content"
+          }
+        },
+        "summary": "Detalle",
+        "tags": [
+          "fields"
+        ]
+      },
+      "patch": {
+        "operationId": "update_field_api_v1_fields__field_id__patch",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "field_id",
+            "required": true,
+            "schema": {
+              "title": "Field Id",
+              "type": "string"
+            }
+          },
+          {
+            "description": "UUID que genera el frontend; separa los datos de cada cliente",
+            "in": "header",
+            "name": "x-client-id",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "UUID que genera el frontend; separa los datos de cada cliente",
+              "title": "X-Client-Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/FieldUpdate"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Field"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Falta `X-Client-Id` o no es UUID"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "No existe para este cliente"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Unprocessable Content"
+          }
+        },
+        "summary": "Editar los campos enviados",
+        "tags": [
+          "fields"
+        ]
+      }
+    },
+    "/api/v1/fields/{field_id}/greenhouse": {
+      "get": {
+        "operationId": "get_greenhouse_api_v1_fields__field_id__greenhouse_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "field_id",
+            "required": true,
+            "schema": {
+              "title": "Field Id",
+              "type": "string"
+            }
+          },
+          {
+            "description": "UUID que genera el frontend; separa los datos de cada cliente",
+            "in": "header",
+            "name": "x-client-id",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "UUID que genera el frontend; separa los datos de cada cliente",
+              "title": "X-Client-Id"
+            }
+          },
+          {
+            "description": "`es` (por defecto) o `en`",
+            "in": "header",
+            "name": "accept-language",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "`es` (por defecto) o `en`",
+              "title": "Accept-Language"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GreenhouseAssessment"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Conflict"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Unprocessable Content"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Service Unavailable"
+          }
+        },
+        "summary": "Riesgo de viento para la estructura de un invernadero",
+        "tags": [
+          "greenhouse"
+        ]
+      }
+    },
+    "/api/v1/fields/{field_id}/profile": {
+      "get": {
+        "operationId": "get_profile_api_v1_fields__field_id__profile_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "field_id",
+            "required": true,
+            "schema": {
+              "title": "Field Id",
+              "type": "string"
+            }
+          },
+          {
+            "description": "UUID que genera el frontend; separa los datos de cada cliente",
+            "in": "header",
+            "name": "x-client-id",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "UUID que genera el frontend; separa los datos de cada cliente",
+              "title": "X-Client-Id"
+            }
+          },
+          {
+            "description": "`es` (por defecto) o `en`",
+            "in": "header",
+            "name": "accept-language",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "`es` (por defecto) o `en`",
+              "title": "Accept-Language"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FieldProfile"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Unprocessable Content"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Service Unavailable"
+          }
+        },
+        "summary": "Perfil de la zona (celda de 9 km), en una sola llamada",
+        "tags": [
+          "profile"
+        ]
+      }
+    },
+    "/api/v1/fields/{field_id}/rotations": {
+      "post": {
+        "operationId": "compare_rotations_api_v1_fields__field_id__rotations_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "field_id",
+            "required": true,
+            "schema": {
+              "title": "Field Id",
+              "type": "string"
+            }
+          },
+          {
+            "description": "UUID que genera el frontend; separa los datos de cada cliente",
+            "in": "header",
+            "name": "x-client-id",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "UUID que genera el frontend; separa los datos de cada cliente",
+              "title": "X-Client-Id"
+            }
+          },
+          {
+            "description": "`es` (por defecto) o `en`",
+            "in": "header",
+            "name": "accept-language",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "`es` (por defecto) o `en`",
+              "title": "Accept-Language"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RotationRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RotationResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Unprocessable Content"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Service Unavailable"
+          }
+        },
+        "summary": "Al menos 3 estrategias, incluida la rotación actual",
+        "tags": [
+          "rotations"
+        ]
+      }
+    },
+    "/api/v1/fields/{field_id}/soil-report": {
+      "post": {
+        "operationId": "upload_soil_report_api_v1_fields__field_id__soil_report_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "field_id",
+            "required": true,
+            "schema": {
+              "title": "Field Id",
+              "type": "string"
+            }
+          },
+          {
+            "description": "UUID que genera el frontend; separa los datos de cada cliente",
+            "in": "header",
+            "name": "x-client-id",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "UUID que genera el frontend; separa los datos de cada cliente",
+              "title": "X-Client-Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "$ref": "#/components/schemas/Body_upload_soil_report_api_v1_fields__field_id__soil_report_post"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SoilReportResult"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "413": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Content Too Large"
+          },
+          "415": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Unsupported Media Type"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Unprocessable Content"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Service Unavailable"
+          }
+        },
+        "summary": "Subir el análisis de suelo de laboratorio (PDF, JPG o PNG, hasta 10 MB)",
+        "tags": [
+          "soil"
+        ]
+      }
+    },
+    "/api/v1/fields/{field_id}/suitability": {
+      "get": {
+        "operationId": "get_suitability_api_v1_fields__field_id__suitability_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "field_id",
+            "required": true,
+            "schema": {
+              "title": "Field Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "crop_id",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "maxLength": 60,
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Crop Id"
+            }
+          },
+          {
+            "in": "query",
+            "name": "planting_month",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "maximum": 12,
+                  "minimum": 1,
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Planting Month"
+            }
+          },
+          {
+            "description": "Cambio de temperatura en °C",
+            "in": "query",
+            "name": "delta_t_c",
+            "required": false,
+            "schema": {
+              "default": 0,
+              "description": "Cambio de temperatura en °C",
+              "maximum": 5,
+              "minimum": -2,
+              "title": "Delta T C",
+              "type": "number"
+            }
+          },
+          {
+            "description": "Cambio de lluvia en %",
+            "in": "query",
+            "name": "delta_p_pct",
+            "required": false,
+            "schema": {
+              "default": 0,
+              "description": "Cambio de lluvia en %",
+              "maximum": 50,
+              "minimum": -50,
+              "title": "Delta P Pct",
+              "type": "number"
+            }
+          },
+          {
+            "description": "UUID que genera el frontend; separa los datos de cada cliente",
+            "in": "header",
+            "name": "x-client-id",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "UUID que genera el frontend; separa los datos de cada cliente",
+              "title": "X-Client-Id"
+            }
+          },
+          {
+            "description": "`es` (por defecto) o `en`",
+            "in": "header",
+            "name": "accept-language",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "`es` (por defecto) o `en`",
+              "title": "Accept-Language"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "anyOf": [
+                    {
+                      "$ref": "#/components/schemas/SuitabilityDetail"
+                    },
+                    {
+                      "$ref": "#/components/schemas/SuitabilityMatrix"
+                    }
+                  ],
+                  "title": "Response Get Suitability Api V1 Fields  Field Id  Suitability Get"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Bad Request"
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Unprocessable Content"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Service Unavailable"
+          }
+        },
+        "summary": "Matriz cultivo × mes, o el detalle si se envían crop_id y planting_month",
+        "tags": [
+          "suitability"
+        ]
+      }
+    },
+    "/api/v1/sources": {
+      "get": {
+        "operationId": "list_sources_api_v1_sources_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/Source"
+                  },
+                  "title": "Response List Sources Api V1 Sources Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Unprocessable Content"
+          }
+        },
+        "summary": "Fuentes de datos del sistema",
+        "tags": [
+          "catalog"
+        ]
+      }
+    },
+    "/health": {
+      "get": {
+        "operationId": "health_health_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Health"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "Health",
+        "tags": [
+          "platform"
+        ]
+      }
+    },
+    "/ready": {
+      "get": {
+        "operationId": "ready_ready_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Ready"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Service Unavailable"
+          }
+        },
+        "summary": "Ready",
+        "tags": [
+          "platform"
+        ]
+      }
+    }
+  }
+}

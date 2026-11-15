@@ -6,7 +6,7 @@
 // Modo demostración: proyecciones CMIP6 HighResMIP vía la Climate API de
 // Open-Meteo. Backend: NASA NEX-GDDP-CMIP6 (Earth Engine `NASA/GDDP-CMIP6`).
 
-import type { FutureClimate, FutureModelDelta } from '../../types.ts'
+import type { FutureClimate, FutureModelDelta } from '../types.ts'
 
 export const FUTURE_MODELS = ['EC_Earth3P_HR', 'MRI_AGCM3_2_S', 'CMCC_CM2_VHR4', 'FGOALS_f3_H', 'HiRAM_SIT_HR', 'MPI_ESM1_2_XR', 'NICAM16_8S']
 export const FUTURE_URL = 'https://climate-api.open-meteo.com/v1/climate'

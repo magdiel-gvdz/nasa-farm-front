@@ -1,0 +1,50 @@
+{
+  "crop_id": "maiz",
+  "planting_month": 4,
+  "status": "marginal",
+  "score": 46.0,
+  "harvest_window": {
+    "from": "07-10",
+    "to": "08-29"
+  },
+  "reasons": [
+    {
+      "factor": "frost",
+      "status": "ok",
+      "detail": "Low frost risk during the cycle in your zone: at most 0% of years have frost (Tmin < 0 °C) in the ten-day period starting April 1.",
+      "source_id": "nasa_power"
+    },
+    {
+      "factor": "heat",
+      "status": "bad",
+      "detail": "Flowering falls in the ten-day period starting June 11: in 90% of years your zone exceeds 35 °C, which damages flowering (crop critical temperature: 35 °C; threshold used: 35 °C).",
+      "source_id": "nasa_power"
+    },
+    {
+      "factor": "water",
+      "status": "bad",
+      "detail": "Demand of 660 mm versus 57 mm of effective rain in your zone and 400 mm of irrigation: deficit of 203 mm, the available irrigation is not enough.",
+      "source_id": "nasa_power"
+    },
+    {
+      "factor": "soil",
+      "status": "bad",
+      "detail": "Estimated pH of 8.0 in your zone, outside the crop range (5.5-7.5).",
+      "source_id": "soilgrids"
+    }
+  ],
+  "confidence": "medium",
+  "scenario": {
+    "delta_t_c": 2.0,
+    "delta_p_pct": -20.0,
+    "daily_origin": "gold",
+    "not_recomputed": [
+      "soil_moisture",
+      "water_stress",
+      "bare_soil",
+      "wind",
+      "soil"
+    ],
+    "note": "Hypothetical scenario, not a forecast: it shifts the historical climate of your zone uniformly. Soil moisture, bare soil and wind stay as in the published data."
+  }
+}

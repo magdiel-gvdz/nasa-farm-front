@@ -1,110 +1,64 @@
-import { motion } from 'motion/react'
-import { CloudHail, CloudRain, Shovel, Snowflake, Sun, type LucideIcon } from 'lucide-react'
 import { useState } from 'react'
-import type { FieldProfile, RiskWeek } from '@/api/types'
+import type { FieldProfile, RiskPeriod } from '@/api/types'
+import { dateShort, MONTHS_SHORT, pct } from '@/lib/format'
 import { cn } from '@/lib/cn'
-import { currentWeek, dateShort, MONTHS_SHORT } from '@/lib/format'
-
-interface Row {
-  key: string
-  label: string
-  icon: LucideIcon
-  color: string
-  value: (w: RiskWeek, month: number) => number // 0..1
-  describe: (w: RiskWeek, month: number) => string
-}
 
 export function RiskCalendar({ profile }: { profile: FieldProfile }) {
-  const weeks = profile.climate.risk_calendar
-  const bare = new Set(profile.vegetation.bare_soil_months)
-  const today = currentWeek()
-  const [hover, setHover] = useState<number>(today - 1)
-
-  const rows: Row[] = [
-    { key: 'frost', label: 'Frost', icon: Snowflake, color: 'var(--s-7)', value: (w) => w.p_frost ?? 0, describe: (w) => `Frost ${Math.round((w.p_frost ?? 0) * 100)} % of years` },
-    { key: 'rain', label: 'Rainfall', icon: CloudRain, color: 'var(--s-1)', value: (w) => 1 - (w.p_dry_week ?? 1), describe: (w) => `It's raining ${Math.round((1 - (w.p_dry_week ?? 1)) * 100)} % of years · ${w.mean_prec_mm ?? 0} mm` },
-    { key: 'heat', label: 'Heat > 35 °C', icon: Sun, color: 'var(--s-2)', value: (w) => w.p_heat_35c ?? 0, describe: (w) => `Extreme heat ${Math.round((w.p_heat_35c ?? 0) * 100)} % of years` },
-    { key: 'hail', label: 'Hail (approx.)', icon: CloudHail, color: 'var(--s-4)', value: (w) => Math.min(1, (w.p_hail_proxy ?? 0) * 4), describe: (w) => ((w.p_hail_proxy ?? 0) > 0 ? 'Season with risk of hail (low evidence)' : 'No hail sign') },
-    { key: 'bare', label: 'Bare soil', icon: Shovel, color: 'var(--ink-2)', value: (_w, m) => (bare.has(m) ? 0.55 : 0), describe: (_w, m) => (bare.has(m) ? 'The field is usually left without cultivation' : 'With cultivation or soil cover') },
+  const periods = profile.climate.risk_calendar
+  const decadal = periods[0]?.decade != null
+  const now = new Date()
+  const today = decadal ? now.getMonth() * 3 + Math.min(2, Math.floor((now.getDate() - 1) / 10)) : Math.min(51, Math.floor((Date.UTC(now.getFullYear(), now.getMonth(), now.getDate()) - Date.UTC(now.getFullYear(), 0, 1)) / 604800000))
+  const [selection, setSelection] = useState<number | null>(null)
+  const [heatThreshold, setHeatThreshold] = useState<30 | 32 | 35 | 38>(35)
+  const hover = selection ?? today
+  const selected = periods[hover] ?? periods[0]
+  const bare = new Set(profile.vegetation?.bare_soil_months ?? [])
+  const rows: { label: string; color: string; value: (p: RiskPeriod) => number | null }[] = [
+    { label: 'Frost', color: 'var(--s-7)', value: (p) => p.p_frost },
+    { label: 'Severe frost', color: 'var(--s-7)', value: (p) => p.p_frost_severe ?? null },
+    { label: `Heat > ${heatThreshold} °C`, color: 'var(--s-2)', value: (p) => p[`p_heat_${heatThreshold}c`] ?? null },
+    { label: 'Heavy rain', color: 'var(--s-1)', value: (p) => p.p_heavy_rain },
+    { label: 'Water stress', color: 'var(--s-8)', value: (p) => p.p_water_stress ?? null },
+    { label: 'Bare soil', color: 'var(--ink-2)', value: (p) => p.p_bare_soil ?? (profile.vegetation ? (bare.has(Number(p.starts.slice(0, 2))) ? 1 : 0) : null) },
+    { label: 'Strong wind', color: 'var(--s-4)', value: (p) => p.p_strong_wind ?? null },
   ]
-  const monthOf = (w: RiskWeek) => +w.starts.slice(0, 2)
-  const hw = weeks[hover] ?? weeks[0]
-
-  // Semana de inicio de cada mes para las etiquetas
-  const monthStarts = MONTHS_SHORT.map((_, i) => weeks.findIndex((w) => monthOf(w) === i + 1))
-
+  if (!selected) return <p className="text-sm text-muted">No risk calendar available.</p>
+  const columns = { gridTemplateColumns: `repeat(${periods.length}, minmax(0, 1fr))` }
   return (
     <div>
+      {decadal && <label className="mb-4 flex items-center gap-2 text-xs text-muted">Heat threshold<select className="rounded-lg border border-line bg-surface p-1 text-ink" value={heatThreshold} onChange={(e) => setHeatThreshold(Number(e.target.value) as typeof heatThreshold)}>{[30, 32, 35, 38].map((v) => <option key={v} value={v}>{v} °C</option>)}</select></label>}
       <div className="overflow-x-auto pb-2">
         <div className="min-w-[640px]">
-          {/* Meses */}
-          <div className="ml-[132px] grid grid-cols-[repeat(52,minmax(0,1fr))] text-[11px] text-muted">
-            {monthStarts.map((s, i) => (
-              <div key={i} style={{ gridColumnStart: s + 1, gridColumnEnd: (monthStarts[i + 1] ?? 52) + 1 }} className="border-l border-line pl-1">
-                {MONTHS_SHORT[i]}
-              </div>
-            ))}
+          <div className="ml-[120px] grid text-[11px] text-muted" style={columns}>
+            {MONTHS_SHORT.map((m, i) => {
+              const start = periods.findIndex((p) => Number(p.starts.slice(0, 2)) === i + 1)
+              const next = periods.findIndex((p) => Number(p.starts.slice(0, 2)) === i + 2)
+              return start < 0 ? null : <span key={m} className="border-l border-line pl-1" style={{ gridColumn: `${start + 1} / ${(next < 0 ? periods.length : next) + 1}` }}>{m}</span>
+            })}
           </div>
-          <motion.div
-            className="relative mt-6 space-y-1.5"
-            initial={{ clipPath: 'inset(-32px 100% -12px 0)' }}
-            animate={{ clipPath: 'inset(-32px 0% -12px 0)' }}
-            transition={{ duration: 1.1, ease: [0.16, 1, 0.3, 1] }}
-            onMouseLeave={() => setHover(today - 1)}
-          >
-            {rows.map((r) => (
-              <div key={r.key} className="flex items-center gap-2">
-                <div className="flex w-[124px] shrink-0 items-center gap-2 text-xs font-medium text-ink-2">
-                  <r.icon className="h-3.5 w-3.5 shrink-0" />
-                  <span className="truncate">{r.label}</span>
-                </div>
-                <div className="grid flex-1 grid-cols-[repeat(52,minmax(0,1fr))] gap-[2px]">
-                  {weeks.map((w, i) => {
-                    const v = r.value(w, monthOf(w))
-                    return (
-                      <button
-                        key={w.week}
-                        onMouseEnter={() => setHover(i)}
-                        onFocus={() => setHover(i)}
-                        onClick={() => setHover(i)}
-                        aria-label={`Week of ${dateShort(w.starts)}: ${r.describe(w, monthOf(w))}`}
-                        className={cn('h-7 cursor-pointer rounded-[4px] transition-transform hover:scale-y-110', i === hover && 'ring-1 ring-ink/40')}
-                        style={{ background: v > 0.02 ? `color-mix(in srgb, ${r.color} ${Math.round(12 + v * 88)}%, transparent)` : 'var(--surface-2)' }}
-                      />
-                    )
-                  })}
-                </div>
+          <div className="mt-3 space-y-2">
+            {rows.map((row) => <div key={row.label} className="flex gap-2">
+              <span className="w-28 shrink-0 text-xs text-ink-2">{row.label}</span>
+              <div className="grid flex-1 gap-[2px]" style={columns}>
+                {periods.map((period, i) => {
+                  const value = row.value(period)
+                  return <button key={period.decade ?? period.week ?? i} onClick={() => setSelection(i)} onMouseEnter={() => setSelection(i)} onFocus={() => setSelection(i)}
+                    aria-label={`${decadal ? '10-day period' : 'Week'} of ${dateShort(period.starts)}: ${row.label} ${value == null ? 'no data' : pct(value)}`}
+                    className={cn('h-7 cursor-pointer rounded-sm', i === hover && 'ring-1 ring-ink', value == null && 'border border-dashed border-line-strong')}
+                    style={{ background: value == null ? 'transparent' : `color-mix(in srgb, ${row.color} ${Math.round(10 + value * 90)}%, transparent)` }} />
+                })}
               </div>
-            ))}
-            {/* Hoy */}
-            <div className="pointer-events-none absolute inset-y-[-6px] left-[132px] right-0">
-              <div className="relative h-full" style={{ marginLeft: `${((today - 0.5) / 52) * 100}%` }}>
-                <div className="absolute inset-y-0 w-[2px] -translate-x-1/2 rounded-full bg-ink" />
-                <div className="absolute -top-5 -translate-x-1/2 rounded-full bg-ink px-1.5 py-0.5 text-[10px] font-semibold text-page">Today</div>
-              </div>
-            </div>
-          </motion.div>
+            </div>)}
+          </div>
         </div>
       </div>
-      {/* Detalle de la semana */}
-      <motion.div key={hover} initial={{ opacity: 0.4, y: 4 }} animate={{ opacity: 1, y: 0 }} className="mt-4 rounded-2xl bg-surface-2 p-4">
-        <div className="text-sm font-semibold text-ink">
-          Week of {dateShort(hw.starts)} {hover === today - 1 && <span className="ml-1 font-normal text-muted">(this week)</span>}
-        </div>
-        <div className="mt-2 grid gap-x-6 gap-y-1.5 text-sm text-ink-2 sm:grid-cols-2">
-          {rows.map((r) => (
-            <div key={r.key} className="flex items-center gap-2">
-              <span className="h-2.5 w-2.5 shrink-0 rounded-sm" style={{ background: r.color }} />
-              {r.describe(hw, monthOf(hw))}
-            </div>
-          ))}
-          <div className="flex items-center gap-2 sm:col-span-2">
-            <span className="h-2.5 w-2.5 shrink-0" />
-            Typical temperature: {hw.mean_tmin_c} °C to {hw.mean_tmax_c} °C
-          </div>
-        </div>
-      </motion.div>
-      <p className="mt-3 text-xs text-muted">More intense = more years with that event in that week (1991–2025). Tap a week to see the details.</p>
+      <div className="mt-4 rounded-xl bg-surface-2 p-4">
+        <p className="text-sm font-semibold text-ink">{decadal ? '10-day period' : 'Week'} starting {dateShort(selected.starts)} {hover === today && '(current period)'}</p>
+        <dl className="mt-2 grid gap-2 text-sm sm:grid-cols-2">{rows.map((row) => <div key={row.label} className="flex justify-between gap-2"><dt>{row.label}</dt><dd>{row.value(selected) == null ? 'No data' : pct(row.value(selected))}</dd></div>)}</dl>
+        {selected.vulnerable && <p className="mt-3 text-sm text-bad">Vulnerable period: {selected.vulnerable_reasons?.join(', ')}</p>}
+        {decadal && <p className="mt-2 text-xs text-muted">Median precipitation: {selected.precip_p50_mm ?? '—'} mm · Reference evaporation: {selected.et0_p50_mm ?? '—'} mm</p>}
+      </div>
+      <p className="mt-3 text-xs text-muted">{decadal ? '36 periods per year: days 1–10, 11–20 and 21 to month end.' : 'Weekly demo calendar.'} Darker cells mean greater probability. Dashed cells have no data. Record: {profile.climate.years.join('–')}.</p>
     </div>
   )
 }

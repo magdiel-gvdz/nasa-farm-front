@@ -1,15 +1,18 @@
-// Tipos del contrato de API. Fuente de verdad: docs/backend-handoff.md §6.
-// Las llaves están en snake_case igual que el JSON del backend.
+// UI view models. Wire models are generated in backend.d.ts from contracts/openapi.json.
+// Demo-specific models live in mock/types.ts.
 
 import type { Polygon, MultiPolygon } from 'geojson'
 
 export type Geometry = Polygon | MultiPolygon
 export type Confidence = 'high' | 'medium' | 'low'
-export type Level = 'ok' | 'warn' | 'bad'
+export type Level = 'ok' | 'warn' | 'bad' | 'unknown'
 export type SuitStatus = 'suitable' | 'marginal' | 'unsuitable'
 
 export interface Source {
   id: string
+  data_class?: 'observation' | 'model' | 'derived' | 'estimate' | 'synthetic'
+  product?: string
+  license?: string
   dataset: string
   provider: string
   resolution: string
@@ -51,7 +54,7 @@ export interface Crop {
   /** Árboles, vid, nopal, agave, espárrago…: se plantan una vez y producen varios años. */
   perennial: boolean
   /** Salinidad del suelo (CEe, dS/m) a partir de la cual baja el rendimiento (Maas-Hoffman / FAO-29). */
-  salt_threshold_ds_m: number
+  salt_threshold_ds_m: number | null
   /** Se cultiva comúnmente bajo invernadero o macrotúnel. */
   greenhouse_ok: boolean
   /** Horas frío (< 7.2 °C) que necesita: [variedades de bajo requerimiento, variedades tradicionales]. */
@@ -65,6 +68,13 @@ export interface Crop {
   plant_months: number[] | null
   /** Otros nombres con los que la gente lo busca o lo menciona en el chat. */
   aliases: string[]
+  n_balance_kg_ha?: number
+  residue?: string
+  root_depth?: string
+  margin_index?: number | null
+  reviewed?: boolean
+  source_id?: string
+  equipment?: string[]
 }
 
 // ---------- Geocercas ----------
@@ -90,7 +100,7 @@ export interface FieldInput {
   kind: FieldKind
   geometry: Geometry
   current_rotation?: RotationStep[]
-  irrigation?: { available: boolean; source?: 'well' | 'surface' | 'municipal'; max_mm_per_year?: number }
+  irrigation?: { available: boolean; source?: string; max_mm_per_year?: number }
   livestock?: { species: string; head: number } | null
   greenhouse?: GreenhouseInfo
 }
@@ -100,10 +110,13 @@ export interface Field extends FieldInput {
   area_ha: number
   centroid: [number, number]
   country: string
-  admin: { state?: string; municipality?: string }
+  admin: { state?: string; municipality?: string | null }
   created_at: string
   profile_status: 'processing' | 'ready' | 'failed'
   is_demo?: boolean
+  cell_id?: string
+  zone_id?: string
+  cell_assignment?: 'centroid'
 }
 
 // ---------- Perfil ----------
@@ -125,9 +138,9 @@ export interface FrostSummary {
   threshold_c: number
   risk_threshold_c: number
   years_analyzed: number
-  last_spring_frost: Percentiles<DayOfYear>
-  first_fall_frost: Percentiles<DayOfYear>
-  frost_free_days: { p10: number | null; p50: number | null }
+  last_spring_frost: Percentiles<DayOfYear> | null
+  first_fall_frost: Percentiles<DayOfYear> | null
+  frost_free_days: { p10: number | null; p50: number | null } | null
   share_years_without_frost: number | null
   by_month: FrostMonth[]
 }
@@ -188,17 +201,30 @@ export interface LightSummary {
   by_month: { month: number; mean_solar_mj_m2_day: number | null; mean_dli_mol_m2_day: number | null }[]
 }
 
-export interface RiskWeek {
-  week: number
+export interface RiskPeriod {
+  week?: number
+  decade?: number
+  month?: number
+  p_frost_severe?: number | null
+  p_heat_30c?: number | null
+  p_heat_32c?: number | null
+  p_heat_38c?: number | null
+  p_water_stress?: number | null
+  p_bare_soil?: number | null
+  p_strong_wind?: number | null
+  precip_p50_mm?: number | null
+  et0_p50_mm?: number | null
+  vulnerable?: boolean
+  vulnerable_reasons?: string[]
   starts: string
   p_frost: number | null
-  p_frost_risk: number | null
+  p_frost_risk?: number | null
   p_heat_35c: number | null
   p_heavy_rain: number | null
-  p_dry_week: number | null
-  mean_prec_mm: number | null
-  mean_tmin_c: number | null
-  mean_tmax_c: number | null
+  p_dry_week?: number | null
+  mean_prec_mm?: number | null
+  mean_tmin_c?: number | null
+  mean_tmax_c?: number | null
   p_hail_proxy?: number | null
 }
 
@@ -209,9 +235,9 @@ export interface ClimateProfile {
   frost: FrostSummary
   rain: RainSummary
   heat: HeatSummary
-  wind: WindSummary
-  light: LightSummary
-  risk_calendar: RiskWeek[]
+  wind: WindSummary | null
+  light: LightSummary | null
+  risk_calendar: RiskPeriod[]
 }
 
 export interface SoilLayer {
@@ -226,6 +252,7 @@ export interface SoilLayer {
   silt_pct: number | null
   bulk_density_g_cm3: number | null
   awc_mm_per_m: number | null
+  uncertainty?: Record<string, { p05: number; p95: number }>
 }
 
 export interface SoilLab {
@@ -233,8 +260,8 @@ export interface SoilLab {
   sample_date?: string
   depth_cm?: [number, number]
   om_pct?: number | null
-  n_ppm?: number | null // N inorgánico (N-NO3)
-  p_ppm?: number | null // P Olsen (suelos alcalinos) o Bray
+  n_ppm?: number | null // Presentation alias for n_mg_kg, without inferring extraction method.
+  p_ppm?: number | null // Presentation alias for p_mg_kg.
   k_ppm?: number | null
   ca_ppm?: number | null
   mg_ppm?: number | null
@@ -243,20 +270,24 @@ export interface SoilLab {
   cec_cmol_kg?: number | null
   texture?: string | null
   file_name?: string | null
+  depth_label?: string | null
+  source_id?: string
 }
 
-/** Respuesta de POST /fields/{id}/soil-report: valores leídos del PDF/foto, aún SIN guardar. */
+/** Upload result: applied indicates whether the live server saved the accepted values. */
 export interface SoilReportExtraction {
   extracted: SoilLab
   unreadable_fields: string[]
-  confidence: Confidence
+  confidence?: Confidence
+  applied?: boolean
+  unreadable_reasons?: { field: string; reason: string }[]
   note?: string
 }
 
 export interface SoilProfile {
   source_id: string
   confidence: Confidence
-  texture_class: string
+  texture_class: string | null
   layers: SoilLayer[]
   lab: SoilLab | null
   k_factor: number | null
@@ -264,24 +295,24 @@ export interface SoilProfile {
 
 export interface TerrainProfile {
   source_id: string
-  elevation_m: { mean: number; min: number; max: number }
-  slope_pct: { mean: number; p90: number }
-  aspect_dominant: string
-  cold_air_pooling_share: number
+  elevation_m: { mean: number; min: number | null; max: number | null }
+  slope_pct: { mean: number; p90: number } | null
+  aspect_dominant: string | null
+  cold_air_pooling_share: number | null
 }
 
 export interface WaterProfile {
-  soil_moisture: { source_id: string; years: [number, number]; by_month: { month: number; mean_m3_m3: number }[] }
-  et: { source_id: string; by_month: { month: number; et_mm: number; et0_mm: number }[] }
+  soil_moisture: { source_id: string; years: [number, number]; by_month: { month: number; mean_m3_m3: number | null; percentile_p10?: number | null; percentile_p50?: number | null; percentile_p90?: number | null }[] } | null
+  et: { source_id: string; by_month: { month: number; et_mm: number | null; et0_mm: number }[] } | null
   water_balance_by_month: { month: number; p_minus_et0_mm: number }[]
-  groundwater: { source_id: string; trend_cm_per_year: number; years: [number, number] }
+  groundwater: { source_id: string; trend_cm_per_year: number; years: [number, number] } | null
 }
 
 export interface VegetationProfile {
   source_id: string
-  ndvi_by_month: { month: number; mean: number; p10: number; p90: number }[]
+  ndvi_by_month: { month: number; mean: number; p10: number | null; p90: number | null }[]
   bare_soil_months: number[]
-  vigor_trend_per_decade: number
+  vigor_trend_per_decade: number | null
 }
 
 export interface Hazard {
@@ -297,13 +328,17 @@ export interface FieldProfile {
   field_id: string
   computed_at: string
   pipeline_version: string
+  cell_id?: string
+  zone_id?: string
+  resolution_m?: number
+  data_version?: string
   climate: ClimateProfile
-  soil: SoilProfile
-  terrain: TerrainProfile
+  soil: SoilProfile | null
+  terrain: TerrainProfile | null
   water: WaterProfile
-  vegetation: VegetationProfile
+  vegetation: VegetationProfile | null
   land_use: { source_id: string; history: { year: number; crop: string; share: number }[]; detected_rotation: string[] } | null
-  hazards: { hail: Hazard }
+  hazards: { hail: Hazard | null }
   sources: Source[]
   gaps: Gap[]
 }
@@ -346,18 +381,25 @@ export interface Scenario {
 
 // ---------- Aptitud ----------
 export interface SuitabilityReason {
-  factor: 'frost' | 'heat' | 'water' | 'soil' | 'terrain' | 'season' | 'chill' | 'bloom' | 'salinity' | 'planting'
+  factor: string
   status: Level
   detail: string
-  source_id: string
+  source_id: string | null
+}
+
+export interface ScenarioApplied extends Scenario {
+  daily_origin: string | null
+  not_recomputed: string[]
+  note: string | null
 }
 
 export interface SuitabilityDetail {
+  scenario?: ScenarioApplied
   crop_id: string
   planting_month: number
   status: SuitStatus
   score: number
-  harvest_window: { from: string; to: string }
+  harvest_window: { from: string; to: string } | null
   reasons: SuitabilityReason[]
   confidence: Confidence
   /** Solo para perennes: el mes es de plantación y la cosecha se repite cada año. */
@@ -365,6 +407,7 @@ export interface SuitabilityDetail {
 }
 
 export interface SuitabilityMatrix {
+  scenario?: ScenarioApplied
   months: number[]
   crops: { crop_id: string; scores: number[]; status: SuitStatus[] }[]
 }
@@ -395,9 +438,9 @@ export interface StrategyStep {
   year: number
   season: Season
   crop_id: string | null
-  role: CropRole | 'bare'
-  plant?: string
-  harvest?: string
+  role: string
+  plant?: string | null
+  harvest?: string | null
 }
 
 export interface Strategy {
@@ -410,14 +453,15 @@ export interface Strategy {
     irrigation_need_mm_per_year: number
     n_balance_kg_ha_per_year: number
     om_trend: 'improving' | 'stable' | 'declining'
-    erosion_t_ha_per_year: number
+    erosion_t_ha_per_year?: number
+    erosion_exposure_index?: number
     bare_soil_days_per_year: number
     pest_break_score: number
-    gross_margin_index: number
+    gross_margin_index: number | null
   }
-  scores: { save_water: number; income: number; soil_health: number; forage: number; pest_break: number; overall: number }
+  scores: { low_labor?: number; save_water: number; income: number | null; soil_health: number; forage: number; pest_break: number; overall: number }
   why: string[]
-  evidence: { claim: string; source_id: string }[]
+  evidence: { claim: string; source_id: string | null }[]
   benefits: string[]
   gaps: string[]
   risks_local_review: string[]
@@ -425,7 +469,7 @@ export interface Strategy {
 }
 
 export interface RotationResponse {
-  scenario: Scenario
+  scenario: Scenario & Partial<ScenarioApplied>
   strategies: Strategy[]
   recommended_id: string
   disclaimer: string
@@ -433,19 +477,24 @@ export interface RotationResponse {
 
 // ---------- Invernadero ----------
 export interface GreenhouseReport {
+  confidence?: Confidence
+  gaps?: Gap[]
   wind: {
     structure_rated_kmh: number | null
-    return_levels_kmh: { return_period_years: number; estimated_gust_kmh: number | null }[]
+    years_used?: number
+    daily_origin?: string | null
+    gust_factor_assumed?: number
+    return_levels_kmh: { return_period_years: number; estimated_gust_kmh: number | null }[] | null
     annual_exceedance_probability: number | null
-    status: Level
+    status: Level | null
     riskiest_months: number[]
     source_id: string
     note: string
   }
-  light: { by_month: { month: number; outdoor_dli: number; indoor_dli_est: number }[]; cover_transmission: number }
-  temperature: { by_month: { month: number; heating_degree_hours_base12: number; hours_over_35c_outside: number }[] }
-  co2: { ambient_ppm: number; source_id: string; typical_enrichment_target_ppm: [number, number]; note: string }
-  hail: { level: 'low' | 'medium' | 'high'; evidence: Confidence; months_of_concern: number[] }
+  light: { by_month: { month: number; outdoor_dli: number; indoor_dli_est: number }[]; cover_transmission: number } | null
+  temperature: { by_month: { month: number; heating_degree_hours_base12: number; hours_over_35c_outside: number }[] } | null
+  co2: { ambient_ppm: number; source_id: string; typical_enrichment_target_ppm: [number, number]; note: string } | null
+  hail: { level: 'low' | 'medium' | 'high'; evidence: Confidence; months_of_concern: number[] } | null
   recommendations: string[]
 }
 
@@ -483,18 +532,24 @@ export interface YieldPrediction {
 
 // ---------- Chat ----------
 export type ChatEvent =
-  | { type: 'status'; state: 'thinking' }
-  | { type: 'tool'; name: string; state: 'running' | 'done'; label?: string }
+  | { type: 'status'; state: 'thinking'; label?: string }
+  | { type: 'tool'; name: string; state: 'running' | 'done' | 'failed'; label?: string }
   | { type: 'text'; delta: string }
   | { type: 'citation'; source_id: string; label: string }
-  | { type: 'card'; card: 'suitability' | 'rotations' | 'greenhouse' | 'water'; payload: unknown }
-  | { type: 'done'; message_id: string }
+  | { type: 'card'; card: 'suitability' | 'suitability_matrix' | 'rotations' | 'greenhouse' | 'water'; payload: unknown }
+  | { type: 'done'; message_id: string; usage?: { input_tokens: number; output_tokens: number } }
   | { type: 'error'; code: string; message: string }
 
 export interface ChatMessage {
   id: string
   role: 'user' | 'assistant'
   content: string
-  tools?: { name: string; label?: string; state: 'running' | 'done' }[]
+  tools?: { name: string; label?: string; state: 'running' | 'done' | 'failed' }[]
   citations?: { source_id: string; label: string }[]
+}
+
+export interface ConversationHistory {
+  conversation_id: string
+  field_id: string | null
+  messages: { role: string; text: string; cards: { type: string; payload: unknown }[]; citations: { source_id: string; label: string }[]; status: string | null; message_id: string | null; created_at: string }[]
 }

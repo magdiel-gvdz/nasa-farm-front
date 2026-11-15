@@ -1,4 +1,4 @@
-import type { Field } from '../types.ts'
+import type { Field } from './types.ts'
 import type { FieldOverrides } from './engine/profile.ts'
 
 function rect(lon: number, lat: number, wM: number, hM: number): Field['geometry'] {

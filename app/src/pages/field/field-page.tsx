@@ -1,8 +1,8 @@
 import { AnimatePresence, motion } from 'motion/react'
-import { ArrowLeft, CalendarDays, Droplets, FlaskConical, LayoutGrid, MapPinned, Printer, RefreshCw, Sprout, Trash2, Warehouse, Repeat } from 'lucide-react'
+import { ArrowLeft, CalendarDays, Droplets, FlaskConical, LayoutGrid, MapPinned, Printer, Settings, RefreshCw, Sprout, Trash2, Warehouse, Repeat } from 'lucide-react'
 import { useState } from 'react'
 import { Link, useNavigate, useParams, useSearchParams } from 'react-router'
-import { NO_SCENARIO } from '@/api/client'
+import { isDemoMode, NO_SCENARIO } from '@/api/client'
 import type { Scenario } from '@/api/types'
 import { ChatLauncher } from '@/components/chat/chat-sheet'
 import { Button } from '@/components/ui/button'
@@ -12,6 +12,8 @@ import { num } from '@/lib/format'
 import { CalendarTab } from './calendar-tab'
 import { CropsTab } from './crops-tab'
 import { GreenhouseTab } from './greenhouse-tab'
+import { FieldSettings } from './field-settings'
+import { Sheet } from '@/components/ui/sheet'
 import { Processing } from './processing'
 import { RotationsTab } from './rotations-tab'
 import { SoilTab } from './soil-tab'
@@ -36,6 +38,7 @@ export function FieldPage() {
   const field = useField(id)
   const profile = useProfile(id)
   const del = useDeleteField()
+  const [editing, setEditing] = useState(false)
   const [scenario, setScenario] = useState<Scenario>(NO_SCENARIO)
 
   const f = field.data
@@ -88,6 +91,7 @@ export function FieldPage() {
         </div>
         {ready && (
           <div className="no-print flex gap-1">
+            {f && !f.is_demo && <Button variant="ghost" size="icon" aria-label="Edit field" onClick={() => setEditing(true)}><Settings className="h-4 w-4" /></Button>}
             <Button variant="ghost" size="icon" onClick={() => window.print()} aria-label="Print plan" title="Print or save as PDF">
               <Printer className="h-4 w-4" />
             </Button>
@@ -110,6 +114,7 @@ export function FieldPage() {
         )}
       </div>
 
+      {ready && p.resolution_m && <div className="mb-4 rounded-xl border border-line p-3 text-xs text-ink-2">Zonal analysis: {num(p.resolution_m / 1000, 1)} km cell / {p.zone_id} / {p.cell_id}. Data version: {p.data_version}. Conditions within the field may differ.</div>}
       {profile.isError ? (
         <div className="card mx-auto max-w-lg p-8 text-center">
           <h2 className="font-semibold text-ink">We could not analyze the field</h2>
@@ -119,7 +124,7 @@ export function FieldPage() {
           </Button>
         </div>
       ) : !ready || !f ? (
-        <Processing steps={p && p.status === 'processing' ? p.steps : []} />
+        isDemoMode ? <Processing steps={p && p.status === 'processing' ? p.steps : []} /> : <p className="card p-8 text-sm text-ink-2">Loading zonal profile?</p>
       ) : (
         <>
           {/* Pestañas */}
@@ -153,6 +158,7 @@ export function FieldPage() {
         </>
       )}
 
+      {f && <Sheet open={editing} onOpenChange={setEditing} title="Edit field"><FieldSettings key={f.id + String(editing)} field={f} onSaved={() => setEditing(false)} /></Sheet>}
       {f && <ChatLauncher field={f} ready={ready} />}
     </div>
   )

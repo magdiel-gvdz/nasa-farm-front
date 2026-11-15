@@ -1,7 +1,7 @@
 // Utilidades agronómicas: clima mensual, ET0 de Hargreaves, escenarios y
 // ventanas de cultivo. Usadas por los motores de aptitud y rotación.
 
-import type { ClimateProfile, Scenario } from '../../types.ts'
+import type { ClimateProfile, Scenario } from '../types.ts'
 
 export interface MonthClimate {
   month: number

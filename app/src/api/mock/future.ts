@@ -1,4 +1,4 @@
-import type { FutureClimate } from '../types'
+import type { FutureClimate } from './types'
 import { BROWSER_MODELS, futureUrl, summarizeFuture } from './engine/future'
 import demoFuture from './fixtures/future.json'
 
