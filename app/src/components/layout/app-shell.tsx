@@ -33,13 +33,13 @@ export function AppShell() {
           {isDemoMode && (
             <span
               className="hidden items-center gap-1.5 rounded-full bg-surface-2 px-2.5 py-1 text-xs text-ink-2 sm:inline-flex"
-              title="Sin servidor: el clima viene de NASA POWER real; el resto son estimaciones de ejemplo."
+              title="Serverless: Weather comes from real NASA POWER; the rest are example estimates."
             >
               <span className="relative flex h-1.5 w-1.5">
                 <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-accent opacity-60" />
                 <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-accent" />
               </span>
-              Modo demostración
+              Demo mode
             </span>
           )}
           <div className="flex-1" />
@@ -47,7 +47,7 @@ export function AppShell() {
             <Link to="/mapa">
               <Button size="sm" variant="ghost">
                 <MapIcon className="h-4 w-4" />
-                <span className="hidden sm:inline">Mapa</span>
+                <span className="hidden sm:inline">Map</span>
               </Button>
             </Link>
           )}
@@ -55,8 +55,8 @@ export function AppShell() {
             <Link to="/nueva">
               <Button size="sm" variant="primary">
                 <Plus className="h-4 w-4" />
-                <span className="hidden sm:inline">Nueva parcela</span>
-                <span className="sm:hidden">Nueva</span>
+                <span className="hidden sm:inline">New field</span>
+                <span className="sm:hidden">New</span>
               </Button>
             </Link>
           )}

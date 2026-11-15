@@ -20,8 +20,8 @@ export function fetchFuture(fieldId: string, lat: number, lon: number): Promise<
   if (!p) {
     p = fetch(futureUrl(lat, lon, BROWSER_MODELS))
       .then(async (res) => {
-        if (res.status === 429) throw new Error('El servicio de proyecciones está saturado; intenta en un minuto.')
-        if (!res.ok) throw new Error(`Proyecciones climáticas: error ${res.status}`)
+        if (res.status === 429) throw new Error('The screening service is saturated; try in a minute.')
+        if (!res.ok) throw new Error(`Climate projections: error ${res.status}`)
         const f = summarizeFuture(await res.json())
         try {
           localStorage.setItem(key, JSON.stringify(f))

@@ -115,8 +115,8 @@ export function MapPage() {
           onChange={setBasemap}
           className="shadow-lg ring-1 ring-line"
           options={[
-            { value: 'satellite', label: 'Satélite' },
-            { value: 'map', label: 'Mapa' },
+            { value: 'satellite', label: 'Satellite' },
+            { value: 'map', label: 'Map' },
           ]}
         />
         <div className="hidden rounded-2xl bg-surface/90 px-3 py-2 text-xs text-ink-2 shadow-lg ring-1 ring-line backdrop-blur sm:block">
@@ -144,11 +144,11 @@ export function MapPage() {
             <motion.div key="list" initial={{ opacity: 0, x: -12 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 12 }} className="space-y-4">
               <div className="flex items-start justify-between gap-3">
                 <div>
-                  <h1 className="text-xl font-semibold tracking-tight text-ink">Tus terrenos</h1>
-                  <p className="mt-0.5 text-sm text-ink-2">Toca uno en el mapa o en la lista para ver lo que sabemos.</p>
+                  <h1 className="text-xl font-semibold tracking-tight text-ink">Your fields</h1>
+                  <p className="mt-0.5 text-sm text-ink-2">Tap one on the map or list to see what we know.</p>
                 </div>
                 <Link to="/nueva">
-                  <Button size="icon" variant="accent" aria-label="Nuevo terreno" title="Nuevo terreno">
+                  <Button size="icon" variant="accent" aria-label="New field" title="New field">
                     <Plus className="h-4 w-4" />
                   </Button>
                 </Link>
@@ -159,7 +159,7 @@ export function MapPage() {
                 onChange={setFilter}
                 className="w-full [&>button]:flex-1"
                 options={[
-                  { value: 'all', label: `Todos (${fields.length})` },
+                  { value: 'all', label: `All (${fields.length})` },
                   { value: 'field', label: `${KIND.field.plural} (${counts.field})` },
                   { value: 'greenhouse', label: `${KIND.greenhouse.plural} (${counts.greenhouse})` },
                 ]}
@@ -175,18 +175,18 @@ export function MapPage() {
                       <span className="min-w-0 flex-1">
                         <span className="block truncate text-sm font-medium text-ink">{f.name}</span>
                         <span className="block truncate text-xs text-muted">
-                          {KIND[f.kind].label} · {num(f.area_ha, 1)} ha{f.is_demo ? ' · ejemplo' : ''}
+                          {KIND[f.kind].label} · {num(f.area_ha, 1)} ha{f.is_demo ? ' · example' : ''}
                         </span>
                       </span>
                       <ArrowRight className="h-4 w-4 shrink-0 text-muted transition-transform group-hover:translate-x-0.5" />
                     </button>
                   </li>
                 ))}
-                {!isLoading && visible.length === 0 && <li className="rounded-2xl bg-surface-2 p-4 text-sm text-ink-2">No hay terrenos con este filtro.</li>}
+                {!isLoading && visible.length === 0 && <li className="rounded-2xl bg-surface-2 p-4 text-sm text-ink-2">No fields match this filter.</li>}
               </ul>
               <label className="flex cursor-pointer items-center gap-2 text-sm text-ink-2">
                 <input type="checkbox" checked={showDemos} onChange={(e) => setShowDemos(e.target.checked)} className="h-4 w-4 accent-[var(--accent)]" />
-                Mostrar ejemplos
+                Show examples
               </label>
             </motion.div>
           )}
@@ -228,12 +228,12 @@ function FieldDetail({ field, onBack }: { field: Field; onBack: () => void }) {
   return (
     <div className="space-y-4">
       <button onClick={onBack} className="inline-flex cursor-pointer items-center gap-1 text-xs font-medium text-muted hover:text-ink">
-        <ArrowLeft className="h-3.5 w-3.5" /> Todos los terrenos
+        <ArrowLeft className="h-3.5 w-3.5" /> All fields
       </button>
       <div>
         <div className="flex items-center gap-1.5 text-xs font-medium" style={{ color: `var(--kind-${field.kind})` }}>
           <k.icon className="h-3.5 w-3.5" /> {k.label}
-          {field.is_demo && <span className="ml-1 rounded-full bg-surface-2 px-2 py-0.5 text-ink-2">Ejemplo</span>}
+          {field.is_demo && <span className="ml-1 rounded-full bg-surface-2 px-2 py-0.5 text-ink-2">Example</span>}
         </div>
         <h2 className="mt-1 text-xl font-semibold tracking-tight text-ink">{field.name}</h2>
         <p className="text-sm text-ink-2">
@@ -241,7 +241,7 @@ function FieldDetail({ field, onBack }: { field: Field; onBack: () => void }) {
         </p>
         {crops.length > 0 && (
           <p className="mt-2 text-sm text-ink-2">
-            Siembra: {crops.map((c) => `${c.emoji} ${c.name.es}`).join(' · ')}
+            Sowing: {crops.map((c) => `${c.emoji} ${c.name.en}`).join(' · ')}
           </p>
         )}
       </div>
@@ -250,7 +250,7 @@ function FieldDetail({ field, onBack }: { field: Field; onBack: () => void }) {
         <p className="rounded-2xl bg-surface-2 p-4 text-sm text-ink-2">{(profile.error as Error).message}</p>
       ) : !ready ? (
         <div className="flex items-center gap-3 rounded-2xl bg-surface-2 p-4 text-sm text-ink-2">
-          <Loader2 className="h-4 w-4 animate-spin" /> Analizando con datos de la NASA…
+          <Loader2 className="h-4 w-4 animate-spin" /> Analyzing with NASA data…
         </div>
       ) : (
         <QuickFacts field={field} profile={p} />
@@ -259,11 +259,11 @@ function FieldDetail({ field, onBack }: { field: Field; onBack: () => void }) {
       <div className="flex flex-wrap gap-2">
         <Link to={`/parcela/${field.id}`} className="flex-1">
           <Button variant="accent" className="w-full justify-center">
-            Ver análisis completo <ArrowRight className="h-4 w-4" />
+            See full analysis <ArrowRight className="h-4 w-4" />
           </Button>
         </Link>
         <Button variant="outline" onClick={() => openChat(true)} disabled={!ready}>
-          <MessageCircle className="h-4 w-4" /> Preguntar
+          <MessageCircle className="h-4 w-4" /> Ask
         </Button>
       </div>
     </div>
@@ -293,21 +293,21 @@ function QuickFacts({ field, profile }: { field: Field; profile: FieldProfile })
   return (
     <div className="space-y-3">
       <div className="grid grid-cols-2 gap-2">
-        <Stat icon={<Snowflake className="h-3.5 w-3.5" />} label="Sin helada desde" value={frostFree ? 'Todo el año' : dateLong(c.frost.last_spring_frost.p90?.date)} />
-        <Stat icon={<CloudRain className="h-3.5 w-3.5" />} label="Lluvia al año" value={`${num(c.rain.annual_mean_mm)} mm`} />
-        <Stat icon={<Sun className="h-3.5 w-3.5" />} label="Mes más caliente" value={<span className="capitalize">{monthName(c.heat.hottest_month)} · {num(hot.mean_tmax_c)} °C</span>} />
+        <Stat icon={<Snowflake className="h-3.5 w-3.5" />} label="Frost-safe planting from" value={frostFree ? 'All year round' : dateLong(c.frost.last_spring_frost.p90?.date)} />
+        <Stat icon={<CloudRain className="h-3.5 w-3.5" />} label="Rainfall per year" value={`${num(c.rain.annual_mean_mm)} mm`} />
+        <Stat icon={<Sun className="h-3.5 w-3.5" />} label="Hottest month" value={<span className="capitalize">{monthName(c.heat.hottest_month)} · {num(hot.mean_tmax_c)} °C</span>} />
         {field.kind === 'greenhouse' ? (
-          <Stat icon={<Wind className="h-3.5 w-3.5" />} label="Ráfaga cada 10 años" value={`${num(gust10)} km/h`}>
-            {rated != null && gust10 != null && <StatusPill className="mt-1.5" level={rated < gust10 ? 'bad' : 'ok'} label={rated < gust10 ? `Supera ${rated} km/h` : 'Tu estructura aguanta'} />}
+          <Stat icon={<Wind className="h-3.5 w-3.5" />} label="10-year wind gust" value={`${num(gust10)} km/h`}>
+            {rated != null && gust10 != null && <StatusPill className="mt-1.5" level={rated < gust10 ? 'bad' : 'ok'} label={rated < gust10 ? `Exceeds ${rated} km/h` : 'Within structure rating'} />}
           </Stat>
         ) : (
-          <Stat icon={<Layers className="h-3.5 w-3.5" />} label="Materia orgánica" value={`${num(om, 1)} %`}>
-            <span className="mt-0.5 block text-[11px] text-muted">{profile.soil.lab ? 'De tu análisis' : 'Estimada'}</span>
+          <Stat icon={<Layers className="h-3.5 w-3.5" />} label="Organic matter" value={`${num(om, 1)} %`}>
+            <span className="mt-0.5 block text-[11px] text-muted">{profile.soil.lab ? 'From your analysis' : 'Estimated'}</span>
           </Stat>
         )}
       </div>
       <div>
-        <div className="mb-1.5 text-xs font-medium text-muted">Mejor para sembrar en {monthName(month)}</div>
+        <div className="mb-1.5 text-xs font-medium text-muted">Best for planting in {monthName(month)}</div>
         {matrix.isLoading ? (
           <div className="skeleton h-20" />
         ) : (
@@ -317,7 +317,7 @@ function QuickFacts({ field, profile }: { field: Field; profile: FieldProfile })
               return (
                 <li key={t.id} className="flex items-center gap-2 text-sm text-ink">
                   <span aria-hidden>{crop?.emoji}</span>
-                  <span className="flex-1">{crop?.name.es}</span>
+                  <span className="flex-1">{crop?.name.en}</span>
                   <StatusPill level={suitToLevel(t.status)} label={`${suitLabel(t.status)} · ${t.score}`} />
                 </li>
               )

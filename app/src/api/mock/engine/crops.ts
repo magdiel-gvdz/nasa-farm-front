@@ -41,9 +41,9 @@ interface R {
 const P: [number, number] = [365, 365]
 
 const raw: R[] = [
-  // ───────────── Granos y cereales ─────────────
-  { id: 'maiz', es: 'Maíz', en: 'Maize', emoji: '🌽', family: 'poaceae', cat: 'grain', roles: ['cash'], cycle: [110, 150], topt: [18, 33], tabs: [10, 40], ft: false, hc: 38, water: [500, 800], ph: [5.5, 8.0], kc: [0.3, 1.2, 0.6], ec: 1.7, agro: [5.5, 0.55, 1, 0.4, 0.3, -110, 0.5], aka: ['maiz grano', 'elote'] },
-  { id: 'maiz_forrajero', es: 'Maíz forrajero (ensilaje)', en: 'Silage maize', emoji: '🌽', family: 'poaceae', cat: 'forage', roles: ['forage'], cycle: [95, 120], topt: [18, 32], tabs: [10, 40], ft: false, hc: 38, water: [450, 700], ph: [5.5, 8.0], kc: [0.3, 1.15, 0.5], ec: 1.7, agro: [45, 0.4, 0, 0.45, 1, -150, 0.45], aka: ['ensilaje', 'silo', 'maiz para silo'] },
+  // ───────────── Grains and cereals ─────────────
+  { id: 'maiz', es: 'Maíz', en: 'Corn', emoji: '🌽', family: 'poaceae', cat: 'grain', roles: ['cash'], cycle: [110, 150], topt: [18, 33], tabs: [10, 40], ft: false, hc: 38, water: [500, 800], ph: [5.5, 8.0], kc: [0.3, 1.2, 0.6], ec: 1.7, agro: [5.5, 0.55, 1, 0.4, 0.3, -110, 0.5], aka: ['maiz grano', 'elote'] },
+  { id: 'maiz_forrajero', es: 'Maíz forrajero (ensilaje)', en: 'Silage corn', emoji: '🌽', family: 'poaceae', cat: 'forage', roles: ['forage'], cycle: [95, 120], topt: [18, 32], tabs: [10, 40], ft: false, hc: 38, water: [450, 700], ph: [5.5, 8.0], kc: [0.3, 1.15, 0.5], ec: 1.7, agro: [45, 0.4, 0, 0.45, 1, -150, 0.45], aka: ['ensilaje', 'silo', 'maiz para silo'] },
   { id: 'sorgo', es: 'Sorgo', en: 'Sorghum', emoji: '🌾', family: 'poaceae', cat: 'grain', roles: ['cash', 'drought_tolerant', 'forage'], cycle: [100, 130], topt: [22, 35], tabs: [12, 42], ft: false, hc: 38, water: [400, 600], ph: [5.5, 8.5], kc: [0.3, 1.05, 0.55], ec: 6.8, agro: [4.5, 0.45, 1, 0.35, 0.6, -80, 0.4], aka: ['sorgo grano', 'milo'] },
   { id: 'sorgo_forrajero', es: 'Sorgo forrajero', en: 'Forage sorghum', emoji: '🌾', family: 'poaceae', cat: 'forage', roles: ['forage', 'drought_tolerant'], cycle: [80, 110], topt: [22, 35], tabs: [12, 42], ft: false, hc: 40, water: [350, 550], ph: [5.5, 8.5], kc: [0.3, 1.0, 0.8], ec: 6.8, agro: [35, 0.35, 0, 0.35, 1, -100, 0.35] },
   { id: 'trigo', es: 'Trigo', en: 'Wheat', emoji: '🌾', family: 'poaceae', cat: 'grain', roles: ['cash'], cycle: [120, 160], topt: [12, 24], tabs: [-8, 32], ft: true, hc: 32, water: [400, 600], ph: [6.0, 8.0], kc: [0.4, 1.15, 0.3], ec: 6.0, agro: [4.0, 0.5, 1, 0.15, 0.2, -90, 0.4], aka: ['trigo harinero', 'trigo cristalino'] },
@@ -56,8 +56,8 @@ const raw: R[] = [
   { id: 'chia', es: 'Chía', en: 'Chia', emoji: '🌱', family: 'lamiaceae', cat: 'grain', roles: ['cash'], cycle: [120, 150], topt: [16, 28], tabs: [8, 34], ft: false, hc: 34, water: [350, 550], ph: [6.0, 8.0], kc: [0.4, 1.0, 0.4], ec: 2.0, agro: [0.8, 0.85, 1, 0.4, 0, -40, 0.5] },
   { id: 'quinoa', es: 'Quinoa', en: 'Quinoa', emoji: '🌱', family: 'amaranthaceae', cat: 'grain', roles: ['cash', 'drought_tolerant'], cycle: [100, 150], topt: [12, 25], tabs: [-4, 35], ft: true, hc: 32, water: [250, 450], ph: [6.0, 8.5], kc: [0.4, 1.0, 0.6], ec: 8.0, agro: [1.5, 0.85, 1, 0.4, 0, -60, 0.5], aka: ['quinua'] },
 
-  // ───────────── Leguminosas ─────────────
-  { id: 'frijol', es: 'Frijol', en: 'Dry bean', emoji: '🫘', family: 'fabaceae', cat: 'legume', roles: ['cash', 'legume'], cycle: [85, 110], topt: [16, 28], tabs: [10, 32], ft: false, hc: 32, water: [300, 500], ph: [5.5, 7.8], kc: [0.4, 1.15, 0.35], nfix: true, ec: 1.0, agro: [1.2, 0.7, 0, 0.45, 0, 30, 0.6], aka: ['frijol pinto', 'frijol negro', 'frejol'] },
+  // ───────────── Legumes ─────────────
+  { id: 'frijol', es: 'Frijol', en: 'Bean', emoji: '🫘', family: 'fabaceae', cat: 'legume', roles: ['cash', 'legume'], cycle: [85, 110], topt: [16, 28], tabs: [10, 32], ft: false, hc: 32, water: [300, 500], ph: [5.5, 7.8], kc: [0.4, 1.15, 0.35], nfix: true, ec: 1.0, agro: [1.2, 0.7, 0, 0.45, 0, 30, 0.6], aka: ['frijol pinto', 'frijol negro', 'frejol'] },
   { id: 'ejote', es: 'Ejote', en: 'Green bean', emoji: '🫛', family: 'fabaceae', cat: 'vegetable', roles: ['cash', 'legume'], cycle: [60, 80], topt: [16, 28], tabs: [10, 32], ft: false, hc: 32, water: [250, 400], ph: [5.5, 7.5], kc: [0.5, 1.05, 0.9], nfix: true, ec: 1.0, gh: true, agro: [10, 0.65, 0, 0.45, 0.2, 30, 0.8], aka: ['judia verde', 'vainita'] },
   { id: 'garbanzo', es: 'Garbanzo', en: 'Chickpea', emoji: '🫘', family: 'fabaceae', cat: 'legume', roles: ['cash', 'legume', 'drought_tolerant'], cycle: [100, 130], topt: [12, 26], tabs: [-2, 32], ft: true, hc: 32, water: [250, 400], ph: [6.0, 8.5], kc: [0.4, 1.0, 0.35], nfix: true, ec: 1.5, agro: [1.6, 0.65, 0, 0.3, 0, 35, 0.45] },
   { id: 'haba', es: 'Haba', en: 'Faba bean', emoji: '🫛', family: 'fabaceae', cat: 'legume', roles: ['cash', 'legume', 'cover'], cycle: [120, 160], topt: [10, 22], tabs: [-6, 30], ft: true, hc: 28, water: [300, 500], ph: [6.0, 8.0], kc: [0.5, 1.15, 0.3], nfix: true, ec: 1.6, agro: [2.0, 0.6, 1, 0.3, 0.3, 60, 0.5] },
@@ -69,12 +69,12 @@ const raw: R[] = [
   { id: 'trebol', es: 'Trébol (cobertura)', en: 'Clover (cover)', emoji: '☘️', family: 'fabaceae', cat: 'legume', roles: ['cover', 'legume', 'forage'], cycle: [120, 200], topt: [10, 24], tabs: [-10, 30], ft: true, hc: 30, water: [400, 700], ph: [6.0, 7.5], kc: [0.4, 1.0, 0.85], nfix: true, ec: 1.5, agro: [5.0, 0.2, 2, 0.05, 0.8, 90, 0.25] },
   { id: 'alfalfa', es: 'Alfalfa', en: 'Alfalfa', emoji: '☘️', family: 'fabaceae', cat: 'forage', roles: ['forage', 'legume', 'deep_root'], cycle: [300, 365], topt: [10, 30], tabs: [-10, 38], ft: true, hc: 38, water: [800, 1200], ph: [6.5, 8.5], kc: [0.4, 0.95, 0.9], nfix: true, ec: 2.0, agro: [14, 0.6, 3, 0.02, 1, 120, 0.6] },
 
-  // ───────────── Forrajes y pastos ─────────────
+  // ───────────── Forage and grasses ─────────────
   { id: 'ballico', es: 'Ballico (ryegrass)', en: 'Ryegrass', emoji: '🌱', family: 'poaceae', cat: 'forage', roles: ['forage', 'cover'], cycle: [150, 240], topt: [10, 22], tabs: [-8, 30], ft: true, hc: 30, water: [500, 800], ph: [5.5, 8.0], kc: [0.4, 1.0, 0.9], ec: 5.6, agro: [12, 0.35, 1, 0.05, 1, -90, 0.35], aka: ['raigras', 'rye grass', 'zacate ballico'] },
   { id: 'pasto_sudan', es: 'Pasto sudán', en: 'Sudangrass', emoji: '🌾', family: 'poaceae', cat: 'forage', roles: ['forage', 'drought_tolerant'], cycle: [80, 120], topt: [22, 34], tabs: [12, 42], ft: false, hc: 40, water: [350, 600], ph: [5.5, 8.5], kc: [0.3, 1.0, 0.8], ec: 2.8, agro: [30, 0.3, 0, 0.3, 1, -90, 0.3], aka: ['sudan', 'zacate sudan'] },
   { id: 'buffel', es: 'Zacate buffel', en: 'Buffelgrass', emoji: '🌾', family: 'poaceae', cat: 'forage', roles: ['forage', 'drought_tolerant', 'deep_root'], cycle: P, topt: [24, 35], tabs: [-6, 45], ft: true, hc: 42, water: [250, 600], ph: [6.0, 8.5], kc: [0.4, 0.85, 0.75], ec: 6.0, agro: [6, 0.25, 1, 0.05, 1, -30, 0.15], per: { first: 1, harvest: [7, 10], plant: [6, 7] }, aka: ['pasto buffel', 'zacate'] },
 
-  // ───────────── Hortalizas ─────────────
+  // ───────────── Vegetables ─────────────
   { id: 'papa', es: 'Papa', en: 'Potato', emoji: '🥔', family: 'solanaceae', cat: 'vegetable', roles: ['cash'], cycle: [100, 130], topt: [14, 24], tabs: [5, 30], ft: false, hc: 29, water: [450, 650], ph: [5.0, 7.0], kc: [0.5, 1.15, 0.75], ec: 1.7, agro: [28, 0.85, -1, 0.5, 0, -140, 0.9], aka: ['patata'] },
   { id: 'tomate', es: 'Tomate', en: 'Tomato', emoji: '🍅', family: 'solanaceae', cat: 'vegetable', roles: ['cash'], cycle: [100, 140], topt: [18, 28], tabs: [10, 35], ft: false, hc: 32, water: [400, 700], ph: [5.5, 7.5], kc: [0.6, 1.15, 0.8], ec: 2.5, gh: true, agro: [45, 0.95, -1, 0.5, 0, -150, 1], aka: ['jitomate', 'tomate rojo', 'tomate saladette'] },
   { id: 'tomate_verde', es: 'Tomate verde', en: 'Tomatillo', emoji: '🍏', family: 'solanaceae', cat: 'vegetable', roles: ['cash'], cycle: [80, 110], topt: [18, 28], tabs: [10, 35], ft: false, hc: 33, water: [400, 600], ph: [5.5, 7.5], kc: [0.6, 1.1, 0.8], ec: 2.0, gh: true, agro: [20, 0.65, -1, 0.5, 0, -120, 0.8], aka: ['tomatillo', 'tomate de cascara', 'miltomate'] },
@@ -101,7 +101,7 @@ const raw: R[] = [
   { id: 'esparrago', es: 'Espárrago', en: 'Asparagus', emoji: '🌱', family: 'asparagaceae', cat: 'vegetable', roles: ['cash', 'deep_root'], cycle: P, topt: [16, 28], tabs: [-20, 38], ft: true, hc: 35, water: [500, 800], ph: [6.5, 8.0], kc: [0.5, 0.95, 0.3], ec: 4.1, agro: [5, 0.95, 1, 0.3, 0, -80, 0.9], per: { first: 2, harvest: [2, 4], plant: [1, 2, 3] } },
   { id: 'fresa', es: 'Fresa', en: 'Strawberry', emoji: '🍓', family: 'rosaceae', cat: 'berry', roles: ['cash'], cycle: [180, 240], topt: [15, 25], tabs: [-6, 32], ft: true, hc: 30, water: [500, 800], ph: [5.5, 6.8], kc: [0.4, 0.85, 0.75], ec: 1.0, gh: true, agro: [40, 1, -1, 0.4, 0, -120, 1], aka: ['frutilla', 'fresas'] },
 
-  // ───────────── Oleaginosas e industriales ─────────────
+  // ───────────── Oilseeds e industriales ─────────────
   { id: 'girasol', es: 'Girasol', en: 'Sunflower', emoji: '🌻', family: 'asteraceae', cat: 'oilseed', roles: ['cash', 'deep_root', 'drought_tolerant'], cycle: [100, 130], topt: [18, 30], tabs: [8, 38], ft: false, hc: 36, water: [350, 550], ph: [6.0, 8.0], kc: [0.35, 1.05, 0.35], ec: 4.8, agro: [2.0, 0.55, 1, 0.4, 0, -60, 0.4] },
   { id: 'cartamo', es: 'Cártamo', en: 'Safflower', emoji: '🌼', family: 'asteraceae', cat: 'oilseed', roles: ['cash', 'deep_root', 'drought_tolerant'], cycle: [120, 150], topt: [15, 28], tabs: [-4, 38], ft: true, hc: 36, water: [250, 450], ph: [6.0, 8.5], kc: [0.35, 1.05, 0.25], ec: 7.0, agro: [1.8, 0.5, 1, 0.3, 0, -50, 0.35] },
   { id: 'canola', es: 'Canola', en: 'Canola', emoji: '🌼', family: 'brassicaceae', cat: 'oilseed', roles: ['cash', 'deep_root'], cycle: [120, 160], topt: [12, 24], tabs: [-8, 32], ft: true, hc: 30, water: [350, 500], ph: [5.5, 8.0], kc: [0.35, 1.1, 0.35], ec: 6.0, agro: [2.2, 0.55, 1, 0.3, 0, -90, 0.4], aka: ['colza'] },
@@ -109,7 +109,7 @@ const raw: R[] = [
   { id: 'remolacha_azucarera', es: 'Remolacha azucarera', en: 'Sugar beet', emoji: '🍠', family: 'amaranthaceae', cat: 'industrial', roles: ['cash', 'deep_root'], cycle: [160, 200], topt: [15, 25], tabs: [-4, 32], ft: true, hc: 32, water: [550, 750], ph: [6.5, 8.0], kc: [0.35, 1.2, 0.7], ec: 7.0, agro: [60, 0.4, 0, 0.45, 0.3, -130, 0.6], aka: ['betabel azucarero'] },
   { id: 'cana', es: 'Caña de azúcar', en: 'Sugarcane', emoji: '🎋', family: 'poaceae', cat: 'industrial', roles: ['cash'], cycle: [330, 365], topt: [24, 34], tabs: [12, 42], ft: false, hc: 40, water: [1500, 2500], ph: [5.0, 8.0], kc: [0.4, 1.25, 0.75], ec: 1.7, agro: [80, 0.4, 1, 0.2, 0.4, -150, 0.6], aka: ['cana de azucar'] },
 
-  // ───────────── Frutales de hueso y pepita (necesitan frío) ─────────────
+  // ───────────── Fruit trees de hueso y pepita (necesitan frío) ─────────────
   { id: 'manzana', es: 'Manzana', en: 'Apple', emoji: '🍎', family: 'rosaceae', cat: 'fruit', roles: ['cash', 'deep_root'], cycle: P, topt: [12, 24], tabs: [-30, 35], ft: true, hc: 35, water: [600, 900], ph: [5.5, 8.0], kc: [0.45, 0.95, 0.75], ec: 1.7, agro: [25, 0.9, 0, 0.1, 0, -80, 0.9], per: { chill: [400, 900], bloom: 4, first: 4, harvest: [8, 10], plant: [12, 1, 2] }, aka: ['manzano', 'manzanas', 'golden', 'red delicious'] },
   { id: 'pera', es: 'Pera', en: 'Pear', emoji: '🍐', family: 'rosaceae', cat: 'fruit', roles: ['cash', 'deep_root'], cycle: P, topt: [12, 25], tabs: [-25, 36], ft: true, hc: 35, water: [600, 900], ph: [6.0, 8.2], kc: [0.45, 0.95, 0.75], ec: 1.7, agro: [20, 0.85, 0, 0.1, 0, -70, 0.85], per: { chill: [400, 900], bloom: 3, first: 5, harvest: [7, 9], plant: [12, 1, 2] }, aka: ['peral', 'peras'] },
   { id: 'durazno', es: 'Durazno', en: 'Peach', emoji: '🍑', family: 'rosaceae', cat: 'fruit', roles: ['cash', 'deep_root'], cycle: P, topt: [15, 28], tabs: [-20, 38], ft: true, hc: 36, water: [600, 900], ph: [6.0, 7.5], kc: [0.45, 0.9, 0.65], ec: 1.7, agro: [15, 0.8, 0, 0.1, 0, -80, 0.9], per: { chill: [200, 800], bloom: 2, first: 3, harvest: [5, 8], plant: [12, 1, 2] }, aka: ['duraznero', 'melocoton', 'duraznos'] },
@@ -147,11 +147,11 @@ const raw: R[] = [
   { id: 'zarzamora', es: 'Zarzamora', en: 'Blackberry', emoji: '🫐', family: 'rosaceae', cat: 'berry', roles: ['cash'], cycle: P, topt: [16, 28], tabs: [-15, 35], ft: true, hc: 32, water: [500, 800], ph: [5.5, 7.0], kc: [0.4, 1.05, 0.5], ec: 1.0, gh: true, agro: [12, 0.95, 0, 0.15, 0, -60, 1], per: { chill: [200, 600], bloom: 4, first: 1, harvest: [5, 8], plant: [1, 2, 3] }, aka: ['mora', 'moras', 'zarzamoras'] },
   { id: 'arandano', es: 'Arándano', en: 'Blueberry', emoji: '🫐', family: 'ericaceae', cat: 'berry', roles: ['cash'], cycle: P, topt: [15, 26], tabs: [-25, 34], ft: true, hc: 32, water: [500, 800], ph: [4.5, 5.5], kc: [0.4, 1.0, 0.6], ec: 1.0, gh: true, agro: [10, 1, 0, 0.15, 0, -40, 1], per: { chill: [150, 800], bloom: 3, first: 2, harvest: [4, 7], plant: [1, 2, 3] }, aka: ['arandanos', 'blueberry', 'mora azul'] },
 
-  // ───────────── Nopal y agave ─────────────
+  // ───────────── Prickly pear and agave ─────────────
   { id: 'nopal', es: 'Nopal (verdura y tuna)', en: 'Prickly pear', emoji: '🌵', family: 'cactaceae', cat: 'cactus', roles: ['cash', 'drought_tolerant', 'forage'], cycle: P, topt: [16, 32], tabs: [-10, 45], ft: true, hc: 45, water: [200, 500], ph: [6.0, 8.5], kc: [0.3, 0.45, 0.4], ec: 6.0, agro: [60, 0.4, 0, 0.1, 0.5, -40, 0.6], per: { first: 1, harvest: [3, 10], plant: [2, 3, 4, 5] }, aka: ['tuna', 'tunas', 'nopales', 'nopalitos', 'xoconostle'] },
   { id: 'agave', es: 'Agave (maguey)', en: 'Agave', emoji: '🌵', family: 'asparagaceae', cat: 'cactus', roles: ['cash', 'drought_tolerant', 'deep_root'], cycle: P, topt: [18, 30], tabs: [-8, 45], ft: true, hc: 45, water: [250, 600], ph: [6.0, 8.5], kc: [0.2, 0.35, 0.35], ec: 6.0, agro: [80, 0.8, 0, 0.1, 0, -20, 0.4], per: { first: 6, harvest: [1, 12], plant: [5, 6, 7] }, aka: ['maguey', 'mezcal', 'tequila', 'agave mezcalero', 'pulque'] },
 
-  // ───────────── Aromáticas ─────────────
+  // ───────────── Herbs ─────────────
   { id: 'oregano', es: 'Orégano', en: 'Oregano', emoji: '🌿', family: 'verbenaceae', cat: 'aromatic', roles: ['cash', 'drought_tolerant'], cycle: P, topt: [15, 30], tabs: [-8, 42], ft: true, hc: 40, water: [300, 600], ph: [6.0, 8.5], kc: [0.4, 0.8, 0.7], ec: 3.0, agro: [3, 0.9, 0, 0.15, 0, -40, 0.7], per: { first: 1, harvest: [6, 10], plant: [3, 4, 5, 6] }, aka: ['oregano mexicano'] },
   { id: 'lavanda', es: 'Lavanda', en: 'Lavender', emoji: '🪻', family: 'lamiaceae', cat: 'aromatic', roles: ['cash', 'drought_tolerant'], cycle: P, topt: [15, 28], tabs: [-15, 38], ft: true, hc: 36, water: [300, 550], ph: [6.5, 8.5], kc: [0.4, 0.75, 0.6], ec: 2.5, agro: [1.5, 0.85, 0, 0.15, 0, -30, 0.8], per: { first: 2, harvest: [6, 7], plant: [3, 4, 10] }, aka: ['lavandin', 'espliego'] },
   { id: 'romero', es: 'Romero', en: 'Rosemary', emoji: '🌿', family: 'lamiaceae', cat: 'aromatic', roles: ['cash', 'drought_tolerant'], cycle: P, topt: [15, 28], tabs: [-10, 40], ft: true, hc: 38, water: [300, 550], ph: [6.0, 8.5], kc: [0.4, 0.75, 0.6], ec: 3.0, agro: [4, 0.7, 0, 0.15, 0, -30, 0.7], per: { first: 1, harvest: [4, 10], plant: [3, 4, 9, 10] } },
@@ -186,18 +186,18 @@ export const CROPS: Crop[] = raw.map((r) => ({
 export const CROP_BY_ID = new Map(CROPS.map((c) => [c.id, c]))
 
 export const CATEGORY_LABEL: Record<CropCategory, string> = {
-  grain: 'Granos y cereales',
-  legume: 'Leguminosas',
-  forage: 'Forrajes y pastos',
-  vegetable: 'Hortalizas',
-  oilseed: 'Oleaginosas',
-  industrial: 'Industriales',
-  fruit: 'Frutales',
-  vine: 'Vid',
-  nut: 'Nueces',
+  grain: 'Grains and cereals',
+  legume: 'Legumes',
+  forage: 'Forage and grasses',
+  vegetable: 'Vegetables',
+  oilseed: 'Oilseeds',
+  industrial: 'Industrial crops',
+  fruit: 'Fruit trees',
+  vine: 'Grapevines',
+  nut: 'Nuts',
   berry: 'Berries',
-  cactus: 'Nopal y agave',
-  aromatic: 'Aromáticas',
+  cactus: 'Prickly pear and agave',
+  aromatic: 'Herbs',
 }
 
 /** Parámetros internos del motor de demostración (no forman parte del contrato). */
@@ -215,9 +215,9 @@ export function findCropInText(text: string): Crop | undefined {
   const t = ` ${norm(text).replace(/[^a-z0-9ñ ]/g, ' ')} `
   let best: { crop: Crop; len: number } | undefined
   for (const c of CROPS) {
-    const base = norm(c.name.es).replace(/\(.*?\)/g, ' ').trim()
+    const base = norm(c.name.en).replace(/\(.*?\)/g, ' ').trim()
     const inParens = [...norm(c.name.es).matchAll(/\(([^)]+)\)/g)].map((m) => m[1])
-    const tokens = [base, ...inParens, c.id.replace(/_/g, ' '), ...c.aliases.map(norm)]
+    const tokens = [base, norm(c.name.es).replace(/\(.*?\)/g, ' ').trim(), ...inParens, c.id.replace(/_/g, ' '), ...c.aliases.map(norm)]
     for (const tok of tokens) {
       if (tok.length < 3) continue
       if (new RegExp(`\\s${tok.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}(s|es)?\\s`).test(t) && (!best || tok.length > best.len)) best = { crop: c, len: tok.length }

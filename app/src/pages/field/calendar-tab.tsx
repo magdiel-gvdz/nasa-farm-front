@@ -13,7 +13,7 @@ function FrostWindow({ profile }: { profile: FieldProfile }) {
   const ff10 = f.first_fall_frost.p10?.doy
   const ff50 = f.first_fall_frost.p50?.doy
   if (!ls50 || !ff50 || !ls90 || !ff10) {
-    return <p className="text-sm text-ink-2">En 35 años casi no se registraron heladas en esta zona.</p>
+    return <p className="text-sm text-ink-2">In 35 years, almost no frosts were recorded in this area.</p>
   }
   const x = (doy: number) => `${((doy - 1) / 365) * 100}%`
   const seg = (a: number, b: number, cls: string, delay: number) =>
@@ -22,10 +22,10 @@ function FrostWindow({ profile }: { profile: FieldProfile }) {
     ) : null
   const wraps = ls50 < ff50 // hemisferio norte: la temporada fría cruza el año
   const marks = [
-    { doy: ls50, label: 'Última helada típica', date: f.last_spring_frost.p50?.date },
-    { doy: ls90, label: 'Siembra segura', date: f.last_spring_frost.p90?.date, strong: true },
-    { doy: ff10, label: 'Helada temprana posible', date: f.first_fall_frost.p10?.date },
-    { doy: ff50, label: 'Primera helada típica', date: f.first_fall_frost.p50?.date },
+    { doy: ls50, label: 'Typical last frost', date: f.last_spring_frost.p50?.date },
+    { doy: ls90, label: 'Safe sowing', date: f.last_spring_frost.p90?.date, strong: true },
+    { doy: ff10, label: 'Early frost possible', date: f.first_fall_frost.p10?.date },
+    { doy: ff50, label: 'Typical first frost', date: f.first_fall_frost.p50?.date },
   ]
   return (
     <div>
@@ -60,27 +60,27 @@ function FrostWindow({ profile }: { profile: FieldProfile }) {
       </div>
       <div className="mt-12 grid gap-3 sm:grid-cols-3">
         <div className="rounded-xl bg-surface-2 p-3">
-          <div className="text-xs text-muted">Siembra segura desde</div>
+          <div className="text-xs text-muted">Safe sowing from</div>
           <div className="mt-0.5 font-semibold text-ink">{dateLong(f.last_spring_frost.p90?.date)}</div>
-          <div className="text-xs text-ink-2">9 de cada 10 años ya no hiela</div>
+          <div className="text-xs text-ink-2">9 out of 10 years it no longer freezes</div>
         </div>
         <div className="rounded-xl bg-surface-2 p-3">
-          <div className="text-xs text-muted">Cosecha antes del</div>
+          <div className="text-xs text-muted">Harvest before</div>
           <div className="mt-0.5 font-semibold text-ink">{dateLong(f.first_fall_frost.p10?.date)}</div>
-          <div className="text-xs text-ink-2">Helada temprana 1 de cada 10 años</div>
+          <div className="text-xs text-ink-2">Early frost 1 in 10 years</div>
         </div>
         <div className="rounded-xl bg-surface-2 p-3">
-          <div className="text-xs text-muted">Días sin helada (año típico)</div>
-          <div className="mt-0.5 font-semibold text-ink">{num(f.frost_free_days.p50)} días</div>
-          <div className="text-xs text-ink-2">En un año malo: {num(f.frost_free_days.p10)}</div>
+          <div className="text-xs text-muted">Frost-free days (typical year)</div>
+          <div className="mt-0.5 font-semibold text-ink">{num(f.frost_free_days.p50)} days</div>
+          <div className="text-xs text-ink-2">In a bad year: {num(f.frost_free_days.p10)}</div>
         </div>
       </div>
       <div className="mt-3 flex flex-wrap gap-4 text-xs text-ink-2">
         <span className="inline-flex items-center gap-1.5">
-          <span className="h-2.5 w-4 rounded-sm bg-s7/70" /> Temporada de heladas (año típico)
+          <span className="h-2.5 w-4 rounded-sm bg-s7/70" /> Frost season (typical year)
         </span>
         <span className="inline-flex items-center gap-1.5">
-          <span className="h-2.5 w-4 rounded-sm bg-s7/25" /> Puede helar algunos años
+          <span className="h-2.5 w-4 rounded-sm bg-s7/25" /> May freeze for some years
         </span>
       </div>
     </div>
@@ -92,19 +92,19 @@ export function CalendarTab({ profile }: { profile: FieldProfile }) {
   return (
     <Stagger className="grid gap-4 lg:grid-cols-2">
       <Card className="lg:col-span-2">
-        <CardHeader title="El año de tu parcela" subtitle={`Riesgos semana por semana según ${c.years[1] - c.years[0] + 1} años de datos.`} icon={<CalendarDays className="h-4 w-4" />} />
+        <CardHeader title="The year of your field" subtitle={`Risks week by week according to ${c.years[1] - c.years[0] + 1} years of data.`} icon={<CalendarDays className="h-4 w-4" />} />
         <RiskCalendar profile={profile} />
       </Card>
       <Card className="lg:col-span-2">
-        <CardHeader title="¿Cuándo hiela?" subtitle="Fechas clave para sembrar y cosechar sin perder la cosecha por frío." icon={<Snowflake className="h-4 w-4" />} />
+        <CardHeader title="When does it freeze?" subtitle="Key dates to plant and harvest without losing the harvest due to cold." icon={<Snowflake className="h-4 w-4" />} />
         <FrostWindow profile={profile} />
       </Card>
       <Card>
-        <CardHeader title="Temperatura" subtitle="Grados °C · promedio de máximas y mínimas diarias por mes." icon={<Thermometer className="h-4 w-4" />} />
+        <CardHeader title="Temperature" subtitle="Degrees °C · average of daily maximums and minimums per month." icon={<Thermometer className="h-4 w-4" />} />
         <TemperatureChart climate={c} />
       </Card>
       <Card>
-        <CardHeader title="Lluvia" subtitle={`Milímetros por mes · ${num(c.rain.annual_mean_mm)} mm al año en promedio.`} icon={<CloudRain className="h-4 w-4" />} />
+        <CardHeader title="Rain" subtitle={`Millimeters per month · ${num(c.rain.annual_mean_mm)} mm per year on average.`} icon={<CloudRain className="h-4 w-4" />} />
         <RainChart climate={c} />
       </Card>
     </Stagger>

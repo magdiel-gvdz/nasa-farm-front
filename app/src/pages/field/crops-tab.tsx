@@ -18,20 +18,20 @@ import { cn } from '@/lib/cn'
 import { dateLong, monthName, num } from '@/lib/format'
 
 const GROUPS: { id: string; label: string; cats?: CropCategory[] }[] = [
-  { id: 'all', label: 'Todos' },
-  { id: 'grains', label: 'Granos', cats: ['grain'] },
-  { id: 'forage', label: 'Forrajes', cats: ['forage'] },
-  { id: 'legume', label: 'Leguminosas', cats: ['legume'] },
-  { id: 'veg', label: 'Hortalizas', cats: ['vegetable'] },
-  { id: 'fruit', label: 'Frutales y vid', cats: ['fruit', 'vine'] },
-  { id: 'nut', label: 'Nueces', cats: ['nut'] },
+  { id: 'all', label: 'All' },
+  { id: 'grains', label: 'Grains', cats: ['grain'] },
+  { id: 'forage', label: 'Forages', cats: ['forage'] },
+  { id: 'legume', label: 'Legumes', cats: ['legume'] },
+  { id: 'veg', label: 'Vegetables', cats: ['vegetable'] },
+  { id: 'fruit', label: 'Fruit trees and vines', cats: ['fruit', 'vine'] },
+  { id: 'nut', label: 'Nuts', cats: ['nut'] },
   { id: 'berry', label: 'Berries', cats: ['berry'] },
-  { id: 'oil', label: 'Oleaginosas e industriales', cats: ['oilseed', 'industrial'] },
-  { id: 'other', label: 'Nopal, agave y aromáticas', cats: ['cactus', 'aromatic'] },
+  { id: 'oil', label: 'Oilseeds and industrial', cats: ['oilseed', 'industrial'] },
+  { id: 'other', label: 'Prickly pear, agave, and herbs', cats: ['cactus', 'aromatic'] },
 ]
 const PAGE = 20
 
-const SOURCE_LABEL: Record<string, string> = { nasa_power: 'NASA POWER', soilgrids: 'SoilGrids', ssurgo: 'SSURGO', srtm: 'SRTM', lab_report: 'Tu análisis' }
+const SOURCE_LABEL: Record<string, string> = { nasa_power: 'NASA POWER', soilgrids: 'SoilGrids', ssurgo: 'SSURGO', srtm: 'SRTM', lab_report: 'Your analysis' }
 
 function CropDetail({ field, crop, month, scenario, onMonth }: { field: Field; crop: Crop; month: number; scenario: Scenario; onMonth: (m: number) => void }) {
   const det = useSuitability(field.id, crop.id, month, scenario)
@@ -42,13 +42,13 @@ function CropDetail({ field, crop, month, scenario, onMonth }: { field: Field; c
   return (
     <div className="space-y-6 p-5">
       <div className="flex items-center justify-between rounded-full bg-surface-2 p-1">
-        <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => onMonth(month === 1 ? 12 : month - 1)} aria-label="Mes anterior">
+        <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => onMonth(month === 1 ? 12 : month - 1)} aria-label="Previous month">
           <ChevronLeft className="h-4 w-4" />
         </Button>
         <span className="text-sm font-medium text-ink">
-          {crop.perennial ? 'Plantar' : 'Sembrar'} en <span className="capitalize">{monthName(month)}</span>
+          {crop.perennial ? 'Plant' : 'Sow'} in <span className="capitalize">{monthName(month)}</span>
         </span>
-        <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => onMonth(month === 12 ? 1 : month + 1)} aria-label="Mes siguiente">
+        <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => onMonth(month === 12 ? 1 : month + 1)} aria-label="Next month">
           <ChevronRight className="h-4 w-4" />
         </Button>
       </div>
@@ -63,20 +63,20 @@ function CropDetail({ field, crop, month, scenario, onMonth }: { field: Field; c
               <StatusPill level={suitToLevel(d.status)} label={suitLabel(d.status)} />
               {d.perennial ? (
                 <p className="mt-2 text-sm text-ink-2">
-                  Perenne: primera cosecha al <b className="text-ink">año {d.perennial.years_to_first_harvest}</b>; después se cosecha cada año de{' '}
-                  <b className="text-ink">{monthName(d.perennial.harvest_months[0])}</b> a <b className="text-ink">{monthName(d.perennial.harvest_months[1])}</b>.
-                  {d.perennial.chill_hours_est != null && <> Tu zona junta ~{num(d.perennial.chill_hours_est)} horas frío por invierno.</>}
+                  Perennial: first harvest at <b className="text-ink">year {d.perennial.years_to_first_harvest}</b>; Then it is harvested every year{' '}
+                  <b className="text-ink">{monthName(d.perennial.harvest_months[0])}</b> to <b className="text-ink">{monthName(d.perennial.harvest_months[1])}</b>.
+                  {d.perennial.chill_hours_est != null && <> Your area accumulates ~{num(d.perennial.chill_hours_est)} chill hours per winter.</>}
                 </p>
               ) : (
                 <p className="mt-2 text-sm text-ink-2">
-                  Cosecha entre el <b className="text-ink">{dateLong(d.harvest_window.from)}</b> y el <b className="text-ink">{dateLong(d.harvest_window.to)}</b>.
+                  Harvest between <b className="text-ink">{dateLong(d.harvest_window.from)}</b> and the <b className="text-ink">{dateLong(d.harvest_window.to)}</b>.
                 </p>
               )}
             </div>
           </div>
 
           <div>
-            <h4 className="mb-2 text-sm font-semibold text-ink">¿Por qué?</h4>
+            <h4 className="mb-2 text-sm font-semibold text-ink">Why?</h4>
             <ul className="space-y-2">
               {d.reasons.map((r, i) => (
                 <motion.li key={`${r.factor}-${i}`} initial={{ opacity: 0, x: -6 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: i * 0.05 }} className="flex items-start gap-2.5 rounded-xl bg-surface-2 p-3 text-sm text-ink-2">
@@ -90,14 +90,14 @@ function CropDetail({ field, crop, month, scenario, onMonth }: { field: Field; c
 
           {y && (
             <div>
-              <h4 className="mb-1 text-sm font-semibold text-ink">Rendimiento esperado{crop.perennial ? ' (huerta adulta)' : ''}</h4>
-              <p className="mb-3 text-xs text-muted">Rango probable (8 de cada 10 años). {y.model.name.startsWith('demo') ? 'Estimación de demostración.' : ''}</p>
+              <h4 className="mb-1 text-sm font-semibold text-ink">Expected yield{crop.perennial ? ' (mature orchard)' : ''}</h4>
+              <p className="mb-3 text-xs text-muted">Probable range (8 out of 10 years). {y.model.name.startsWith('demo') ? 'Demo Estimation.' : ''}</p>
               <YieldBar p10={y.p10} p50={y.p50} p90={y.p90} reference={y.regional_reference?.value} unit={y.unit} />
             </div>
           )}
 
-          <Button variant="outline" className="w-full justify-center" onClick={() => ask(crop.perennial ? `¿Se da ${crop.name.es.toLowerCase()} en mi terreno?` : `¿Puedo sembrar ${crop.name.es.toLowerCase()} en ${monthName(month)}?`)}>
-            <MessageCircle className="h-4 w-4" /> Preguntar al agrónomo
+          <Button variant="outline" className="w-full justify-center" onClick={() => ask(crop.perennial ? `Can I grow ${crop.name.en.toLowerCase()} on my land?` : `Can I plant ${crop.name.en.toLowerCase()} in ${monthName(month)}?`)}>
+            <MessageCircle className="h-4 w-4" /> Ask the agronomist
           </Button>
         </motion.div>
       )}
@@ -121,17 +121,17 @@ function YieldBar({ p10, p50, p90, reference, unit }: { p10: number; p50: number
         />
         <motion.div className="absolute top-1/2 h-5 w-5 -translate-x-1/2 -translate-y-1/2 rounded-full border-[3px] border-surface bg-accent shadow" style={{ left: x(p50) }} initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ delay: 0.5, type: 'spring' }} />
         {reference != null && (
-          <div className="absolute top-0 bottom-0 w-[2px] -translate-x-1/2 bg-ink/40" style={{ left: x(reference) }} title="Promedio regional" />
+          <div className="absolute top-0 bottom-0 w-[2px] -translate-x-1/2 bg-ink/40" style={{ left: x(reference) }} title="Regional average" />
         )}
       </div>
       <div className="tabular flex justify-between text-xs text-ink-2">
-        <span>Año malo: {num(p10, 1)}</span>
+        <span>Bad year: {num(p10, 1)}</span>
         <span className="font-semibold text-ink">
-          Típico: {num(p50, 1)} {unit}
+          Typical: {num(p50, 1)} {unit}
         </span>
-        <span>Año bueno: {num(p90, 1)}</span>
+        <span>Good year: {num(p90, 1)}</span>
       </div>
-      {reference != null && <p className="mt-1 text-xs text-muted">La línea gris es el promedio de la región ({num(reference, 1)} {unit}).</p>}
+      {reference != null && <p className="mt-1 text-xs text-muted">The gray line shows the regional average ({num(reference, 1)} {unit}).</p>}
     </div>
   )
 }
@@ -173,7 +173,7 @@ export function CropsTab({ field, scenario, onScenario }: { field: Field; scenar
         <div className="grid gap-4 md:grid-cols-2">
           {[now, next].map((m, i) => (
             <Card key={m}>
-              <CardHeader title={<>Para sembrar en <span className="capitalize">{monthName(m)}</span></>} subtitle={i === 0 ? 'Este mes' : 'El próximo mes'} icon={<CalendarCheck className="h-4 w-4" />} />
+              <CardHeader title={<>To sow in <span className="capitalize">{monthName(m)}</span></>} subtitle={i === 0 ? 'This month' : 'Next month'} icon={<CalendarCheck className="h-4 w-4" />} />
               {matrix.data ? (
                 topFor(m).length ? (
                   <ul className="space-y-1.5">
@@ -185,7 +185,7 @@ export function CropsTab({ field, scenario, onScenario }: { field: Field; scenar
                             <span className="text-lg" aria-hidden>
                               {c?.emoji}
                             </span>
-                            <span className="flex-1 text-sm font-medium text-ink">{c?.name.es}</span>
+                            <span className="flex-1 text-sm font-medium text-ink">{c?.name.en}</span>
                             <StatusPill level={suitToLevel(r.status)} label={`${r.score}`} />
                           </button>
                         </li>
@@ -193,7 +193,7 @@ export function CropsTab({ field, scenario, onScenario }: { field: Field; scenar
                     })}
                   </ul>
                 ) : (
-                  <p className="text-sm text-ink-2">Ningún cultivo del catálogo es buena idea este mes. Es temporada de descanso o de cobertura.</p>
+                  <p className="text-sm text-ink-2">No crop in the catalog is a good idea this month. It is the season of rest or soil cover.</p>
                 )
               ) : (
                 <div className="skeleton h-28" />
@@ -208,8 +208,8 @@ export function CropsTab({ field, scenario, onScenario }: { field: Field; scenar
               <Wheat className="h-4 w-4" />
             </div>
             <div className="min-w-0 flex-1">
-              <h3 className="text-[15px] font-semibold text-ink">¿Qué puedo sembrar y cuándo?</h3>
-              <p className="text-sm text-ink-2">Cada cuadro es un mes de siembra (en frutales, de plantación). Tócalo para ver por qué.</p>
+              <h3 className="text-[15px] font-semibold text-ink">What can I plant and when?</h3>
+              <p className="text-sm text-ink-2">Each square is a month of sowing (in fruit trees, planting). Tap it to see why.</p>
             </div>
           </div>
           <div className="relative mb-3">
@@ -217,7 +217,7 @@ export function CropsTab({ field, scenario, onScenario }: { field: Field; scenar
             <input
               value={query}
               onChange={(e) => setQuery(e.target.value)}
-              placeholder={`Busca entre ${crops.data?.length ?? ''} cultivos: manzana, uva, nogal, chile…`}
+              placeholder={`Search among ${crops.data?.length ?? ''} crops: apple, grape, walnut, chili...`}
               className="h-10 w-full rounded-full border border-line-strong bg-surface pr-4 pl-10 text-sm text-ink outline-none placeholder:text-muted focus:border-accent"
             />
           </div>
@@ -240,11 +240,11 @@ export function CropsTab({ field, scenario, onScenario }: { field: Field; scenar
               {sorted.total ? (
                 <SuitabilityGrid matrix={visibleMatrix} crops={crops.data} onPick={(crop, month) => setPick({ crop, month })} />
               ) : (
-                <p className="rounded-2xl bg-surface-2 p-4 text-sm text-ink-2">No encontramos ese cultivo{field.kind === 'greenhouse' ? ' entre los de invernadero' : ''}. Prueba con otro nombre.</p>
+                <p className="rounded-2xl bg-surface-2 p-4 text-sm text-ink-2">We did not find that crop{field.kind === 'greenhouse' ? ' among the greenhouse' : ''}. Try another name.</p>
               )}
               {!showAll && !query && sorted.total > PAGE + 5 && (
                 <Button variant="soft" size="sm" className="mt-3" onClick={() => setShowAll(true)}>
-                  Ver los {sorted.total - PAGE} cultivos restantes
+                  See the {sorted.total - PAGE} remaining crops
                 </Button>
               )}
             </motion.div>
@@ -256,17 +256,17 @@ export function CropsTab({ field, scenario, onScenario }: { field: Field; scenar
               <span className="grid h-4 w-4 place-items-center rounded bg-good/60">
                 <Check className="h-3 w-3" strokeWidth={3} />
               </span>
-              Apto
+              Suitable
             </span>
             <span className="inline-flex items-center gap-1.5">
               <span className="grid h-4 w-4 place-items-center rounded bg-warn/50">
                 <Minus className="h-3 w-3" strokeWidth={3} />
               </span>
-              Con riesgos
+              With risks
             </span>
             <span className="inline-flex items-center gap-1.5">
               <span className="h-4 w-4 rounded bg-surface-2 ring-1 ring-line" />
-              No recomendable
+              Not recommended
             </span>
           </div>
         </motion.div>
@@ -276,11 +276,11 @@ export function CropsTab({ field, scenario, onScenario }: { field: Field; scenar
         <ScenarioControl value={scenario} onChange={onScenario} compact fieldId={field.id} />
         <div className="card flex items-start gap-3 p-4 text-sm text-ink-2">
           <Sprout className="mt-0.5 h-4 w-4 shrink-0 text-accent" />
-          Revisamos heladas, calor en floración, agua, suelo, salinidad y pendiente para cada cultivo y mes. Confirma variedades con tu agrónomo.
+          We check frost, heat during flowering, water, soil, salinity and slope for each crop and month. Confirm varieties with your agronomist.
         </div>
         <div className="card flex items-start gap-3 p-4 text-sm text-ink-2">
           <TreeDeciduous className="mt-0.5 h-4 w-4 shrink-0 text-accent" />
-          En frutales, vid y nueces también revisamos las horas frío del invierno y las heladas en floración.
+          In fruit trees, vines and nuts we also review the chill hours of winter and frost during flowering.
         </div>
       </div>
 
@@ -290,15 +290,15 @@ export function CropsTab({ field, scenario, onScenario }: { field: Field; scenar
         title={
           picked && (
             <span className="inline-flex items-center gap-2">
-              <span aria-hidden>{picked.emoji}</span> {picked.name.es}
+              <span aria-hidden>{picked.emoji}</span> {picked.name.en}
             </span>
           )
         }
         description={
           picked
             ? picked.perennial
-              ? `Perenne · primera cosecha en ${picked.years_to_first_harvest} año${picked.years_to_first_harvest === 1 ? '' : 's'}${picked.chill_hours ? ` · necesita ${picked.chill_hours[0]}–${picked.chill_hours[1]} horas frío según variedad` : ''}`
-              : `Ciclo de ${picked.cycle_days[0]}–${picked.cycle_days[1]} días${picked.n_fixing ? ' · fija nitrógeno' : ''}`
+              ? `Perennial · first harvest in ${picked.years_to_first_harvest} year${picked.years_to_first_harvest === 1 ? '' : 's'}${picked.chill_hours ? ` · need ${picked.chill_hours[0]}–${picked.chill_hours[1]} chill hours according to variety` : ''}`
+              : `Cycle ${picked.cycle_days[0]}–${picked.cycle_days[1]} days${picked.n_fixing ? ' · fixes nitrogen' : ''}`
             : undefined
         }
       >

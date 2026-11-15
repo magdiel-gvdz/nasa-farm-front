@@ -12,20 +12,20 @@ export const SOURCES: Record<string, Source> = {
   nasa_power: { id: 'nasa_power', dataset: 'NASA POWER Daily (AG)', provider: 'NASA Langley', resolution: '0.5° × 0.625° (~50 km)', url: 'https://power.larc.nasa.gov/' },
   soilgrids: { id: 'soilgrids', dataset: 'SoilGrids 250 m', provider: 'ISRIC', resolution: '250 m', url: 'https://soilgrids.org' },
   ssurgo: { id: 'ssurgo', dataset: 'SSURGO (Soil Data Access)', provider: 'USDA NRCS', resolution: '1:24,000', url: 'https://sdmdataaccess.sc.egov.usda.gov' },
-  srtm: { id: 'srtm', dataset: 'SRTM 30 m', provider: 'NASA / USGS', resolution: '30 m', url: 'https://www.earthdata.nasa.gov/data/instruments/srtm' },
-  smap: { id: 'smap', dataset: 'SMAP L4 humedad del suelo', provider: 'NASA', resolution: '9 km', url: 'https://www.earthdata.nasa.gov/data/platforms/space-based-platforms/smap' },
+  srtm: { id: 'srtm', dataset: 'SRTM 30 m', provider: 'NASA/USGS', resolution: '30 m', url: 'https://www.earthdata.nasa.gov/data/instruments/srtm' },
+  smap: { id: 'smap', dataset: 'SMAP L4 soil moisture', provider: 'NASA', resolution: '9 km', url: 'https://www.earthdata.nasa.gov/data/platforms/space-based-platforms/smap' },
   modis_ndvi: { id: 'modis_ndvi', dataset: 'MODIS MOD13Q1 NDVI', provider: 'NASA LP DAAC', resolution: '250 m', url: 'https://lpdaac.usgs.gov/products/' },
-  modis_mod16: { id: 'modis_mod16', dataset: 'MODIS MOD16 evapotranspiración', provider: 'NASA LP DAAC', resolution: '500 m' },
-  grace_fo: { id: 'grace_fo', dataset: 'GRACE / GRACE-FO', provider: 'NASA / GFZ', resolution: '~300 km' },
-  gpm_dpr_era5: { id: 'gpm_dpr_era5', dataset: 'Proxy de granizo (GPM DPR + ERA5)', provider: 'NASA / ECMWF', resolution: '5–30 km' },
-  era5: { id: 'era5', dataset: 'ERA5 ráfagas de viento', provider: 'ECMWF Copernicus', resolution: '~31 km' },
-  oco2: { id: 'oco2', dataset: 'OCO-2 XCO₂', provider: 'NASA JPL', resolution: '~2 km (franjas)' },
-  conagua_renameca: { id: 'conagua_renameca', dataset: 'CONAGUA – Red Nacional de Medición de Calidad del Agua', provider: 'CONAGUA', resolution: 'estaciones' },
-  usgs_nwis: { id: 'usgs_nwis', dataset: 'USGS NWIS / Water Quality Portal', provider: 'USGS', resolution: 'estaciones' },
+  modis_mod16: { id: 'modis_mod16', dataset: 'MODIS MOD16 evapotranspiration', provider: 'NASA LP DAAC', resolution: '500 m' },
+  grace_fo: { id: 'grace_fo', dataset: 'GRACE / GRACE-FO', provider: 'NASA/GFZ', resolution: '~300 km' },
+  gpm_dpr_era5: { id: 'gpm_dpr_era5', dataset: 'Hail Proxy (GPM DPR + ERA5)', provider: 'NASA/ECMWF', resolution: '5–30 km' },
+  era5: { id: 'era5', dataset: 'ERA5 wind gusts', provider: 'ECMWF Copernicus', resolution: '~31 km' },
+  oco2: { id: 'oco2', dataset: 'OCO-2 XCO₂', provider: 'NASA JPL', resolution: '~2 km (strips)' },
+  conagua_renameca: { id: 'conagua_renameca', dataset: 'CONAGUA – National Water Quality Measurement Network', provider: 'CONAGUA', resolution: 'stations' },
+  usgs_nwis: { id: 'usgs_nwis', dataset: 'USGS NWIS / Water Quality Portal', provider: 'USGS', resolution: 'stations' },
   cdl: { id: 'cdl', dataset: 'Cropland Data Layer', provider: 'USDA NASS', resolution: '30 m', url: 'https://nassgeodata.gmu.edu/CropScape/' },
-  siap: { id: 'siap', dataset: 'SIAP producción agrícola municipal', provider: 'SADER', resolution: 'municipio' },
-  nass: { id: 'nass', dataset: 'NASS QuickStats', provider: 'USDA', resolution: 'condado' },
-  lab_report: { id: 'lab_report', dataset: 'Análisis de laboratorio del productor', provider: 'Laboratorio de suelos', resolution: 'muestra compuesta de la parcela' },
+  siap: { id: 'siap', dataset: 'SIAP municipal agricultural production', provider: 'SADER', resolution: 'municipality' },
+  nass: { id: 'nass', dataset: 'NASS QuickStats', provider: 'USDA', resolution: 'county' },
+  lab_report: { id: 'lab_report', dataset: 'Producer Laboratory Analysis', provider: 'Soil Laboratory', resolution: 'Composite field sample' },
   cmip6_highresmip: { id: 'cmip6_highresmip', dataset: 'CMIP6 HighResMIP (Open-Meteo Climate API)', provider: 'WCRP CMIP6 / Open-Meteo', resolution: '~25–50 km', period: '2031–2050 vs 1991–2020', url: 'https://open-meteo.com/en/docs/climate-api' },
   nex_gddp_cmip6: { id: 'nex_gddp_cmip6', dataset: 'NASA NEX-GDDP-CMIP6', provider: 'NASA Ames', resolution: '0.25° (~25 km)', url: 'https://www.nccs.nasa.gov/services/data-collections/land-based-products/nex-gddp-cmip6' },
 }
@@ -65,7 +65,7 @@ export function buildProfile(field: Field, climate: ClimateProfile, overrides: F
     awc_mm_per_m: Math.round(90 + clay * 1.5),
     ...overrides.soil?.layer,
   }
-  const texture = layer.clay_pct! >= 35 ? 'arcillosa' : layer.sand_pct! >= 50 ? 'franco-arenosa' : layer.clay_pct! >= 27 ? 'franco-arcillosa' : 'franca'
+  const texture = layer.clay_pct! >= 35 ? 'clay' : layer.sand_pct! >= 50 ? 'franco-arenosa' : layer.clay_pct! >= 27 ? 'franco-clay' : 'loam'
 
   // Agua: ET0 mensual (Hargreaves) y balance P − ET0.
   const et0 = climate.heat.by_month.map((h, i) => et0Hargreaves(lat, MID_DOY[i], h.mean_tmax_c ?? 20, h.mean_tmin_c ?? 8) * [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31][i])
@@ -143,17 +143,17 @@ export function buildProfile(field: Field, climate: ClimateProfile, overrides: F
         level: hailLevel,
         evidence: 'low',
         months_of_concern: hailMonths,
-        note: 'No hay un producto NASA directo de granizo; es un indicador aproximado. Confírmalo con productores de la zona.',
+        note: 'There is no direct NASA hail product; It is an approximate indicator. Confirm it with producers in the area.',
       },
     },
     sources: sourcesUsed.map((id) => ({ ...SOURCES[id], ...(id === 'nasa_power' ? { period: `${climate.years[0]}–${climate.years[1]}` } : {}) })),
     gaps: [
-      { code: 'demo_mode', severity: 'medium', message: 'Modo demostración: el clima viene de NASA POWER real; suelo, agua y vegetación son estimaciones de ejemplo hasta conectar el servidor.' },
-      { code: 'power_tmax_bias', severity: 'low', message: 'NASA POWER promedia ~50 km: en zonas con cerros las máximas pueden salir 2–3 °C más altas que en tu terreno (validado contra ERA5-Land).' },
-      ...(lab ? [] : [{ code: 'no_lab', severity: 'medium' as const, message: 'No hay análisis de laboratorio: nitrógeno, fósforo y potasio son estimados. Súbelo en la pestaña Suelo.' }]),
-      { code: 'hail_no_direct_product', severity: 'medium', message: 'El granizo se estima con un indicador indirecto (evidencia baja).' },
-      { code: 'coarse_climate', severity: 'low', message: 'El clima es un promedio de ~50 km; bajíos y laderas pueden ser más fríos o más calientes.' },
-      { code: 'air_vs_ground_frost', severity: 'low', message: 'La helada se mide en el aire a 2 m; a ras de suelo puede helar con 2–3 °C.' },
+      { code: 'demo_mode', severity: 'medium', message: 'Demo mode: Weather comes from real NASA POWER; Soil, water and vegetation are example estimates until connecting the server.' },
+      { code: 'power_tmax_bias', severity: 'low', message: 'NASA POWER averages ~50 km: in areas with hills the maximums can be 2–3 °C higher than in your terrain (validated against ERA5-Land).' },
+      ...(lab ? [] : [{ code: 'no_lab', severity: 'medium' as const, message: 'There is no laboratory analysis: nitrogen, phosphorus and potassium are estimates. Upload it to the Soil tab.' }]),
+      { code: 'hail_no_direct_product', severity: 'medium', message: 'Hail is estimated with an indirect indicator (low evidence).' },
+      { code: 'coarse_climate', severity: 'low', message: 'Climate averages ~50 km; Low-lying areas and slopes can be colder or hotter.' },
+      { code: 'air_vs_ground_frost', severity: 'low', message: 'Frost is measured in air at 2 m; At ground level it can freeze at 2–3 °C.' },
     ],
   }
 }
@@ -184,11 +184,11 @@ export function greenhouseReport(field: Field, profile: FieldProfile): Greenhous
   const t = COVER_T[gh?.cover ?? 'polietileno']
   const windiest = [...c.wind.by_month].sort((a, b) => (b.mean_daily_max_kmh ?? 0) - (a.mean_daily_max_kmh ?? 0)).slice(0, 3).map((m) => m.month)
   const recs = [
-    status !== 'ok' ? `Revisa anclajes, tensores y cubierta antes de los meses de más viento.` : 'La estructura resiste los vientos típicos; revisa anclajes cada temporada.',
-    c.light.by_month.some((m) => (m.mean_dli_mol_m2_day ?? 0) * t > 30) ? 'En los meses más soleados considera malla sombra para no pasar de ~30 mol/m²/día.' : 'La luz es moderada; mantén la cubierta limpia para aprovecharla.',
-    'Para enriquecer con CO₂ (800–1000 ppm) instala un sensor dentro del invernadero.',
+    status !== 'ok' ? `Check anchors, turnbuckles and cover before the windiest months.` : 'The structure resists typical winds; Check anchors every season.',
+    c.light.by_month.some((m) => (m.mean_dli_mol_m2_day ?? 0) * t > 30) ? 'In the sunniest months, consider shade mesh to not exceed ~30 mol/m²/day.' : 'The light is moderate; keep the cover clean to take advantage of it.',
+    'To enrich with CO₂ (800–1000 ppm) install a sensor inside the greenhouse.',
   ]
-  if (profile.hazards.hail.level !== 'low') recs.push('Hay riesgo de granizo: considera malla antigranizo en la temporada indicada.')
+  if (profile.hazards.hail.level !== 'low') recs.push('There is a risk of hail: consider anti-hail mesh in the indicated season.')
   return {
     wind: {
       structure_rated_kmh: rated,
@@ -197,7 +197,7 @@ export function greenhouseReport(field: Field, profile: FieldProfile): Greenhous
       status,
       riskiest_months: windiest,
       source_id: 'nasa_power',
-      note: 'Ráfaga estimada a partir del viento máximo diario (×1.4). El relieve local puede aumentarla.',
+      note: 'Gust estimated from the daily maximum wind (×1.4). The local relief can increase it.',
     },
     light: { by_month: c.light.by_month.map((m) => ({ month: m.month, outdoor_dli: m.mean_dli_mol_m2_day ?? 0, indoor_dli_est: r1((m.mean_dli_mol_m2_day ?? 0) * t) })), cover_transmission: t },
     temperature: {
@@ -207,7 +207,7 @@ export function greenhouseReport(field: Field, profile: FieldProfile): Greenhous
         return { month: h.month, heating_degree_hours_base12: Math.round(Math.max(0, 12 - tmin) * 9 * days), hours_over_35c_outside: Math.round((h.mean_days_over_35c ?? 0) * 4) }
       }),
     },
-    co2: { ambient_ppm: 427, source_id: 'oco2', typical_enrichment_target_ppm: [800, 1000], note: 'OCO-2 mide el CO₂ de la atmósfera; dentro del invernadero se necesita un sensor.' },
+    co2: { ambient_ppm: 427, source_id: 'oco2', typical_enrichment_target_ppm: [800, 1000], note: 'OCO-2 measures CO₂ in the atmosphere; inside the greenhouse a sensor is needed.' },
     hail: { level: profile.hazards.hail.level, evidence: 'low', months_of_concern: profile.hazards.hail.months_of_concern },
     recommendations: recs,
   }
@@ -225,10 +225,10 @@ interface Station {
 
 // Muestras de ejemplo (formato de la red CONAGUA / NWIS); reemplazar por los datos reales del backend.
 const STATIONS: Station[] = [
-  { name: 'Pozo agrícola Saltillo–Ramos Arizpe', lat: 25.47, lon: -100.98, source: 'conagua_renameca', type: 'subterránea', last: '2024-09-12', v: { hardness: 430, tds: 1150, sulfate: 390, nitrate: 18, ec: 1.8, sar: 2.1, boron: 0.6, fluoride: 1.1 } },
-  { name: 'Pozo General Cepeda', lat: 25.38, lon: -101.47, source: 'conagua_renameca', type: 'subterránea', last: '2024-05-20', v: { hardness: 510, tds: 1480, sulfate: 620, nitrate: 12, ec: 2.3, sar: 2.8, boron: 0.8, fluoride: 1.4 } },
-  { name: 'Pozo Arteaga', lat: 25.45, lon: -100.85, source: 'conagua_renameca', type: 'subterránea', last: '2024-08-02', v: { hardness: 310, tds: 720, sulfate: 160, nitrate: 9, ec: 1.1, sar: 0.9, boron: 0.3, fluoride: 0.7 } },
-  { name: 'Carson River near Fallon, NV', lat: 39.46, lon: -118.77, source: 'usgs_nwis', type: 'superficial', last: '2025-06-18', v: { hardness: 190, tds: 520, sulfate: 110, nitrate: 3, ec: 0.8, sar: 2.4, boron: 0.9, fluoride: 0.5 } },
+  { name: 'Saltillo–Ramos Arizpe agricultural well', lat: 25.47, lon: -100.98, source: 'conagua_renameca', type: 'underground', last: '2024-09-12', v: { hardness: 430, tds: 1150, sulfate: 390, nitrate: 18, ec: 1.8, sar: 2.1, boron: 0.6, fluoride: 1.1 } },
+  { name: 'General Cepeda Well', lat: 25.38, lon: -101.47, source: 'conagua_renameca', type: 'underground', last: '2024-05-20', v: { hardness: 510, tds: 1480, sulfate: 620, nitrate: 12, ec: 2.3, sar: 2.8, boron: 0.8, fluoride: 1.4 } },
+  { name: 'Arteaga Well', lat: 25.45, lon: -100.85, source: 'conagua_renameca', type: 'underground', last: '2024-08-02', v: { hardness: 310, tds: 720, sulfate: 160, nitrate: 9, ec: 1.1, sar: 0.9, boron: 0.3, fluoride: 0.7 } },
+  { name: 'Carson River near Fallon, NV', lat: 39.46, lon: -118.77, source: 'usgs_nwis', type: 'surface', last: '2025-06-18', v: { hardness: 190, tds: 520, sulfate: 110, nitrate: 3, ec: 0.8, sar: 2.4, boron: 0.9, fluoride: 0.5 } },
 ]
 
 const haversine = (a: [number, number], b: [number, number]) => {
@@ -245,13 +245,13 @@ export function waterQualityReport(field: Field): WaterQualityReport | null {
   const { s, d } = near
   const lv = (x: number, warn: number, bad: number) => (x >= bad ? 'bad' : x >= warn ? 'warn' : 'ok') as 'ok' | 'warn' | 'bad'
   const params = [
-    { code: 'hardness_caco3', name: 'Dureza total', value: s.v.hardness, unit: 'mg/L CaCO₃', livestock: lv(s.v.hardness, 180, 800), irrigation: lv(s.v.hardness, 600, 1200) },
-    { code: 'tds', name: 'Sales disueltas (SDT)', value: s.v.tds, unit: 'mg/L', livestock: lv(s.v.tds, 3000, 5000), irrigation: lv(s.v.tds, 450, 2000) },
-    { code: 'sulfate', name: 'Sulfatos', value: s.v.sulfate, unit: 'mg/L', livestock: lv(s.v.sulfate, 500, 1000), irrigation: lv(s.v.sulfate, 960, 2000) },
-    { code: 'nitrate', name: 'Nitratos (N)', value: s.v.nitrate, unit: 'mg/L', livestock: lv(s.v.nitrate, 23, 45), irrigation: lv(s.v.nitrate, 30, 60) },
-    { code: 'ec', name: 'Conductividad (salinidad)', value: s.v.ec, unit: 'dS/m', livestock: lv(s.v.ec, 4.7, 7.8), irrigation: lv(s.v.ec, 0.7, 3) },
-    { code: 'boron', name: 'Boro', value: s.v.boron, unit: 'mg/L', livestock: lv(s.v.boron, 5, 10), irrigation: lv(s.v.boron, 0.7, 3) },
-    { code: 'fluoride', name: 'Flúor', value: s.v.fluoride, unit: 'mg/L', livestock: lv(s.v.fluoride, 2, 4), irrigation: lv(s.v.fluoride, 1, 2) },
+    { code: 'hardness_caco3', name: 'Total hardness', value: s.v.hardness, unit: 'mg/L CaCO₃', livestock: lv(s.v.hardness, 180, 800), irrigation: lv(s.v.hardness, 600, 1200) },
+    { code: 'tds', name: 'Dissolved salts (SDT)', value: s.v.tds, unit: 'mg/L', livestock: lv(s.v.tds, 3000, 5000), irrigation: lv(s.v.tds, 450, 2000) },
+    { code: 'sulfate', name: 'Sulfates', value: s.v.sulfate, unit: 'mg/L', livestock: lv(s.v.sulfate, 500, 1000), irrigation: lv(s.v.sulfate, 960, 2000) },
+    { code: 'nitrate', name: 'Nitrates (N)', value: s.v.nitrate, unit: 'mg/L', livestock: lv(s.v.nitrate, 23, 45), irrigation: lv(s.v.nitrate, 30, 60) },
+    { code: 'ec', name: 'Conductivity (salinity)', value: s.v.ec, unit: 'dS/m', livestock: lv(s.v.ec, 4.7, 7.8), irrigation: lv(s.v.ec, 0.7, 3) },
+    { code: 'boron', name: 'Boronn', value: s.v.boron, unit: 'mg/L', livestock: lv(s.v.boron, 5, 10), irrigation: lv(s.v.boron, 0.7, 3) },
+    { code: 'fluoride', name: 'Fluorine', value: s.v.fluoride, unit: 'mg/L', livestock: lv(s.v.fluoride, 2, 4), irrigation: lv(s.v.fluoride, 1, 2) },
   ]
   const worst = (k: 'livestock' | 'irrigation') => (params.some((p) => p[k] === 'bad') ? 'bad' : params.some((p) => p[k] === 'warn') ? 'warn' : 'ok')
   const live = worst('livestock')
@@ -262,23 +262,23 @@ export function waterQualityReport(field: Field): WaterQualityReport | null {
     parameters: params,
     livestock_summary: {
       status: live,
-      message: hard ? 'Agua muy dura (mucho calcio y magnesio): forma sarro en bebederos y tuberías y puede afectar el consumo del ganado.' : 'Apta para el ganado en general.',
+      message: hard ? 'Very hard water (a lot of calcium and magnesium): it forms scale in water troughs and pipes and can affect the consumption of livestock.' : 'Suitable for livestock in general.',
     },
     irrigation_summary: {
       status: irr,
       ec_ds_m: s.v.ec,
       sar: s.v.sar,
-      message: s.v.ec > 3 ? 'Salinidad alta: restricción severa para el riego (FAO-29).' : s.v.ec > 0.7 ? 'Salinidad moderada: elige cultivos tolerantes y lava sales con riegos más largos.' : 'Sin restricción para el riego.',
+      message: s.v.ec > 3 ? 'High salinity: severe restriction for irrigation (FAO-29).' : s.v.ec > 0.7 ? 'Moderate salinity: choose tolerant crops and wash away salts with longer irrigations.' : 'No restriction for irrigation.',
     },
     recommendations: [
-      ...(hard ? ['Limpia bebederos con frecuencia y considera un ablandador o mezclar con agua de lluvia.'] : []),
-      ...(s.v.sulfate > 300 ? ['Los sulfatos se acercan al límite para bovinos: vigila diarrea y bajo consumo.'] : []),
-      ...(s.v.ec > 0.7 ? ['Prefiere cultivos tolerantes a sales (cebada, sorgo, alfalfa) sobre frijol o cebolla.'] : []),
-      'Confirma con un análisis de tu propio pozo y con tu veterinario.',
+      ...(hard ? ['Clean waterers frequently and consider a softener or mixing with rainwater.'] : []),
+      ...(s.v.sulfate > 300 ? ['Sulfates are approaching the limit for cattle: monitor diarrhea and low consumption.'] : []),
+      ...(s.v.ec > 0.7 ? ['Prefers salt-tolerant crops (barley, sorghum, alfalfa) over beans or onions.'] : []),
+      'Confirm with an analysis of your own well and with your veterinarian.',
     ],
     gaps: [
-      { code: 'station_distance', severity: d > 20 ? 'medium' : 'low', message: `La estación más cercana está a ${Math.round(d)} km; tu pozo puede ser distinto.` },
-      { code: 'demo_mode', severity: 'medium', message: 'Muestra de ejemplo con el formato de la red oficial; el servidor traerá la última medición real.' },
+      { code: 'station_distance', severity: d > 20 ? 'medium' : 'low', message: `The nearest station is ${Math.round(d)} km; your well may be different.` },
+      { code: 'demo_mode', severity: 'medium', message: 'Sample sample with official network format; the server will bring the last actual measurement.' },
     ],
   }
 }
@@ -291,14 +291,14 @@ export function predictYield(cropId: string, detail: SuitabilityDetail, irrigate
   const drivers: YieldPrediction['drivers'] = detail.reasons
     .filter((r) => r.status !== 'ok')
     .map((r, i) => ({ feature: r.detail, effect: 'negative', weight: Math.round(Math.max(0.05, 0.35 - i * 0.08) * 100) / 100 }))
-  if (!drivers.length) drivers.push({ feature: 'Clima favorable durante todo el ciclo', effect: 'positive', weight: 0.3 })
+  if (!drivers.length) drivers.push({ feature: 'Favorable climate throughout the cycle', effect: 'positive', weight: 0.3 })
   return {
     crop_id: cropId,
     unit: 't/ha',
     p10: r1(p50 * 0.68),
     p50: r1(p50),
     p90: r1(p50 * 1.24),
-    regional_reference: { value: r1(base * 0.85), source_id: country === 'US' ? 'nass' : 'siap', level: country === 'US' ? 'condado' : 'municipio', years: [2015, 2024] },
+    regional_reference: { value: r1(base * 0.85), source_id: country === 'US' ? 'nass' : 'siap', level: country === 'US' ? 'county' : 'municipality', years: [2015, 2024] },
     drivers,
     model: { name: 'demo_reglas', version: '0', cv_mae: 0, interval_coverage: 0 },
     confidence: 'low',

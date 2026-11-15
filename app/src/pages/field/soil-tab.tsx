@@ -45,10 +45,10 @@ export function SoilTab({ field, profile }: { field: Field; profile: FieldProfil
             <motion.div key="status" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -6 }}>
               <Card>
                 <CardHeader
-                  title="Tu análisis de laboratorio"
-                  subtitle={lab ? [lab.lab_name, lab.sample_date].filter(Boolean).join(' · ') || 'Guardado' : 'Lo más confiable para saber qué nutrientes tiene tu suelo.'}
+                  title="Your laboratory analysis"
+                  subtitle={lab ? [lab.lab_name, lab.sample_date].filter(Boolean).join(' · ') || 'Guardado' : 'The most reliable way to know what nutrients your soil has.'}
                   icon={<FlaskConical className="h-4 w-4" />}
-                  action={<StatusPill level={lab ? 'ok' : 'warn'} label={lab ? 'Confianza alta' : 'Sin análisis'} />}
+                  action={<StatusPill level={lab ? 'ok' : 'warn'} label={lab ? 'High Confidence' : 'No analysis'} />}
                 />
                 {lab ? (
                   <div className="space-y-3">
@@ -57,18 +57,18 @@ export function SoilTab({ field, profile }: { field: Field; profile: FieldProfil
                         <FileText className="h-4 w-4 text-muted" /> {lab.file_name}
                       </p>
                     )}
-                    <p className="text-sm text-ink-2">Ya usamos estos valores para la aptitud de cultivos, las rotaciones y las respuestas del agrónomo.</p>
+                    <p className="text-sm text-ink-2">We already use these values for crop suitability, rotations, and agronomist responses.</p>
                     <div className="flex flex-wrap gap-2">
                       <Button variant="outline" size="sm" onClick={() => setDraft({ lab })}>
-                        <Pencil className="h-4 w-4" /> Corregir valores
+                        <Pencil className="h-4 w-4" /> Correct values
                       </Button>
                       <Button
                         variant="ghost"
                         size="sm"
                         disabled={save.isPending}
-                        onClick={() => confirm('¿Quitar el análisis? Volveremos a usar las estimaciones.') && save.mutate(null)}
+                        onClick={() => confirm('Remove analysis? We will use estimates again.') && save.mutate(null)}
                       >
-                        <Trash2 className="h-4 w-4" /> Quitar
+                        <Trash2 className="h-4 w-4" /> Remove
                       </Button>
                     </div>
                   </div>
@@ -81,11 +81,11 @@ export function SoilTab({ field, profile }: { field: Field; profile: FieldProfil
         </AnimatePresence>
 
         <Card>
-          <CardHeader title="Para qué sirve" icon={<Info className="h-4 w-4" />} />
+          <CardHeader title="What is it for?" icon={<Info className="h-4 w-4" />} />
           <ul className="space-y-2 text-sm text-ink-2">
-            <li>• Ningún satélite mide nitrógeno, fósforo ni potasio: sin análisis solo podemos estimar materia orgánica, pH y textura con mapas de suelo de 250 m.</li>
-            <li>• Con tu análisis, el pH y la salinidad reales cambian qué cultivos salen aptos, y la rotación toma en cuenta tus nutrientes.</li>
-            <li>• Toma la muestra en zigzag (15–20 puntos, 0–30 cm), mézclala y manda ~1 kg al laboratorio. Repite cada 2–3 años.</li>
+            <li>• No satellite measures nitrogen, phosphorus or potassium: without analysis we can only estimate organic matter, pH and texture with 250 m soil maps.</li>
+            <li>• With your analysis, the actual pH and salinity change which crops are suitable, and the rotation takes your nutrients into account.</li>
+            <li>• Take the sample in a zigzag pattern (15–20 points, 0–30 cm), mix it and send ~1 kg to the laboratory. Repeat every 2–3 years.</li>
           </ul>
         </Card>
       </div>
@@ -121,8 +121,8 @@ function Dropzone({ busy, error, onFile, onManual }: { busy: boolean; error: Err
         )}
       >
         {busy ? <Loader2 className="h-7 w-7 animate-spin text-accent" /> : <Upload className="h-7 w-7 text-accent" />}
-        <span className="font-medium text-ink">{busy ? 'Leyendo tu análisis…' : 'Sube el PDF o una foto de tu análisis'}</span>
-        <span className="text-sm text-ink-2">{isDemoMode ? 'Arrástralo aquí o toca para elegir. PDF, JPG o PNG.' : 'La IA lee los valores y tú solo los revisas. PDF, JPG o PNG.'}</span>
+        <span className="font-medium text-ink">{busy ? 'Reading your analysis…' : 'Upload the PDF or a photo of your analysis'}</span>
+        <span className="text-sm text-ink-2">{isDemoMode ? 'Drag it here or tap to choose. PDF, JPG or PNG.' : 'The AI ​​reads the values ​​and you only review them. PDF, JPG or PNG.'}</span>
       </button>
       <input
         ref={input}
@@ -137,7 +137,7 @@ function Dropzone({ busy, error, onFile, onManual }: { busy: boolean; error: Err
       />
       {error && <p className="text-sm text-bad">{error.message}</p>}
       <button onClick={onManual} className="cursor-pointer text-sm text-muted underline-offset-2 hover:text-ink hover:underline">
-        No tengo el archivo, prefiero escribir los valores
+        I don't have the file, I prefer to write the values
       </button>
     </div>
   )
@@ -151,15 +151,15 @@ function LabForm({ initial, extraction, saving, onSave, onCancel }: { initial: S
 
   return (
     <Card>
-      <CardHeader title="Revisa los valores" subtitle={lab.file_name ?? 'Captura manual'} icon={<FlaskConical className="h-4 w-4" />} />
+      <CardHeader title="Check the values" subtitle={lab.file_name ?? 'Captura manual'} icon={<FlaskConical className="h-4 w-4" />} />
       {extraction?.note && <p className="mb-4 rounded-xl bg-warn/12 p-3 text-sm text-ink-2">{extraction.note}</p>}
       <div className="grid gap-3 sm:grid-cols-2">
         <label className="block">
-          <span className="mb-1 block text-xs text-muted">Laboratorio</span>
+          <span className="mb-1 block text-xs text-muted">Laboratory</span>
           <input value={lab.lab_name ?? ''} onChange={(e) => setLab({ ...lab, lab_name: e.target.value })} className="h-10 w-full rounded-xl border border-line-strong bg-surface px-3 text-sm text-ink outline-none focus:border-accent" />
         </label>
         <label className="block">
-          <span className="mb-1 block text-xs text-muted">Fecha de muestreo</span>
+          <span className="mb-1 block text-xs text-muted">Sampling date</span>
           <input type="date" value={lab.sample_date ?? ''} onChange={(e) => setLab({ ...lab, sample_date: e.target.value })} className="h-10 w-full rounded-xl border border-line-strong bg-surface px-3 text-sm text-ink outline-none focus:border-accent" />
         </label>
       </div>
@@ -194,18 +194,18 @@ function LabForm({ initial, extraction, saving, onSave, onCancel }: { initial: S
         })}
       </div>
       <label className="mt-3 block">
-        <span className="mb-1 block text-xs text-muted">Textura (si viene en el análisis)</span>
-        <input value={lab.texture ?? ''} placeholder="p. ej. franco-arcillosa" onChange={(e) => setLab({ ...lab, texture: e.target.value || null })} className="h-10 w-full rounded-xl border border-line-strong bg-surface px-3 text-sm text-ink outline-none focus:border-accent" />
+        <span className="mb-1 block text-xs text-muted">Texture (if included in the analysis)</span>
+        <input value={lab.texture ?? ''} placeholder="p. e.g. clay loam" onChange={(e) => setLab({ ...lab, texture: e.target.value || null })} className="h-10 w-full rounded-xl border border-line-strong bg-surface px-3 text-sm text-ink outline-none focus:border-accent" />
       </label>
       <div className="mt-5 flex flex-wrap gap-2">
         <Button variant="accent" disabled={!valid || saving} onClick={() => onSave(lab)}>
-          {saving && <Loader2 className="h-4 w-4 animate-spin" />} Guardar y recalcular
+          {saving && <Loader2 className="h-4 w-4 animate-spin" />} Save and recalculate
         </Button>
         <Button variant="ghost" onClick={onCancel}>
-          Cancelar
+          Cancel
         </Button>
       </div>
-      {!valid && <p className="mt-2 text-xs text-muted">Escribe al menos un valor.</p>}
+      {!valid && <p className="mt-2 text-xs text-muted">Enter at least one value.</p>}
     </Card>
   )
 }
@@ -217,7 +217,7 @@ function Interpretation({ profile, lab }: { profile: FieldProfile; lab: SoilLab 
   const withLab = hasLabValues(lab)
   return (
     <Card>
-      <CardHeader title="Cómo está tu suelo" subtitle={`${profile.soil.texture_class} · ${withLab ? 'según tu análisis' : `estimado con ${estSource}`}`} />
+      <CardHeader title="How is your soil?" subtitle={`${profile.soil.texture_class} · ${withLab ? 'according to your analysis' : `estimated with ${estSource}`}`} />
       <ul className="divide-y divide-line">
         {LAB_PARAMS.map((p) => {
           const fromLab = lab?.[p.key]
@@ -229,12 +229,12 @@ function Interpretation({ profile, lab }: { profile: FieldProfile; lab: SoilLab 
                 <div className="flex items-baseline justify-between gap-2">
                   <span className="text-sm font-medium text-ink">{p.name}</span>
                   <span className="tabular text-sm font-semibold text-ink">
-                    {v == null ? <span className="font-normal text-muted">Solo con análisis</span> : `${num(v, p.step < 1 ? 1 : 0)} ${p.unit}`}
+                    {v == null ? <span className="font-normal text-muted">Analysis only</span> : `${num(v, p.step < 1 ? 1 : 0)} ${p.unit}`}
                   </span>
                 </div>
                 <div className="mt-1 flex flex-wrap items-center gap-2">
                   {band && <StatusPill level={band.level} label={band.label} />}
-                  {v != null && <span className="text-xs text-muted">{fromLab != null ? 'Tu análisis' : `Estimado (${estSource})`}</span>}
+                  {v != null && <span className="text-xs text-muted">{fromLab != null ? 'Your analysis' : `Estimated (${estSource})`}</span>}
                 </div>
                 {band && p.advice?.[band.level] && <p className="mt-1.5 text-xs text-ink-2">{p.advice[band.level]}</p>}
               </div>
@@ -242,7 +242,7 @@ function Interpretation({ profile, lab }: { profile: FieldProfile; lab: SoilLab 
           )
         })}
       </ul>
-      <p className="mt-4 text-xs text-muted">Rangos generales para 0–30 cm. Tu agrónomo los ajusta según el cultivo y el método del laboratorio.</p>
+      <p className="mt-4 text-xs text-muted">General ranges for 0–30 cm. Your agronomist adjusts them according to the crop and the laboratory method.</p>
     </Card>
   )
 }

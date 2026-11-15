@@ -23,7 +23,7 @@ export async function fetchClimate(lat: number, lon: number, signal?: AbortSigna
   if (hit) return hit
   const url = `${POWER_URL}?parameters=${POWER_PARAMS}&community=AG&longitude=${lon.toFixed(4)}&latitude=${lat.toFixed(4)}&start=19910101&end=20251231&format=JSON`
   const res = await fetch(url, { signal })
-  if (!res.ok) throw new Error(`NASA POWER respondió ${res.status}`)
+  if (!res.ok) throw new Error(`NASA POWER responded ${res.status}`)
   const climate = summarizeClimate(parsePower(await res.json()), lat)
   try {
     localStorage.setItem(cacheKey(lat, lon), JSON.stringify(climate))

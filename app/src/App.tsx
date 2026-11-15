@@ -15,9 +15,9 @@ const queryClient = new QueryClient({
 function NotFound() {
   return (
     <div className="mx-auto max-w-md px-4 py-24 text-center">
-      <h1 className="text-xl font-semibold text-ink">Esta página no existe</h1>
+      <h1 className="text-xl font-semibold text-ink">This page does not exist</h1>
       <Link to="/" className="mt-6 inline-block">
-        <Button variant="outline">Volver al inicio</Button>
+        <Button variant="outline">Back to home</Button>
       </Link>
     </div>
   )

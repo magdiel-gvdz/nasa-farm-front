@@ -54,7 +54,7 @@ function CardView({ card }: { card: ChatCard }) {
         </span>
         <div className="min-w-0 flex-1">
           <div className="text-sm font-semibold text-ink">
-            {crop?.name.es} · {d.perennial ? 'plantar en ' : ''}
+            {crop?.name.en} · {d.perennial ? 'plant in ' : ''}
             <span className={d.perennial ? '' : 'capitalize'}>{monthName(d.planting_month)}</span>
           </div>
           <div className="text-xs text-muted">{d.score}/100</div>
@@ -75,7 +75,7 @@ function CardView({ card }: { card: ChatCard }) {
           {s.sequence
             .filter((x) => x.year <= 2)
             .map((x, i) => (
-              <Chip key={i}>{x.crop_id ? `${CROP_BY_ID.get(x.crop_id)?.emoji} ${CROP_BY_ID.get(x.crop_id)?.name.es.split(' ')[0]}` : 'Descanso'}</Chip>
+              <Chip key={i}>{x.crop_id ? `${CROP_BY_ID.get(x.crop_id)?.emoji} ${CROP_BY_ID.get(x.crop_id)?.name.en.split(' ')[0]}` : 'Fallow'}</Chip>
             ))}
         </div>
       </div>
@@ -88,8 +88,8 @@ function CardView({ card }: { card: ChatCard }) {
 const NO_MESSAGES: ThreadMessage[] = []
 
 function suggestions(field: Field) {
-  if (field.kind === 'greenhouse') return ['¿Aguanta mi invernadero el viento?', '¿Cuándo siembro tomate?', '¿Qué tanto riesgo de helada hay?', '¿Cómo cambiará el clima hacia 2040?']
-  return ['¿Cuándo siembro frijol?', '¿Qué rotación me conviene?', '¿Cómo cambiará el clima hacia 2040?', '¿Qué tanto riesgo de helada hay?', '¿Cómo está mi suelo?', ...(field.livestock ? ['¿El agua le sirve a mis vacas?'] : [])]
+  if (field.kind === 'greenhouse') return ['Can my greenhouse withstand the wind?', 'When do I plant tomatoes?', 'How much risk of frost is there?', 'How will the climate change by 2040?']
+  return ['When do I plant beans?', 'Which rotation is best for me?', 'How will the climate change by 2040?', 'How much risk of frost is there?', 'How is my soil?', ...(field.livestock ? ['Is the water safe for my cows?'] : [])]
 }
 
 function ChatBody({ field, ready }: { field: Field; ready: boolean }) {
@@ -138,7 +138,7 @@ function ChatBody({ field, ready }: { field: Field; ready: boolean }) {
           abort.current.signal,
         )
       } catch (err) {
-        if ((err as Error).name !== 'AbortError') patch((m) => ({ ...m, error: 'No pude responder. Intenta de nuevo.' }))
+        if ((err as Error).name !== 'AbortError') patch((m) => ({ ...m, error: 'I couldn\'t respond. Try again.' }))
       } finally {
         setBusy(false)
       }
@@ -168,7 +168,7 @@ function ChatBody({ field, ready }: { field: Field; ready: boolean }) {
                 <Sprout className="h-4 w-4" />
               </div>
               <div className="rounded-2xl rounded-tl-md bg-surface-2 px-4 py-3 text-[15px] text-ink-2">
-                ¡Hola! Soy tu agrónomo virtual. Ya revisé los datos de <b className="text-ink">{field.name}</b>. Pregúntame lo que quieras sobre siembra, heladas, agua o rotaciones.
+                Hello! I am your virtual agronomist. I have already reviewed the data for <b className="text-ink">{field.name}</b>. Ask me anything you want about planting, frost, water or rotations.
               </div>
             </div>
             <div className="flex flex-wrap gap-2 pl-12">
@@ -226,7 +226,7 @@ function ChatBody({ field, ready }: { field: Field; ready: boolean }) {
                   {!!m.citations?.length && (
                     <div className="mt-2 flex flex-wrap gap-1">
                       {m.citations.map((c) => (
-                        <Chip key={c.source_id}>Fuente: {c.label}</Chip>
+                        <Chip key={c.source_id}>Source: {c.label}</Chip>
                       ))}
                     </div>
                   )}
@@ -255,7 +255,7 @@ function ChatBody({ field, ready }: { field: Field; ready: boolean }) {
               }
             }}
             rows={1}
-            placeholder="Escribe tu pregunta…"
+            placeholder="Write your question…"
             className="max-h-32 min-h-9 flex-1 resize-none bg-transparent py-2 text-[15px] text-ink outline-none placeholder:text-muted"
           />
           <motion.button
@@ -263,13 +263,13 @@ function ChatBody({ field, ready }: { field: Field; ready: boolean }) {
             type="submit"
             disabled={!input.trim() || busy}
             className="grid h-9 w-9 shrink-0 cursor-pointer place-items-center rounded-full bg-accent text-accent-ink transition-opacity disabled:opacity-30"
-            aria-label="Enviar"
+            aria-label="Send"
           >
             {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : <ArrowUp className="h-4 w-4" />}
           </motion.button>
         </div>
         <p className="mt-2 text-center text-[11px] text-muted">
-          {isDemoMode ? 'Modo demostración: respuestas con reglas sobre tus datos. ' : ''}Valida siempre con tu agrónomo local.
+          {isDemoMode ? 'Demo mode: answers with rules about your data. ' : ''}Always validate with your local agronomist.
         </p>
       </form>
     </div>
@@ -295,9 +295,9 @@ export function ChatLauncher({ field, ready, fab = true }: { field: Field; ready
           <span className="absolute inset-0 animate-pulse-ring rounded-full bg-accent" />
           <MessageCircle className="relative h-4 w-4" />
         </span>
-        <span className="text-sm font-semibold">Pregúntale al agrónomo</span>
+        <span className="text-sm font-semibold">Ask the agronomist</span>
       </motion.button>}
-      <Sheet open={open} onOpenChange={setOpen} title="Agrónomo virtual" description={field.name} wide>
+      <Sheet open={open} onOpenChange={setOpen} title="Virtual agronomist" description={field.name} wide>
         <ChatBody field={field} ready={ready} />
       </Sheet>
     </>

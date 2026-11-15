@@ -22,7 +22,7 @@ function WindScale({ rated, levels }: { rated: number | null; levels: { return_p
         {rated != null && (
           <motion.div className="absolute -top-7 bottom-[-6px]" style={{ left: x(rated) }} initial={{ scaleY: 0 }} animate={{ scaleY: 1 }} transition={{ delay: 0.6 }}>
             <div className="h-full w-[3px] -translate-x-1/2 rounded-full bg-accent" />
-            <div className="absolute -top-1 left-2 rounded-full bg-accent px-2 py-0.5 text-[11px] font-semibold whitespace-nowrap text-accent-ink">Tu estructura: {rated} km/h</div>
+            <div className="absolute -top-1 left-2 rounded-full bg-accent px-2 py-0.5 text-[11px] font-semibold whitespace-nowrap text-accent-ink">Your structure: {rated} km/h</div>
           </motion.div>
         )}
       </div>
@@ -30,7 +30,7 @@ function WindScale({ rated, levels }: { rated: number | null; levels: { return_p
         {levels.map((l, i) => (
           <span key={l.return_period_years} className="inline-flex items-center gap-2">
             <span className="grid h-4 w-4 place-items-center rounded-full bg-ink text-[9px] font-bold text-page">{i + 1}</span>
-            <b className="tabular font-semibold text-ink">{num(l.estimated_gust_kmh)} km/h</b> una vez cada {l.return_period_years} años
+            <b className="tabular font-semibold text-ink">{num(l.estimated_gust_kmh)} km/h</b> once every {l.return_period_years} years
           </span>
         ))}
       </div>
@@ -47,24 +47,24 @@ export function GreenhouseTab({ field }: { field: Field }) {
     <Stagger className="grid gap-4 lg:grid-cols-2">
       <Card className="lg:col-span-2">
         <CardHeader
-          title="¿Aguanta tu estructura el viento?"
-          subtitle={`Ráfagas máximas esperadas. Meses de más viento: ${monthRange(g.wind.riskiest_months.slice().sort((a, b) => a - b))}.`}
+          title="Can your structure withstand the wind?"
+          subtitle={`Expected maximum gusts. Windiest months: ${monthRange(g.wind.riskiest_months.slice().sort((a, b) => a - b))}.`}
           icon={<Wind className="h-4 w-4" />}
-          action={<StatusPill level={g.wind.status} label={g.wind.status === 'ok' ? 'Resiste' : g.wind.status === 'warn' ? 'Al límite' : 'En riesgo'} />}
+          action={<StatusPill level={g.wind.status} label={g.wind.status === 'ok' ? 'Resists' : g.wind.status === 'warn' ? 'Near its limit' : 'At risk'} />}
         />
         <WindScale rated={g.wind.structure_rated_kmh} levels={g.wind.return_levels_kmh} />
         <p className="text-sm text-ink-2">
-          {exceed == null ? 'Indica para cuántos km/h está diseñada tu estructura para calcular el riesgo.' : <>El viento podría superar tu estructura <b className="text-ink">{oneIn(exceed)}</b>. {g.wind.note}</>}
+          {exceed == null ? 'Enter the wind speed your structure is rated for to calculate risk.' : <>Wind could exceed your structure’s rating <b className="text-ink">{oneIn(exceed)}</b>. {g.wind.note}</>}
         </p>
       </Card>
 
       <Card>
-        <CardHeader title="Luz para tus plantas" subtitle={`Integral de luz diaria. La cubierta deja pasar ~${Math.round(g.light.cover_transmission * 100)} %.`} icon={<Sun className="h-4 w-4" />} />
+        <CardHeader title="Light for your plants" subtitle={`Daily light integral. The cover lets through ~${Math.round(g.light.cover_transmission * 100)} %.`} icon={<Sun className="h-4 w-4" />} />
         <LightChart light={g.light} />
       </Card>
 
       <Card>
-        <CardHeader title="Necesidad de calefacción" subtitle="Grados-hora por debajo de 12 °C cada mes: más alto = más frío en las noches." icon={<Flame className="h-4 w-4" />} />
+        <CardHeader title="Heating requirement" subtitle="Degree-hours below 12°C each month: higher = colder at night." icon={<Flame className="h-4 w-4" />} />
         <HeatingChart temperature={g.temperature} />
       </Card>
 
@@ -76,20 +76,20 @@ export function GreenhouseTab({ field }: { field: Field }) {
         </div>
         <div className="mt-2 flex justify-between text-xs text-ink-2">
           <span>
-            Afuera: <b className="text-ink">{g.co2.ambient_ppm} ppm</b>
+            Outside: <b className="text-ink">{g.co2.ambient_ppm} ppm</b>
           </span>
           <span>
-            Ideal para enriquecer: {g.co2.typical_enrichment_target_ppm[0]}–{g.co2.typical_enrichment_target_ppm[1]} ppm
+            Ideal for enriching: {g.co2.typical_enrichment_target_ppm[0]}–{g.co2.typical_enrichment_target_ppm[1]} ppm
           </span>
         </div>
       </motion.div>
 
       <motion.div variants={fadeUp} className="card p-5">
         <CardHeader
-          title="Granizo"
-          subtitle={g.hail.months_of_concern.length ? `Temporada con riesgo: ${monthRange(g.hail.months_of_concern)}. Evidencia baja.` : 'Sin señal clara de granizo.'}
+          title="Hail"
+          subtitle={g.hail.months_of_concern.length ? `Season with risk: ${monthRange(g.hail.months_of_concern)}. Low evidence.` : 'No clear sign of hail.'}
           icon={<CloudHail className="h-4 w-4" />}
-          action={<StatusPill level={g.hail.level === 'high' ? 'bad' : g.hail.level === 'medium' ? 'warn' : 'ok'} label={g.hail.level === 'low' ? 'Bajo' : g.hail.level === 'medium' ? 'Medio' : 'Alto'} />}
+          action={<StatusPill level={g.hail.level === 'high' ? 'bad' : g.hail.level === 'medium' ? 'warn' : 'ok'} label={g.hail.level === 'low' ? 'Low' : g.hail.level === 'medium' ? 'Medium' : 'High'} />}
         />
         <ul className="space-y-2">
           {g.recommendations.map((r) => (

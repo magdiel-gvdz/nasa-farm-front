@@ -4,9 +4,9 @@ import { type ThemeMode, useTheme } from '@/lib/theme'
 
 const ORDER: ThemeMode[] = ['light', 'dark', 'system']
 const META = {
-  light: { icon: Sun, label: 'Modo claro' },
-  dark: { icon: Moon, label: 'Modo oscuro' },
-  system: { icon: Monitor, label: 'Igual que el sistema' },
+  light: { icon: Sun, label: 'Light mode' },
+  dark: { icon: Moon, label: 'Dark mode' },
+  system: { icon: Monitor, label: 'Same as system' },
 }
 
 export function ThemeToggle() {
@@ -17,7 +17,7 @@ export function ThemeToggle() {
     <button
       onClick={() => setMode(next)}
       className="relative grid h-10 w-10 cursor-pointer place-items-center overflow-hidden rounded-full text-ink-2 transition-colors hover:bg-surface-2 hover:text-ink"
-      aria-label={`${META[mode].label}. Cambiar a ${META[next].label.toLowerCase()}`}
+      aria-label={`${META[mode].label}. Change to ${META[next].label.toLowerCase()}`}
       title={META[mode].label}
     >
       <AnimatePresence mode="popLayout" initial={false}>

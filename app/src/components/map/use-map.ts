@@ -22,7 +22,7 @@ const STYLE: StyleSpecification = {
       tiles: ['https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}'],
       tileSize: 256,
       maxzoom: 19,
-      attribution: 'Imágenes © Esri, Maxar, Earthstar Geographics',
+      attribution: 'Images © Esri, Maxar, Earthstar Geographics',
     },
     labels: {
       type: 'raster',

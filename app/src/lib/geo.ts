@@ -31,7 +31,7 @@ interface PhotonFeature {
 /** Búsqueda de lugares (Photon / OpenStreetMap, sin API key). */
 export async function searchPlaces(q: string, signal?: AbortSignal): Promise<Place[]> {
   if (q.trim().length < 3) return []
-  const res = await fetch(`https://photon.komoot.io/api/?q=${encodeURIComponent(q)}&limit=6`, { signal })
+  const res = await fetch(`https://photon.komoot.io/api/?q=${encodeURIComponent(q)}&limit=6&lang=en`, { signal })
   if (!res.ok) return []
   const json = (await res.json()) as { features: PhotonFeature[] }
   return json.features.map((f) => ({
@@ -44,7 +44,7 @@ export async function searchPlaces(q: string, signal?: AbortSignal): Promise<Pla
 
 export async function reverseGeocode(lon: number, lat: number): Promise<{ country: string; state?: string; municipality?: string }> {
   try {
-    const res = await fetch(`https://photon.komoot.io/reverse?lon=${lon}&lat=${lat}&limit=1`)
+    const res = await fetch(`https://photon.komoot.io/reverse?lang=en&lon=${lon}&lat=${lat}&limit=1`)
     const json = (await res.json()) as { features: PhotonFeature[] }
     const p = json.features[0]?.properties
     if (p) return { country: (p.countrycode ?? 'XX').toUpperCase(), state: p.state, municipality: p.county ?? p.city }

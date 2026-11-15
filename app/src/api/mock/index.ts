@@ -66,7 +66,7 @@ export function createMockApi(): Api {
 
   async function field(id: string) {
     const f = allFields().find((x) => x.id === id)
-    if (!f) throw new Error('Parcela no encontrada')
+    if (!f) throw new Error('Field not found')
     return f
   }
 
@@ -83,7 +83,7 @@ export function createMockApi(): Api {
   async function readyProfile(id: string): Promise<{ f: Field; p: FieldProfile }> {
     const f = await field(id)
     const climate = climateFor(f)
-    if (!climate) throw new Error('El perfil aún se está calculando')
+    if (!climate) throw new Error('Profile is still being calculated')
     return { f, p: profileOf(f, climate) }
   }
 
@@ -144,7 +144,7 @@ export function createMockApi(): Api {
     async updateField(id, patch) {
       const fields = loadUserFields()
       const i = fields.findIndex((f) => f.id === id)
-      if (i < 0) throw new Error('Las parcelas de ejemplo no se pueden editar')
+      if (i < 0) throw new Error('Example fields cannot be edited')
       fields[i] = { ...fields[i], ...patch }
       if (patch.geometry) {
         fields[i].area_ha = areaHa(patch.geometry)
@@ -168,7 +168,7 @@ export function createMockApi(): Api {
         extracted: { file_name: file.name, depth_cm: [0, 30] },
         unreadable_fields: ['om_pct', 'ph', 'ec_ds_m', 'n_ppm', 'p_ppm', 'k_ppm'],
         confidence: 'low',
-        note: 'En modo demostración no leemos el archivo: escribe los valores de tu análisis. Con el servidor conectado, la IA los llena por ti y tú solo los revisas.',
+        note: 'In demo mode we do not read the file: write the values of your analysis. With the server connected, the AI ​​fills them in for you and you only review them.',
       }
     },
 
@@ -200,7 +200,7 @@ export function createMockApi(): Api {
         }
         return { source_id: s.source_id, status: t >= s.at + 700 ? 'done' : t >= s.at ? 'running' : 'pending' }
       })
-      if (j.error) throw new Error(`No se pudo descargar el clima de NASA POWER: ${j.error}`)
+      if (j.error) throw new Error(`Could not download NASA POWER weather: ${j.error}`)
       return { status: 'processing', steps }
     },
 
@@ -248,7 +248,7 @@ export function createMockApi(): Api {
 
     async chat(fieldId, content, onEvent, signal) {
       const none = () => {
-        throw new Error('sin parcela')
+        throw new Error('without parcel')
       }
       let deps: Parameters<typeof mockChat>[1] = { field: null, profile: null, evaluate: none, rotations: none, future: none }
       if (fieldId) {

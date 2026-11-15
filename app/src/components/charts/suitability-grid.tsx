@@ -30,7 +30,7 @@ export function SuitabilityGrid({ matrix, crops, onPick }: { matrix: Suitability
                   <span className="mr-1.5" aria-hidden>
                     {crop.emoji}
                   </span>
-                  {crop.name.es}
+                  {crop.name.en}
                 </td>
                 {row.scores.map((s, mi) => {
                   const st = row.status[mi]
@@ -48,7 +48,7 @@ export function SuitabilityGrid({ matrix, crops, onPick }: { matrix: Suitability
                         transition={{ delay: Math.min(ri, 12) * 0.025 + mi * 0.012, type: 'spring', stiffness: 380, damping: 26 }}
                         whileHover={{ scale: 1.12 }}
                         onClick={() => onPick(row.crop_id, mi + 1)}
-                        aria-label={`${crop.name.es} sembrado en ${MONTHS[mi]}: ${suitLabel(st)} (${s}/100)`}
+                        aria-label={`${crop.name.en} planted in ${MONTHS[mi]}: ${suitLabel(st)} (${s}/100)`}
                         className="grid h-8 w-full min-w-7 cursor-pointer place-items-center rounded-[6px] text-ink transition-shadow hover:shadow-md"
                         style={{ background: bg }}
                       >

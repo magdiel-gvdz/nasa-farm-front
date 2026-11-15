@@ -4,13 +4,13 @@ import type { ProfileStep } from '@/api/types'
 import { cn } from '@/lib/cn'
 
 const LABELS: Record<string, { title: string; detail: string }> = {
-  nasa_power: { title: 'Clima de 35 años', detail: 'NASA POWER · heladas, calor, viento y luz' },
-  gpm_imerg: { title: 'Lluvias', detail: 'GPM IMERG · temporada y aguaceros' },
-  soilgrids: { title: 'Suelo', detail: 'SoilGrids / SSURGO · materia orgánica, pH, textura' },
-  srtm: { title: 'Terreno', detail: 'SRTM · pendiente y bajíos fríos' },
-  modis_ndvi: { title: 'Vegetación', detail: 'MODIS · meses con suelo desnudo' },
-  smap: { title: 'Humedad del suelo', detail: 'SMAP · anomalías y sequía' },
-  grace_fo: { title: 'Agua subterránea', detail: 'GRACE-FO · tendencia del acuífero' },
+  nasa_power: { title: '35 year climate', detail: 'NASA POWER · frost, heat, wind and light' },
+  gpm_imerg: { title: 'Rains', detail: 'GPM IMERG · season and downpours' },
+  soilgrids: { title: 'Soil', detail: 'SoilGrids / SSURGO · organic matter, pH, texture' },
+  srtm: { title: 'Land', detail: 'SRTM slope and cold shoals' },
+  modis_ndvi: { title: 'Vegetation', detail: 'MODIS · months with bare soil' },
+  smap: { title: 'Soil moisture', detail: 'SMAP · anomalies and drought' },
+  grace_fo: { title: 'Groundwater', detail: 'GRACE-FO aquifer trend' },
 }
 
 export function Processing({ steps }: { steps: ProfileStep[] }) {
@@ -40,8 +40,8 @@ export function Processing({ steps }: { steps: ProfileStep[] }) {
         </div>
       </div>
       <div>
-        <h2 className="text-xl font-semibold tracking-tight text-ink">Analizando tu parcela…</h2>
-        <p className="mt-1 text-sm text-ink-2">Estamos consultando satélites de la NASA. Tarda unos segundos.</p>
+        <h2 className="text-xl font-semibold tracking-tight text-ink">Analyzing your field…</h2>
+        <p className="mt-1 text-sm text-ink-2">We are consulting NASA satellites. It takes a few seconds.</p>
         <div className="mt-4 h-1.5 overflow-hidden rounded-full bg-surface-3">
           <motion.div className="h-full rounded-full bg-accent" animate={{ width: `${Math.max(6, progress * 100)}%` }} transition={{ type: 'spring', stiffness: 120, damping: 20 }} />
         </div>

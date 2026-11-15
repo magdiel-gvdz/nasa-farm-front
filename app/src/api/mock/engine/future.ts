@@ -75,7 +75,7 @@ export function summarizeFuture(json: OpenMeteoClimate): FutureClimate {
       delta_days_over_35c: Math.round(f.hot - b.hot),
     })
   }
-  if (!models.length) throw new Error('Sin datos de proyección para este punto')
+  if (!models.length) throw new Error('No projection data for this point')
   const med = {
     delta_t_c: r1(median(models.map((x) => x.delta_t_c))),
     delta_p_pct: Math.round(median(models.map((x) => x.delta_p_pct))),
@@ -88,8 +88,8 @@ export function summarizeFuture(json: OpenMeteoClimate): FutureClimate {
   const agree = pRange[0] >= 0 || pRange[1] <= 0
   return {
     source_id: 'cmip6_highresmip',
-    dataset: 'CMIP6 HighResMIP (vía Open-Meteo Climate API)',
-    experiment: 'HighResMIP highres-future (forzamiento alto, similar a SSP5-8.5)',
+    dataset: 'CMIP6 HighResMIP (via Open-Meteo Climate API)',
+    experiment: 'HighResMIP highres-future (high forcing, similar to SSP5-8.5)',
     baseline: BASELINE,
     period: PERIOD,
     models,
@@ -97,7 +97,7 @@ export function summarizeFuture(json: OpenMeteoClimate): FutureClimate {
     range: { delta_t_c: [Math.min(...ts), Math.max(...ts)], delta_p_pct: pRange },
     scenario: { delta_t_c: Math.max(0, roundTo(med.delta_t_c, 0.5)), delta_p_pct: Math.max(-40, Math.min(20, roundTo(med.delta_p_pct, 5))) },
     note: agree
-      ? `Los ${models.length} modelos coinciden en ${pRange[1] <= 0 ? 'que lloverá menos' : 'que lloverá más'}.`
-      : 'Los modelos no coinciden en si lloverá más o menos; el calentamiento sí es consistente en todos.',
+      ? ` ${models.length} models match ${pRange[1] <= 0 ? 'that it will rain less' : 'that it will rain more'}.`
+      : 'The models do not agree on whether it will rain more or less; The warm-up is consistent in all of them.',
   }
 }

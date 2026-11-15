@@ -9,7 +9,7 @@ import { StatusIcon, StatusPill } from '@/components/ui/status'
 import { useWaterQuality } from '@/hooks/api'
 import { monthShort, num } from '@/lib/format'
 
-const LEVEL_LABEL = { ok: 'Buena', warn: 'Con cuidado', bad: 'No apta' } as const
+const LEVEL_LABEL = { ok: 'Good', warn: 'With care', bad: 'Not suitable' } as const
 
 export function WaterTab({ field, profile }: { field: Field; profile: FieldProfile }) {
   const wq = useWaterQuality(field.id, true)
@@ -21,7 +21,7 @@ export function WaterTab({ field, profile }: { field: Field; profile: FieldProfi
   return (
     <Stagger className="grid gap-4 lg:grid-cols-3">
       <Card className="lg:col-span-2">
-        <CardHeader title="¿Sobra o falta agua cada mes?" subtitle={`Milímetros: lluvia menos lo que el sol y el viento evaporan. Falta agua ${deficitMonths} de 12 meses.`} icon={<Droplets className="h-4 w-4" />} />
+        <CardHeader title="Monthly water surplus or deficit" subtitle={`Millimeters: rain minus what the sun and wind evaporate. Water deficit in ${deficitMonths} out of 12 months.`} icon={<Droplets className="h-4 w-4" />} />
         <WaterBalanceChart water={profile.water} />
       </Card>
 
@@ -29,20 +29,20 @@ export function WaterTab({ field, profile }: { field: Field; profile: FieldProfi
         <motion.div variants={fadeUp} className="card p-5">
           <div className="flex items-center justify-between">
             <span className="flex items-center gap-2 text-sm text-ink-2">
-              <Waves className="h-4 w-4" /> Agua subterránea
+              <Waves className="h-4 w-4" /> Groundwater
             </span>
-            <StatusPill level={gw.trend_cm_per_year < -1 ? 'bad' : gw.trend_cm_per_year < 0 ? 'warn' : 'ok'} label={gw.trend_cm_per_year < 0 ? 'Bajando' : 'Estable'} />
+            <StatusPill level={gw.trend_cm_per_year < -1 ? 'bad' : gw.trend_cm_per_year < 0 ? 'warn' : 'ok'} label={gw.trend_cm_per_year < 0 ? 'Declining' : 'Stable'} />
           </div>
           <div className="mt-3 text-[28px] leading-none font-semibold text-ink">
-            <AnimatedNumber value={gw.trend_cm_per_year} digits={1} /> <span className="text-lg font-medium text-ink-2">cm/año</span>
+            <AnimatedNumber value={gw.trend_cm_per_year} digits={1} /> <span className="text-lg font-medium text-ink-2">cm/year</span>
           </div>
           <p className="mt-2 text-sm text-ink-2">
-            Cambio del agua almacenada en la región desde {gw.years[0]} (satélites GRACE-FO). Es una tendencia de ~300 km, no de tu pozo.
+            Change in water stored in the region since {gw.years[0]} (GRACE-FO satellites). It's a trend of ~300 km, not your well.
           </p>
         </motion.div>
         <motion.div variants={fadeUp} className="card p-5">
           <span className="flex items-center gap-2 text-sm text-ink-2">
-            <Droplet className="h-4 w-4" /> Humedad del suelo (SMAP)
+            <Droplet className="h-4 w-4" /> Soil moisture (SMAP)
           </span>
           <div className="mt-4 flex h-24 items-end gap-1">
             {sm.map((s, i) => (
@@ -61,11 +61,11 @@ export function WaterTab({ field, profile }: { field: Field; profile: FieldProfi
       </div>
 
       <Card className="lg:col-span-3">
-        <CardHeader title="Calidad del agua" subtitle="Lo que dice la estación de monitoreo más cercana. Para el ganado y para regar." icon={<Beef className="h-4 w-4" />} />
+        <CardHeader title="Water quality" subtitle="What the nearest monitoring station says. For livestock and to irrigate." icon={<Beef className="h-4 w-4" />} />
         {wq.isLoading ? (
           <div className="skeleton h-48" />
         ) : !wq.data ? (
-          <p className="text-sm text-ink-2">No hay una estación de calidad de agua a menos de 80 km. Un análisis de tu pozo es la mejor fuente.</p>
+          <p className="text-sm text-ink-2">There is no water quality station within 80 km. An analysis of your well is the best source.</p>
         ) : (
           <div className="grid gap-5 lg:grid-cols-[1fr_1.4fr]">
             <div className="space-y-3">
@@ -73,8 +73,8 @@ export function WaterTab({ field, profile }: { field: Field; profile: FieldProfi
                 <MapPin className="h-4 w-4" /> {wq.data.station.name} · {num(wq.data.station.distance_km, 1)} km · {wq.data.station.type}
               </div>
               {[
-                { title: 'Para el ganado', s: wq.data.livestock_summary },
-                { title: 'Para el riego', s: wq.data.irrigation_summary },
+                { title: 'For livestock', s: wq.data.livestock_summary },
+                { title: 'For irrigation', s: wq.data.irrigation_summary },
               ].map(({ title, s }) => (
                 <div key={title} className="rounded-2xl bg-surface-2 p-4">
                   <div className="flex items-center justify-between">
@@ -96,10 +96,10 @@ export function WaterTab({ field, profile }: { field: Field; profile: FieldProfi
               <table className="w-full text-sm">
                 <thead>
                   <tr className="border-b border-line text-left text-xs text-muted">
-                    <th className="py-2 font-medium">Parámetro</th>
-                    <th className="py-2 text-right font-medium">Valor</th>
-                    <th className="py-2 pl-4 font-medium">Ganado</th>
-                    <th className="py-2 font-medium">Riego</th>
+                    <th className="py-2 font-medium">Parameter</th>
+                    <th className="py-2 text-right font-medium">Value</th>
+                    <th className="py-2 pl-4 font-medium">Cattle</th>
+                    <th className="py-2 font-medium">Irrigation</th>
                   </tr>
                 </thead>
                 <tbody>

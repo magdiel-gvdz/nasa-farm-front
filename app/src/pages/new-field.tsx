@@ -57,7 +57,7 @@ function PlaceSearch({ onPick }: { onPick: (p: Place) => void }) {
           setOpen(true)
         }}
         onFocus={() => setOpen(true)}
-        placeholder="Busca tu pueblo, rancho o ciudad"
+        placeholder="Search for your town, ranch or city"
         className="h-11 w-full rounded-full border border-line-strong bg-surface pr-10 pl-10 text-sm text-ink outline-none placeholder:text-muted focus:border-accent"
       />
       {loading && !tooShort && <Loader2 className="absolute top-1/2 right-3.5 h-4 w-4 -translate-y-1/2 animate-spin text-muted" />}
@@ -97,7 +97,7 @@ function CropPicker({
   pool,
   value,
   onChange,
-  noneLabel = 'Nada / descanso',
+  noneLabel = 'None / fallow',
 }: {
   label: string
   options: string[]
@@ -124,7 +124,7 @@ function CropPicker({
       >
         {crop ? (
           <>
-            <span aria-hidden>{crop.emoji}</span> {crop.name.es}
+            <span aria-hidden>{crop.emoji}</span> {crop.name.en}
           </>
         ) : (
           noneLabel
@@ -138,7 +138,7 @@ function CropPicker({
       <div className="flex flex-wrap gap-1.5">
         {[null, ...quick].map(chip)}
         <button onClick={() => setOpen((o) => !o)} className="inline-flex cursor-pointer items-center gap-1 rounded-full border border-dashed border-line-strong px-3 py-1.5 text-sm text-ink-2 hover:bg-surface-2">
-          <Search className="h-3.5 w-3.5" /> {open ? 'Cerrar' : 'Otro…'}
+          <Search className="h-3.5 w-3.5" /> {open ? 'Close' : 'Other…'}
         </button>
       </div>
       {open && (
@@ -147,7 +147,7 @@ function CropPicker({
             autoFocus
             value={q}
             onChange={(e) => setQ(e.target.value)}
-            placeholder={`Busca entre ${pool.length} cultivos`}
+            placeholder={`Search among ${pool.length} cultivos`}
             className="h-9 w-full rounded-full border border-line-strong bg-surface px-3.5 text-sm text-ink outline-none placeholder:text-muted focus:border-accent"
           />
           <div className="mt-2 flex max-h-40 flex-wrap gap-1.5 overflow-y-auto">
@@ -161,10 +161,10 @@ function CropPicker({
                 }}
                 className="inline-flex cursor-pointer items-center gap-1 rounded-full border border-line bg-surface px-3 py-1.5 text-sm text-ink-2 hover:bg-surface-3"
               >
-                <span aria-hidden>{c.emoji}</span> {c.name.es}
+                <span aria-hidden>{c.emoji}</span> {c.name.en}
               </button>
             ))}
-            {!results.length && <span className="px-2 py-1 text-sm text-muted">Sin resultados</span>}
+            {!results.length && <span className="px-2 py-1 text-sm text-muted">No results</span>}
           </div>
         </div>
       )}
@@ -194,7 +194,7 @@ export function NewFieldPage() {
   }, [step])
 
   // Datos del formulario
-  const [name, setName] = useState('Mi parcela')
+  const [name, setName] = useState('My field')
   const [kind, setKind] = useState<FieldKind>('field')
   const [summer, setSummer] = useState<string | null>('maiz')
   const [winter, setWinter] = useState<string | null>(null)
@@ -256,7 +256,7 @@ export function NewFieldPage() {
       const closer = editable && i === 0 && points.length >= 3
       if (closer) {
         el.classList.add('ring-4', 'ring-white/50', 'cursor-pointer')
-        el.title = 'Cerrar figura'
+        el.title = 'Close figure'
       }
       const marker = new maplibregl.Marker({ element: el, draggable: editable }).setLngLat(p).addTo(map)
       let dragged = false
@@ -282,7 +282,7 @@ export function NewFieldPage() {
             el.className = 'grid h-5 w-5 place-items-center rounded-full bg-white/85 text-[13px] leading-none font-bold shadow cursor-copy select-none'
             el.style.color = '#14532d'
             el.textContent = '+'
-            el.title = 'Agregar un vértice aquí (toca o arrastra)'
+            el.title = 'Add a vertex here (tap or drag)'
             const marker = new maplibregl.Marker({ element: el, draggable: true }).setLngLat(mid).addTo(map)
             let dragged = false
             marker.on('dragstart', () => (dragged = true))
@@ -313,7 +313,7 @@ export function NewFieldPage() {
   const submit = async () => {
     if (!geometry) return
     const input: FieldInput = {
-      name: name.trim() || 'Mi parcela',
+      name: name.trim() || 'My field',
       kind,
       geometry,
       // Huerta / viñedo: el perenne ocupa el terreno todo el año.
@@ -350,8 +350,8 @@ export function NewFieldPage() {
           onChange={setBasemap}
           className="shadow-lg ring-1 ring-line"
           options={[
-            { value: 'satellite', label: 'Satélite' },
-            { value: 'map', label: 'Mapa' },
+            { value: 'satellite', label: 'Satellite' },
+            { value: 'map', label: 'Map' },
           ]}
         />
       </div>
@@ -368,9 +368,9 @@ export function NewFieldPage() {
             <motion.div key="draw" initial={{ opacity: 0, x: -12 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -12 }} className="space-y-5 max-sm:space-y-3">
               {/* En celular, al empezar a dibujar se ocultan textos y buscador para dejar libre el mapa. */}
               <div className={cn(compact && 'max-sm:hidden')}>
-                <div className="text-xs font-medium text-muted">Paso 1 de 2</div>
-                <h1 className="mt-1 text-xl font-semibold tracking-tight text-ink">Marca tu terreno</h1>
-                <p className="mt-1 text-sm text-ink-2">Toca el mapa siguiendo el borde: pon todos los puntos que necesites para que la forma quede igual a tu terreno.</p>
+                <div className="text-xs font-medium text-muted">Step 1 of 2</div>
+                <h1 className="mt-1 text-xl font-semibold tracking-tight text-ink">Outline your field</h1>
+                <p className="mt-1 text-sm text-ink-2">Touch the map along the edge: put all the points you need so that the shape matches your terrain.</p>
               </div>
               <Segmented
                 value={kind}
@@ -386,7 +386,7 @@ export function NewFieldPage() {
                 <div className="flex-1">
                   <PlaceSearch onPick={flyTo} />
                 </div>
-                <Button variant="outline" size="icon" onClick={locate} aria-label="Usar mi ubicación" title="Usar mi ubicación">
+                <Button variant="outline" size="icon" onClick={locate} aria-label="Use my location" title="Use my location">
                   <LocateFixed className="h-4 w-4" />
                 </Button>
               </div>
@@ -403,86 +403,86 @@ export function NewFieldPage() {
                   </motion.div>
                   <div className="min-w-0 flex-1">
                     <div className="text-sm font-medium text-ink">
-                      {points.length === 0 ? 'Toca el primer punto del borde' : points.length < 3 ? `${points.length} punto${points.length > 1 ? 's' : ''} · mínimo 3` : `${points.length} puntos`}
+                      {points.length === 0 ? 'Touch the first edge point' : points.length < 3 ? `${points.length} point${points.length > 1 ? 's' : ''} · minimum 3` : `${points.length} points`}
                     </div>
-                    <div className="tabular text-sm text-ink-2">{crossing ? 'Las líneas se cruzan: mueve un punto' : area > 0 ? `${num(area, area < 10 ? 2 : 1)} hectáreas` : 'Puedes arrastrar los puntos para ajustar'}</div>
+                    <div className="tabular text-sm text-ink-2">{crossing ? 'Lines intersect: move a point' : area > 0 ? `${num(area, area < 10 ? 2 : 1)} hectares` : 'You can drag the points to adjust'}</div>
                   </div>
                 </div>
                 {points.length >= 3 && (
                   <p className="mt-3 text-xs text-ink-2 max-sm:hidden">
-                    ¿Le faltan esquinas? Sigue tocando el mapa, o toca un <b className="rounded bg-white px-1 text-[#14532d] shadow-sm">+</b> en una orilla para agregar un punto ahí. Toca el primer punto para cerrar.
+                    Missing corners? Keep tapping the map, or tap a <b className="rounded bg-white px-1 text-[#14532d] shadow-sm">+</b> on one edge to add a point there. Tap the first point to close.
                   </p>
                 )}
                 {points.length >= 3 && (
                   <p className="mt-2 text-xs text-ink-2 sm:hidden">
-                    Sigue tocando para más esquinas, o toca un <b className="rounded bg-white px-1 text-[#14532d] shadow-sm">+</b>.
+                    Keep tapping for more corners, or tap a <b className="rounded bg-white px-1 text-[#14532d] shadow-sm">+</b>.
                   </p>
                 )}
                 <div className="mt-3 flex gap-2 max-sm:mt-2">
                   <Button variant="soft" size="sm" onClick={undo} disabled={history.length <= 1}>
-                    <Undo2 className="h-4 w-4" /> Deshacer
+                    <Undo2 className="h-4 w-4" /> Undo
                   </Button>
                   <Button variant="ghost" size="sm" onClick={() => setPoints([])} disabled={!points.length}>
-                    <Trash2 className="h-4 w-4" /> Borrar
+                    <Trash2 className="h-4 w-4" /> Delete
                   </Button>
                 </div>
               </div>
 
               <Button variant="accent" size="lg" className="w-full justify-center" disabled={!canContinue} onClick={() => setStep('details')}>
-                Continuar
+                Continue
               </Button>
             </motion.div>
           ) : (
             <motion.div key="details" initial={{ opacity: 0, x: 12 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 12 }} className="space-y-5">
               <div>
                 <button onClick={() => setStep('draw')} className="inline-flex cursor-pointer items-center gap-1 text-xs font-medium text-muted hover:text-ink">
-                  <ArrowLeft className="h-3.5 w-3.5" /> Paso 2 de 2 · Editar dibujo
+                  <ArrowLeft className="h-3.5 w-3.5" /> Step 2 of 2 · Edit drawing
                 </button>
-                <h1 className="mt-1 text-xl font-semibold tracking-tight text-ink">Cuéntanos un poco</h1>
+                <h1 className="mt-1 text-xl font-semibold tracking-tight text-ink">Tell us a little</h1>
                 <p className="mt-1 text-sm text-ink-2">
-                  {KIND[kind].label} de {num(area, area < 10 ? 2 : 1)} hectáreas. Todo es opcional; puedes cambiarlo después.
+                  {KIND[kind].label} of {num(area, area < 10 ? 2 : 1)} hectares. Everything is optional; you can change it later.
                 </p>
               </div>
 
               <label className="block">
-                <span className="mb-2 block text-sm font-medium text-ink">Nombre</span>
+                <span className="mb-2 block text-sm font-medium text-ink">Name</span>
                 <input value={name} onChange={(e) => setName(e.target.value)} className="h-11 w-full rounded-xl border border-line-strong bg-surface px-3.5 text-sm text-ink outline-none focus:border-accent" />
               </label>
 
               {kind === 'field' && (
-                <CropPicker label="¿Tienes huerta, viñedo o nogalera?" options={ORCHARD} pool={PERENNIALS} value={orchard} onChange={setOrchard} noneLabel="No" />
+                <CropPicker label="Do you have an orchard, vineyard, or pecan grove?" options={ORCHARD} pool={PERENNIALS} value={orchard} onChange={setOrchard} noneLabel="No" />
               )}
               {kind === 'field' && orchard ? (
                 <p className="rounded-xl bg-surface-2 p-3 text-sm text-ink-2">
-                  Los frutales ocupan el terreno todo el año. Revisaremos horas frío, heladas en floración y agua. Entre hileras puedes sembrar una cobertura.
+                  Fruit trees occupy the land all year round. We will review chill hours, frost in flowering and water. Between rows you can plant a cover crop.
                 </p>
               ) : (
                 <>
-                  <CropPicker label="¿Qué siembras en primavera–verano?" options={kind === 'greenhouse' ? ['tomate', 'pimiento', 'pepino', 'chile'] : SUMMER} pool={kind === 'greenhouse' ? GH : ANNUALS} value={summer} onChange={setSummer} />
-                  <CropPicker label="¿Y en otoño–invierno?" options={kind === 'greenhouse' ? ['lechuga', 'fresa', 'espinaca'] : WINTER} pool={kind === 'greenhouse' ? GH : ANNUALS} value={winter} onChange={setWinter} />
+                  <CropPicker label="What do you plant in spring-summer?" options={kind === 'greenhouse' ? ['tomate', 'pimiento', 'pepino', 'chile'] : SUMMER} pool={kind === 'greenhouse' ? GH : ANNUALS} value={summer} onChange={setSummer} />
+                  <CropPicker label="And in autumn-winter?" options={kind === 'greenhouse' ? ['lechuga', 'fresa', 'espinaca'] : WINTER} pool={kind === 'greenhouse' ? GH : ANNUALS} value={winter} onChange={setWinter} />
                 </>
               )}
 
               {kind === 'greenhouse' ? (
                 <>
                   <div>
-                    <span className="mb-2 block text-sm font-medium text-ink">Cubierta</span>
+                    <span className="mb-2 block text-sm font-medium text-ink">Cover</span>
                     <Segmented
                       size="sm"
                       value={cover}
                       onChange={setCover}
                       options={[
-                        { value: 'polietileno', label: 'Plástico' },
-                        { value: 'policarbonato', label: 'Policarbonato' },
-                        { value: 'vidrio', label: 'Vidrio' },
-                        { value: 'malla', label: 'Malla' },
+                        { value: 'polietileno', label: 'Plastic' },
+                        { value: 'policarbonato', label: 'Polycarbonate' },
+                        { value: 'vidrio', label: 'Glass' },
+                        { value: 'malla', label: 'Mesh' },
                       ]}
                     />
                   </div>
                   <div>
-                    <Slider label="Viento que resiste la estructura" value={rated ?? 90} min={40} max={160} step={5} onChange={setRated} format={(v) => (rated == null ? 'No sé' : `${v} km/h`)} />
+                    <Slider label="Structure wind rating" value={rated ?? 90} min={40} max={160} step={5} onChange={setRated} format={(v) => (rated == null ? 'I don\'t know' : `${v} km/h`)} />
                     <button onClick={() => setRated(rated == null ? 90 : null)} className="mt-2 cursor-pointer text-xs text-muted underline-offset-2 hover:text-ink hover:underline">
-                      {rated == null ? 'Sí lo sé' : 'No lo sé'}
+                      {rated == null ? 'Yes I know' : 'I don\'t know'}
                     </button>
                   </div>
                 </>
@@ -490,24 +490,24 @@ export function NewFieldPage() {
                 <>
                   <div className="space-y-3">
                     <div className="flex items-center justify-between">
-                      <span className="text-sm font-medium text-ink">¿Tienes riego?</span>
-                      <Segmented size="sm" value={irrigation ? 'si' : 'no'} onChange={(v) => setIrrigation(v === 'si')} options={[{ value: 'si', label: 'Sí' }, { value: 'no', label: 'No, de temporal' }]} />
+                      <span className="text-sm font-medium text-ink">Do you have irrigation?</span>
+                      <Segmented size="sm" value={irrigation ? 'si' : 'no'} onChange={(v) => setIrrigation(v === 'si')} options={[{ value: 'si', label: 'Yes' }, { value: 'no', label: 'No, rainfed' }]} />
                     </div>
-                    {irrigation && <Slider label="Agua de riego al año (aprox.)" value={irrMm} min={100} max={1200} step={50} onChange={setIrrMm} format={(v) => `${v} mm`} hint="Si no sabes, déjalo así." />}
+                    {irrigation && <Slider label="Irrigation water per year (approx.)" value={irrMm} min={100} max={1200} step={50} onChange={setIrrMm} format={(v) => `${v} mm`} hint="If you don't know, leave it at that." />}
                   </div>
                   <div className="space-y-3">
                     <div className="flex items-center justify-between">
-                      <span className="text-sm font-medium text-ink">¿Tienes ganado?</span>
-                      <Segmented size="sm" value={livestock ? 'si' : 'no'} onChange={(v) => setLivestock(v === 'si')} options={[{ value: 'si', label: 'Sí' }, { value: 'no', label: 'No' }]} />
+                      <span className="text-sm font-medium text-ink">Do you have livestock?</span>
+                      <Segmented size="sm" value={livestock ? 'si' : 'no'} onChange={(v) => setLivestock(v === 'si')} options={[{ value: 'si', label: 'Yes' }, { value: 'no', label: 'No' }]} />
                     </div>
-                    {livestock && <Slider label="Cabezas de ganado" value={head} min={1} max={300} onChange={setHead} />}
+                    {livestock && <Slider label="Head of cattle" value={head} min={1} max={300} onChange={setHead} />}
                   </div>
                 </>
               )}
 
               <Button variant="accent" size="lg" className="w-full justify-center" onClick={submit} disabled={create.isPending}>
                 {create.isPending ? <Loader2 className="h-5 w-5 animate-spin" /> : <Check className="h-5 w-5" />}
-                Analizar mi parcela
+                Analyze my field
               </Button>
               {create.error && <p className="text-sm text-bad">{(create.error as Error).message}</p>}
             </motion.div>

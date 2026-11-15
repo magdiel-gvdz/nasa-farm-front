@@ -16,7 +16,7 @@ class ApiError extends Error {
 
 export function createHttpApi(baseUrl: string): Api {
   const base = `${baseUrl.replace(/\/$/, '')}/api/v1`
-  const headers = () => ({ 'Content-Type': 'application/json', 'X-Client-Id': clientId(), 'Accept-Language': 'es' })
+  const headers = () => ({ 'Content-Type': 'application/json', 'X-Client-Id': clientId(), 'Accept-Language': 'en' })
 
   async function req<T>(path: string, init: RequestInit = {}): Promise<T> {
     const res = await fetch(`${base}${path}`, { ...init, headers: { ...headers(), ...init.headers } })
@@ -50,7 +50,7 @@ export function createHttpApi(baseUrl: string): Api {
       const form = new FormData()
       form.append('file', file)
       // Sin Content-Type: el navegador pone el boundary del multipart.
-      const res = await fetch(`${base}/fields/${id}/soil-report`, { method: 'POST', body: form, headers: { 'X-Client-Id': clientId(), 'Accept-Language': 'es' } })
+      const res = await fetch(`${base}/fields/${id}/soil-report`, { method: 'POST', body: form, headers: { 'X-Client-Id': clientId(), 'Accept-Language': 'en' } })
       const body = await res.json().catch(() => ({}))
       if (!res.ok) throw new ApiError(res.status, body?.error?.code ?? 'http_error', body?.error?.message ?? 'No se pudo leer el archivo')
       return body
@@ -72,7 +72,7 @@ export function createHttpApi(baseUrl: string): Api {
         body: JSON.stringify({ content, active_field_id: fieldId }),
         signal,
       })
-      if (!res.ok || !res.body) throw new ApiError(res.status, 'chat_error', 'No se pudo conectar con el agrónomo')
+      if (!res.ok || !res.body) throw new ApiError(res.status, 'chat_error', 'Could not connect to agronomist')
       const reader = res.body.pipeThrough(new TextDecoderStream()).getReader()
       let buffer = ''
       for (;;) {

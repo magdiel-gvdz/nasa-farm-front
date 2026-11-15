@@ -31,7 +31,7 @@ export function TemperatureChart({ climate }: { climate: ClimateProfile }) {
             <CartesianGrid {...GRID} />
             <XAxis dataKey="m" {...AXIS} />
             <YAxis {...AXIS} axisLine={false} unit="°" width={48} />
-            <ReferenceLine y={0} stroke="var(--s-7)" strokeOpacity={0.6} label={{ value: 'Helada 0 °C', position: 'insideBottomRight', fill: 'var(--muted)', fontSize: 11 }} />
+            <ReferenceLine y={0} stroke="var(--s-7)" strokeOpacity={0.6} label={{ value: 'Frost 0 °C', position: 'insideBottomRight', fill: 'var(--muted)', fontSize: 11 }} />
             <Area dataKey="band" stroke="none" fill="var(--s-2)" fillOpacity={0.1} isAnimationActive animationDuration={900} />
             <Line dataKey="tmax" stroke="var(--s-2)" strokeWidth={2} dot={false} activeDot={{ r: 5, strokeWidth: 2, stroke: 'var(--surface)' }} animationDuration={900} />
             <Line dataKey="tmin" stroke="var(--s-7)" strokeWidth={2} dot={false} activeDot={{ r: 5, strokeWidth: 2, stroke: 'var(--surface)' }} animationDuration={900} />
@@ -41,10 +41,10 @@ export function TemperatureChart({ climate }: { climate: ClimateProfile }) {
                   <TooltipCard
                     title={monthName(d.month)}
                     rows={[
-                      { label: 'Máxima promedio', value: `${num(d.tmax, 1)} °C`, color: 'var(--s-2)' },
-                      { label: 'Mínima promedio', value: `${num(d.tmin, 1)} °C`, color: 'var(--s-7)' },
-                      { label: 'Años con helada', value: `${Math.round(d.frost * 100)} %` },
-                      { label: 'Días > 35 °C', value: num(d.hot, 1) },
+                      { label: 'Average High', value: `${num(d.tmax, 1)} °C`, color: 'var(--s-2)' },
+                      { label: 'Average Minimum', value: `${num(d.tmin, 1)} °C`, color: 'var(--s-7)' },
+                      { label: 'Years with frost', value: `${Math.round(d.frost * 100)} %` },
+                      { label: 'Days > 35 °C', value: num(d.hot, 1) },
                     ]}
                   />
                 ))}
@@ -54,8 +54,8 @@ export function TemperatureChart({ climate }: { climate: ClimateProfile }) {
       </div>
       <Legend
         items={[
-          { label: 'Máxima del día', color: 'var(--s-2)', kind: 'line' },
-          { label: 'Mínima del día', color: 'var(--s-7)', kind: 'line' },
+          { label: 'High of the day', color: 'var(--s-2)', kind: 'line' },
+          { label: 'Low of the day', color: 'var(--s-7)', kind: 'line' },
         ]}
       />
     </div>
@@ -84,9 +84,9 @@ export function RainChart({ climate }: { climate: ClimateProfile }) {
                   <TooltipCard
                     title={monthName(d.month)}
                     rows={[
-                      { label: 'Lluvia promedio', value: `${num(d.mean_mm)} mm`, color: 'var(--s-1)' },
-                      { label: 'Año seco (2 de 10)', value: `${num(d.p20_mm)} mm` },
-                      { label: 'Año húmedo (8 de 10)', value: `${num(d.p80_mm)} mm` },
+                      { label: 'Average rainfall', value: `${num(d.mean_mm)} mm`, color: 'var(--s-1)' },
+                      { label: 'Dry year (2 of 10)', value: `${num(d.p20_mm)} mm` },
+                      { label: 'Wet year (8 of 10)', value: `${num(d.p80_mm)} mm` },
                     ]}
                   />
                 ))}
@@ -96,8 +96,8 @@ export function RainChart({ climate }: { climate: ClimateProfile }) {
       </div>
       <Legend
         items={[
-          { label: 'Temporada de lluvias', color: 'var(--s-1)' },
-          { label: 'Resto del año', color: 'color-mix(in srgb, var(--s-1) 35%, transparent)' },
+          { label: 'Rainy season', color: 'var(--s-1)' },
+          { label: 'Rest of the year', color: 'color-mix(in srgb, var(--s-1) 35%, transparent)' },
         ]}
       />
     </div>
@@ -130,8 +130,8 @@ export function WaterBalanceChart({ water }: { water: WaterProfile }) {
                   <TooltipCard
                     title={monthName(d.month)}
                     rows={[
-                      { label: d.v >= 0 ? 'Sobra agua' : 'Falta agua', value: `${num(Math.abs(d.v))} mm`, color: d.v >= 0 ? 'var(--s-1)' : 'var(--s-8)' },
-                      { label: 'Evaporación potencial', value: `${num(d.et0)} mm` },
+                      { label: d.v >= 0 ? 'Too much water' : 'No water', value: `${num(Math.abs(d.v))} mm`, color: d.v >= 0 ? 'var(--s-1)' : 'var(--s-8)' },
+                      { label: 'Potential evaporation', value: `${num(d.et0)} mm` },
                     ]}
                   />
                 ))}
@@ -141,8 +141,8 @@ export function WaterBalanceChart({ water }: { water: WaterProfile }) {
       </div>
       <Legend
         items={[
-          { label: 'Sobra agua (lluvia > evaporación)', color: 'var(--s-1)' },
-          { label: 'Falta agua', color: 'var(--s-8)' },
+          { label: 'Excess water (rain > evaporation)', color: 'var(--s-1)' },
+          { label: 'No water', color: 'var(--s-8)' },
         ]}
       />
     </div>
@@ -168,8 +168,8 @@ export function LightChart({ light }: { light: GreenhouseReport['light'] }) {
                   <TooltipCard
                     title={monthName(d.month)}
                     rows={[
-                      { label: 'Afuera', value: `${num(d.outdoor_dli, 1)} mol/m²·día`, color: 'var(--s-4)' },
-                      { label: 'Dentro (estimado)', value: `${num(d.indoor_dli_est, 1)} mol/m²·día`, color: 'var(--s-3)' },
+                      { label: 'Outside', value: `${num(d.outdoor_dli, 1)} mol/m²·day`, color: 'var(--s-4)' },
+                      { label: 'Inside (estimated)', value: `${num(d.indoor_dli_est, 1)} mol/m²·day`, color: 'var(--s-3)' },
                     ]}
                   />
                 ))}
@@ -179,8 +179,8 @@ export function LightChart({ light }: { light: GreenhouseReport['light'] }) {
       </div>
       <Legend
         items={[
-          { label: 'Luz afuera', color: 'var(--s-4)', kind: 'line' },
-          { label: 'Luz dentro del invernadero', color: 'var(--s-3)', kind: 'line' },
+          { label: 'Light outside', color: 'var(--s-4)', kind: 'line' },
+          { label: 'Light inside the greenhouse', color: 'var(--s-3)', kind: 'line' },
         ]}
       />
     </div>
@@ -200,7 +200,7 @@ export function HeatingChart({ temperature }: { temperature: GreenhouseReport['t
           <Tooltip
             cursor={{ fill: 'var(--surface-2)' }}
             content={(p: TipArgs) => tip(p, (d: (typeof data)[number]) => (
-                <TooltipCard title={monthName(d.month)} rows={[{ label: 'Grados-hora bajo 12 °C', value: num(d.heating_degree_hours_base12) }]} />
+                <TooltipCard title={monthName(d.month)} rows={[{ label: 'Degree-hours below 12 °C', value: num(d.heating_degree_hours_base12) }]} />
               ))}
           />
         </ComposedChart>

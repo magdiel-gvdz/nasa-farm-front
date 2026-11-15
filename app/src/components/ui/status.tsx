@@ -4,9 +4,9 @@ import { cn } from '@/lib/cn'
 
 // El color de estado nunca va solo: siempre lleva ícono y texto.
 const LEVEL: Record<Level, { icon: LucideIcon; dot: string; bg: string; label: string }> = {
-  ok: { icon: CircleCheck, dot: 'text-good', bg: 'bg-good/12', label: 'Bien' },
-  warn: { icon: CircleAlert, dot: 'text-warn', bg: 'bg-warn/15', label: 'Atención' },
-  bad: { icon: OctagonAlert, dot: 'text-bad', bg: 'bg-bad/12', label: 'Riesgo' },
+  ok: { icon: CircleCheck, dot: 'text-good', bg: 'bg-good/12', label: 'Good' },
+  warn: { icon: CircleAlert, dot: 'text-warn', bg: 'bg-warn/15', label: 'Attention' },
+  bad: { icon: OctagonAlert, dot: 'text-bad', bg: 'bg-bad/12', label: 'Risk' },
 }
 
 

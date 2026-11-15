@@ -16,11 +16,11 @@ interface Template {
 }
 
 const TEMPLATES: Template[] = [
-  { id: 'legume_cover', name: 'Cobertura con leguminosa', years: [['maiz', 'veza'], ['frijol', 'avena']], why: 'Cubre el suelo en invierno con veza, que además aporta nitrógeno al siguiente cultivo.' },
-  { id: 'water_saver', name: 'Ahorro de agua', years: [['sorgo', null], ['girasol', null]], why: 'Cambia el maíz por cultivos tolerantes a sequía y deja descansar en invierno: menos riego, aunque el suelo queda más tiempo descubierto.' },
-  { id: 'forage', name: 'Forraje para ganado', years: [['sorgo', 'avena'], ['alfalfa', 'alfalfa'], ['alfalfa', 'alfalfa']], why: 'Produce forraje todo el año y la alfalfa mejora el suelo por varios años.' },
-  { id: 'deep_root', name: 'Raíces profundas y diversidad', years: [['girasol', 'triticale'], ['frijol', 'cartamo']], why: 'Raíces profundas que rompen la compactación y familias distintas que cortan el ciclo de plagas.' },
-  { id: 'high_value', name: 'Hortalizas de mayor valor', years: [['calabaza', 'cebolla'], ['frijol', 'avena']], why: 'Busca más ingreso por hectárea con hortalizas, alternando con cultivos que descansan el suelo.' },
+  { id: 'legume_cover', name: 'Legume cover crop', years: [['maiz', 'veza'], ['frijol', 'avena']], why: 'Cover the soil in winter with vetch, which also provides nitrogen to the next crop.' },
+  { id: 'water_saver', name: 'Water saving', years: [['sorgo', null], ['girasol', null]], why: 'Change corn for drought-tolerant crops and let it rest in winter: less irrigation, although the soil remains uncovered for longer.' },
+  { id: 'forage', name: 'Forage for livestock', years: [['sorgo', 'avena'], ['alfalfa', 'alfalfa'], ['alfalfa', 'alfalfa']], why: 'Produces forage all year round and alfalfa improves the soil for several years.' },
+  { id: 'deep_root', name: 'Deep roots and diversity', years: [['girasol', 'triticale'], ['frijol', 'cartamo']], why: 'Deep roots that break compaction and distinct families that cut the pest cycle.' },
+  { id: 'high_value', name: 'Higher value vegetables', years: [['calabaza', 'cebolla'], ['frijol', 'avena']], why: 'Look for more income per hectare with vegetables, alternating with crops that rest the soil.' },
 ]
 
 const ROLE_ORDER: CropRole[] = ['legume', 'cover', 'forage', 'deep_root', 'drought_tolerant', 'cash']
@@ -110,7 +110,7 @@ function simulate(seq: ReturnType<typeof buildSequence>, ctx: SuitContext, profi
     labor += agro.labor
     suit += best.score
     nCrops++
-    for (const r of best.reasons) if (r.status !== 'ok') warnings.push(`${crop.name.es}: ${r.detail}`)
+    for (const r of best.reasons) if (r.status !== 'ok') warnings.push(`${crop.name.en}: ${r.detail}`)
   }
 
   const years = horizon
@@ -176,7 +176,7 @@ function score(sim: Sim, pri: Priorities) {
   return scores
 }
 
-const MONTH_ES = ['ene', 'feb', 'mar', 'abr', 'may', 'jun', 'jul', 'ago', 'sep', 'oct', 'nov', 'dic']
+const MONTH_ES = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
 const dateEs = (mmdd?: string | null) => {
   if (!mmdd) return '—'
   const [m, d] = mmdd.split('-').map(Number)
@@ -204,29 +204,29 @@ export function compareRotations(field: Field, profile: FieldProfile, req: Rotat
     const b = base.strategy.metrics
     const benefits: string[] = []
     const evidence: Strategy['evidence'] = [
-      { claim: `Última helada típica: ${dateEs(fr.last_spring_frost.p50?.date)} (9 de cada 10 años antes del ${dateEs(fr.last_spring_frost.p90?.date)})`, source_id: 'nasa_power' },
-      { claim: `Lluvia media de ${rain.annual_mean_mm} mm/año, concentrada en ${rainyMonths || 'pocos meses'}`, source_id: 'nasa_power' },
+      { claim: `Typical last frost: ${dateEs(fr.last_spring_frost.p50?.date)} (9 out of 10 years before ${dateEs(fr.last_spring_frost.p90?.date)})`, source_id: 'nasa_power' },
+      { claim: `Average rain ${rain.annual_mean_mm} mm/year, concentrated in ${rainyMonths || 'a few months'}`, source_id: 'nasa_power' },
     ]
-    if (bare) evidence.push({ claim: `El campo suele quedar sin cobertura en ${bare}`, source_id: profile.vegetation.source_id })
+    if (bare) evidence.push({ claim: `The field is usually left without soil cover in ${bare}`, source_id: profile.vegetation.source_id })
     if (!isCurrent) {
-      if (m.bare_soil_days_per_year < b.bare_soil_days_per_year - 20) benefits.push(`${b.bare_soil_days_per_year - m.bare_soil_days_per_year} días menos de suelo desnudo al año`)
-      if (m.irrigation_need_mm_per_year < b.irrigation_need_mm_per_year - 30) benefits.push(`~${b.irrigation_need_mm_per_year - m.irrigation_need_mm_per_year} mm menos de riego por año`)
-      if (m.n_balance_kg_ha_per_year > b.n_balance_kg_ha_per_year + 15) benefits.push(`+${m.n_balance_kg_ha_per_year - b.n_balance_kg_ha_per_year} kg/ha de nitrógeno al año (menos fertilizante)`)
-      if (m.erosion_t_ha_per_year < b.erosion_t_ha_per_year - 0.5) benefits.push(`Erosión ${Math.round((1 - m.erosion_t_ha_per_year / Math.max(0.1, b.erosion_t_ha_per_year)) * 100)} % menor`)
-      if (m.pest_break_score > b.pest_break_score + 0.5) benefits.push('Alterna familias de cultivos y corta el ciclo de plagas')
-      if (m.om_trend === 'improving' && b.om_trend !== 'improving') benefits.push('La materia orgánica del suelo tiende a subir')
-      if (m.gross_margin_index > b.gross_margin_index + 0.05) benefits.push('Mayor ingreso esperado por hectárea')
+      if (m.bare_soil_days_per_year < b.bare_soil_days_per_year - 20) benefits.push(`${b.bare_soil_days_per_year - m.bare_soil_days_per_year} fewer days of bare soil per year`)
+      if (m.irrigation_need_mm_per_year < b.irrigation_need_mm_per_year - 30) benefits.push(`~${b.irrigation_need_mm_per_year - m.irrigation_need_mm_per_year} mm less irrigation per year`)
+      if (m.n_balance_kg_ha_per_year > b.n_balance_kg_ha_per_year + 15) benefits.push(`+${m.n_balance_kg_ha_per_year - b.n_balance_kg_ha_per_year} kg/ha of nitrogen per year (less fertilizer)`)
+      if (m.erosion_t_ha_per_year < b.erosion_t_ha_per_year - 0.5) benefits.push(`Erosion ${Math.round((1 - m.erosion_t_ha_per_year / Math.max(0.1, b.erosion_t_ha_per_year)) * 100)} % lower`)
+      if (m.pest_break_score > b.pest_break_score + 0.5) benefits.push('Alternate crop families and cut the pest cycle')
+      if (m.om_trend === 'improving' && b.om_trend !== 'improving') benefits.push('Soil organic matter tends to rise')
+      if (m.gross_margin_index > b.gross_margin_index + 0.05) benefits.push('Higher expected income per hectare')
     } else {
-      benefits.push('Cultivos, mercado y equipo que ya conoces')
+      benefits.push('Crops, market and equipment you already know')
     }
     const gaps = [
-      profile.soil.lab ? null : 'Sin análisis de laboratorio de nitrógeno, fósforo y potasio',
-      'Precios locales y acceso a mercado sin verificar',
-      'Rendimientos basados en referencias regionales, no en tu historial',
+      profile.soil.lab ? null : 'Without laboratory analysis of nitrogen, phosphorus and potassium',
+      'Local prices and market access unverified',
+      'Yields based on regional benchmarks, not your history',
     ].filter(Boolean) as string[]
     const risks = [...new Set(sim.warnings)].slice(0, 3)
-    if (m.irrigation_need_mm_per_year > 250) risks.push(`Depende de ~${m.irrigation_need_mm_per_year} mm de riego al año si fallan las lluvias`)
-    if (!risks.length) risks.push('Validar fechas de siembra y variedades con tu agrónomo')
+    if (m.irrigation_need_mm_per_year > 250) risks.push(`Depends on ~${m.irrigation_need_mm_per_year} mm of irrigation per year if the rains fail`)
+    if (!risks.length) risks.push('Validate sowing dates and varieties with your agronomist')
     return {
       id,
       name,
@@ -235,7 +235,7 @@ export function compareRotations(field: Field, profile: FieldProfile, req: Rotat
       scores: score(sim, req.priorities),
       why: [why],
       evidence,
-      benefits: benefits.length ? benefits : ['Similar a tu rotación actual en la mayoría de indicadores'],
+      benefits: benefits.length ? benefits : ['Similar to your current rotation on most indicators'],
       gaps,
       risks_local_review: risks,
       confidence: profile.soil.lab ? 'high' : 'medium',
@@ -244,10 +244,10 @@ export function compareRotations(field: Field, profile: FieldProfile, req: Rotat
 
   const currentName = currentYears
     .flat()
-    .map((c) => (c ? CROP_BY_ID.get(c)?.name.es : 'descanso'))
+    .map((c) => (c ? CROP_BY_ID.get(c)?.name.en : 'fallow'))
     .filter((v, i, a) => a.indexOf(v) === i)
     .join(' – ')
-  const strategies: Strategy[] = [make('current', `Tu rotación: ${currentName}`, true, base, 'Es lo que siembras hoy; sirve como punto de comparación.')]
+  const strategies: Strategy[] = [make('current', `Your rotation: ${currentName}`, true, base, 'It is what you sow today; serves as a point of comparison.')]
 
   const candidates = TEMPLATES.filter((t) => !t.years.flat().some((c) => c && exclude.has(c)))
     .map((t) => ({ t, sim: simulate(buildSequence(t.years, horizon), ctx, profile, horizon) }))
@@ -261,6 +261,6 @@ export function compareRotations(field: Field, profile: FieldProfile, req: Rotat
     scenario: req.scenario,
     strategies,
     recommended_id: recommended.id,
-    disclaimer: 'Herramienta de apoyo: valida las fechas, variedades y mercado con tu agrónomo local.',
+    disclaimer: 'Support tool: validate dates, varieties and market with your local agronomist.',
   }
 }

@@ -16,13 +16,13 @@ export interface ChatDeps {
 }
 
 const sg = (x: number, d = 0) => `${x > 0 ? '+' : x < 0 ? '−' : ''}${Math.abs(x).toFixed(d)}`
-const FUTURE_WORDS = ['futur', '2040', '2050', '2035', '2030', 'cambio climatico', 'calentamiento', 'proyecc', 'proximos anos', 'dentro de', 'a largo plazo', 'en unos anos']
+const FUTURE_WORDS = ['future', '2040', '2050', '2035', '2030', 'climate change', 'warming', 'projection', 'coming years', 'long term', 'in a few years']
 
-const MONTHS = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre']
+const MONTHS = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']
 const dEs = (mmdd?: string | null) => {
   if (!mmdd) return '—'
   const [m, d] = mmdd.split('-').map(Number)
-  return `${d} de ${MONTHS[m - 1]}`
+  return `${MONTHS[m - 1]} ${d}`
 }
 const sleep = (ms: number, signal?: AbortSignal) =>
   new Promise<void>((res, rej) => {
@@ -39,12 +39,12 @@ const findCrop = findCropInText
 
 function findMonth(q: string) {
   const n = norm(q)
-  const i = MONTHS.findIndex((m) => n.includes(m))
+  const i = MONTHS.findIndex((m) => n.includes(m.toLowerCase()))
   return i >= 0 ? i + 1 : null
 }
 
 function soilCitation(p: FieldProfile) {
-  return { source_id: p.soil.source_id, label: p.soil.lab ? 'Tu análisis de laboratorio' : p.soil.source_id === 'ssurgo' ? 'USDA SSURGO' : 'SoilGrids 250 m' }
+  return { source_id: p.soil.source_id, label: p.soil.lab ? 'Your laboratory analysis' : p.soil.source_id === 'ssurgo' ? 'USDA SSURGO' : 'SoilGrids 250 m' }
 }
 
 function futureCitation(f: FutureClimate) {
@@ -71,8 +71,8 @@ async function answer(q: string, d: ChatDeps): Promise<Plan> {
   const p = d.profile
   if (!d.field || !p) {
     return {
-      tools: [{ name: 'list_user_fields', label: 'Buscando tus parcelas' }],
-      text: 'Para darte respuestas con datos necesito una parcela. Dibuja tu terreno en el mapa o abre uno de los ejemplos (Saltillo, Arteaga o Nevada) y vuelve a preguntarme.',
+      tools: [{ name: 'list_user_fields', label: 'Searching for your fields' }],
+      text: 'To give you answers with data I need a field. Draw your land on the map or open one of the examples (Saltillo, Arteaga or Nevada) and ask me again.',
       citations: [],
     }
   }
@@ -86,22 +86,22 @@ async function answer(q: string, d: ChatDeps): Promise<Plan> {
     const months = month ? [month] : Array.from({ length: 12 }, (_, i) => i + 1)
     const best = months.map((m) => d.evaluate(crop.id, m)).reduce((a, b) => (b.score > a.score ? b : a))
     const per = best.perennial!
-    const verdict = best.status === 'suitable' ? 'se da bien' : best.status === 'marginal' ? 'se puede, con riesgos' : 'no es recomendable'
+    const verdict = best.status === 'suitable' ? 'is good' : best.status === 'marginal' ? 'you can, with risks' : 'is not recommended'
     const icon = (st: string) => (st === 'ok' ? '✅' : st === 'warn' ? '⚠️' : '⛔')
-    let text = `**${crop.name.es}** en ${d.field.name}: **${verdict}** (${best.score}/100).\n\nEs un cultivo perenne: se planta una vez${crop.plant_months ? ` (mejor en ${crop.plant_months.map((m) => MONTHS[m - 1]).join(', ')})` : ''}, da la primera cosecha al **año ${per.years_to_first_harvest}** y se cosecha de ${MONTHS[per.harvest_months[0] - 1]} a ${MONTHS[per.harvest_months[1] - 1]}. Por eso importa el clima de todo el año, no solo el de una temporada:\n\n${best.reasons.map((r) => `- ${icon(r.status)} ${r.detail}`).join('\n')}`
+    let text = `**${crop.name.en}** in ${d.field.name}: **${verdict}** (${best.score}/100).\n\nIt is a perennial crop: it is planted once${crop.plant_months ? ` (best in ${crop.plant_months.map((m) => MONTHS[m - 1]).join(', ')})` : ''}, produces its first harvest in **year ${per.years_to_first_harvest}** and is harvested from ${MONTHS[per.harvest_months[0] - 1]} to ${MONTHS[per.harvest_months[1] - 1]}. That is why the weather throughout the year matters, not just that of a season:\n\n${best.reasons.map((r) => `- ${icon(r.status)} ${r.detail}`).join('\n')}`
     const fut = await tryFuture(d)
     if (fut) {
       const later = d.evaluate(crop.id, best.planting_month, fut.scenario)
       const chillNow = per.chill_hours_est
       const chillLater = later.perennial?.chill_hours_est
-      text += `\n\n**Pensando a ${fut.period[1]}** (un árbol vive 20–30 años): con ${sg(fut.scenario.delta_t_c, 1)} °C quedaría en ${later.score}/100.${chillNow != null && chillLater != null ? ` Las horas frío bajarían de ~${chillNow} a ~${chillLater}${crop.chill_hours && chillLater < crop.chill_hours[1] ? ': elige variedades de bajo requerimiento de frío desde ahora' : ''}.` : ''}`
+      text += `\n\n**Thinking about ${fut.period[1]}** (a tree lives 20–30 years): with ${sg(fut.scenario.delta_t_c, 1)} °C would remain at ${later.score}/100.${chillNow != null && chillLater != null ? ` Chill hours would drop from ~${chillNow} to ~${chillLater}${crop.chill_hours && chillLater < crop.chill_hours[1] ? ': choose varieties with low chilling requirements now' : ''}.` : ''}`
     }
-    text += '\n\nLa variedad, el portainjerto y el microclima de tu huerta cambian mucho el resultado: revísalo con tu agrónomo o con productores de la zona.'
+    text += '\n\nThe variety, the rootstock and the microclimate of your orchard greatly change the result: check it with your agronomist or with producers in the area.'
     return {
       tools: [
-        { name: 'get_field_profile', label: 'Revisando inviernos, heladas y calor' },
-        { name: 'evaluate_crop', label: `Evaluando ${crop.name.es.toLowerCase()}` },
-        ...(fut ? [{ name: 'get_future_climate', label: 'Revisando el clima de las próximas décadas' }] : []),
+        { name: 'get_field_profile', label: 'Reviewing winters, frosts and heat' },
+        { name: 'evaluate_crop', label: `Evaluating ${crop.name.en.toLowerCase()}` },
+        ...(fut ? [{ name: 'get_future_climate', label: 'Reviewing the climate of the coming decades' }] : []),
       ],
       text,
       citations: [power, soilCitation(p), ...(fut ? [futureCitation(fut)] : [])],
@@ -109,7 +109,7 @@ async function answer(q: string, d: ChatDeps): Promise<Plan> {
     }
   }
 
-  if (crop && (n.includes('sembr') || n.includes('plant') || n.includes('cuando') || n.includes('puedo') || n.includes('se da') || n.includes('cultiv') || n.includes('conviene') || findMonth(q))) {
+  if (crop) {
     const month = findMonth(q)
     const months = month ? [month] : Array.from({ length: 12 }, (_, i) => i + 1)
     const evals = months.map((m) => d.evaluate(crop.id, m))
@@ -117,20 +117,20 @@ async function answer(q: string, d: ChatDeps): Promise<Plan> {
     const good = evals.filter((e) => e.status === 'suitable').map((e) => MONTHS[e.planting_month - 1])
     const issues = best.reasons.filter((r) => r.status !== 'ok').map((r) => `- ${r.detail}`)
     const text = month
-      ? `Sembrar **${crop.name.es.toLowerCase()} en ${MONTHS[month - 1]}** en ${d.field.name} sale **${best.status === 'suitable' ? 'apto' : best.status === 'marginal' ? 'con riesgos' : 'no recomendable'}** (${best.score}/100).\n\n${best.reasons.map((r) => `- ${r.status === 'ok' ? '✅' : r.status === 'warn' ? '⚠️' : '⛔'} ${r.detail}`).join('\n')}\n\nCosecharías entre el ${dEs(best.harvest_window.from)} y el ${dEs(best.harvest_window.to)}.`
-      : `El mejor momento para sembrar **${crop.name.es.toLowerCase()}** es **${MONTHS[best.planting_month - 1]}** (${best.score}/100).${good.length > 1 ? ` También funciona en: ${good.join(', ')}.` : ''}\n\n${issues.length ? `Lo que hay que cuidar:\n${issues.join('\n')}` : 'No veo riesgos fuertes en esa fecha.'}\n\nLa última helada suele caer el ${dEs(fr.last_spring_frost.p50?.date)}, y 9 de cada 10 años antes del ${dEs(fr.last_spring_frost.p90?.date)}.`
+      ? `Planting **${crop.name.en.toLowerCase()} in ${MONTHS[month - 1]}** in ${d.field.name} is **${best.status === 'suitable' ? 'suitable' : best.status === 'marginal' ? 'with risks' : 'not recommended'}** (${best.score}/100).\n\n${best.reasons.map((r) => `- ${r.status === 'ok' ? '✅' : r.status === 'warn' ? '⚠️' : '⛔'} ${r.detail}`).join('\n')}\n\nYou would harvest between the ${dEs(best.harvest_window.from)} and the ${dEs(best.harvest_window.to)}.`
+      : `Best time to sow **${crop.name.en.toLowerCase()}** is **${MONTHS[best.planting_month - 1]}** (${best.score}/100).${good.length > 1 ? ` Also works on: ${good.join(', ')}.` : ''}\n\n${issues.length ? `What to take care of:\n${issues.join('\n')}` : 'I don\'t see strong risks on that date.'}\n\nThe last frost usually falls on ${dEs(fr.last_spring_frost.p50?.date)}, and 9 out of 10 years before ${dEs(fr.last_spring_frost.p90?.date)}.`
     const fut = await tryFuture(d)
     let futureText = ''
     if (fut) {
       const later = d.evaluate(crop.id, best.planting_month, fut.scenario)
       const diff = later.score - best.score
-      futureText = `\n\n**Hacia ${fut.period[0]}–${fut.period[1]}** (${sg(fut.scenario.delta_t_c, 1)} °C, lluvia ${sg(fut.scenario.delta_p_pct)} %), esa misma fecha quedaría en ${later.score}/100${Math.abs(diff) < 3 ? ': prácticamente igual.' : diff > 0 ? ` (mejora ${diff} puntos).` : ` (baja ${-diff} puntos${later.reasons.find((r) => r.status !== 'ok') ? `: ${later.reasons.find((r) => r.status !== 'ok')!.detail.toLowerCase()}` : ''}).`}`
+      futureText = `\n\n**By ${fut.period[0]}–${fut.period[1]}** (${sg(fut.scenario.delta_t_c, 1)} °C, rain ${sg(fut.scenario.delta_p_pct)} %), that same date would be in ${later.score}/100${Math.abs(diff) < 3 ? ': practically the same.' : diff > 0 ? ` (improves by ${diff} points).` : ` (drops by ${-diff} points${later.reasons.find((r) => r.status !== 'ok') ? `: ${later.reasons.find((r) => r.status !== 'ok')!.detail.toLowerCase()}` : ''}).`}`
     }
     return {
       tools: [
-        { name: 'get_risk_calendar', label: 'Revisando heladas y calor' },
-        { name: 'evaluate_crop', label: `Evaluando ${crop.name.es.toLowerCase()}` },
-        ...(fut ? [{ name: 'get_future_climate', label: 'Revisando el clima proyectado' }] : []),
+        { name: 'get_risk_calendar', label: 'Checking frost and heat' },
+        { name: 'evaluate_crop', label: `Evaluating ${crop.name.en.toLowerCase()}` },
+        ...(fut ? [{ name: 'get_future_climate', label: 'Reviewing Projected Climate' }] : []),
       ],
       text: text + futureText,
       citations: [power, soilCitation(p), ...(fut ? [futureCitation(fut)] : [])],
@@ -141,7 +141,7 @@ async function answer(q: string, d: ChatDeps): Promise<Plan> {
   if (FUTURE_WORDS.some((w) => n.includes(w))) {
     const fut = await tryFuture(d)
     if (!fut) {
-      return { tools: [{ name: 'get_future_climate', label: 'Buscando proyecciones climáticas' }], text: 'No pude descargar las proyecciones climáticas en este momento. Intenta de nuevo en un minuto.', citations: [] }
+      return { tools: [{ name: 'get_future_climate', label: 'Searching for climate projections' }], text: 'I was unable to download the climate projections at this time. Try again in a minute.', citations: [] }
     }
     const sc = fut.scenario
     const crops = [...new Set((d.field.current_rotation ?? []).map((r) => r.crop_id).filter((x): x is string => !!x))]
@@ -150,9 +150,9 @@ async function answer(q: string, d: ChatDeps): Promise<Plan> {
       const now = months.map((m) => d.evaluate(id, m)).reduce((a, b) => (b.score > a.score ? b : a))
       const later = d.evaluate(id, now.planting_month, sc)
       const bestLater = months.map((m) => d.evaluate(id, m, sc)).reduce((a, b) => (b.score > a.score ? b : a))
-      const name = CROP_BY_ID.get(id)?.name.es ?? id
-      const shift = bestLater.planting_month !== now.planting_month && bestLater.score - later.score >= 5 ? ` Conviene mover la siembra a **${MONTHS[bestLater.planting_month - 1]}** (${bestLater.score}/100).` : ''
-      return `- **${name}** sembrado en ${MONTHS[now.planting_month - 1]}: ${now.score} → ${later.score}/100.${shift}`
+      const name = CROP_BY_ID.get(id)?.name.en ?? id
+      const shift = bestLater.planting_month !== now.planting_month && bestLater.score - later.score >= 5 ? ` It is advisable to move sowing to **${MONTHS[bestLater.planting_month - 1]}** (${bestLater.score}/100).` : ''
+      return `- **${name}** sown in ${MONTHS[now.planting_month - 1]}: ${now.score} → ${later.score}/100.${shift}`
     })
     const rotNow = d.rotations()
     const rotLater = d.rotations(sc)
@@ -161,64 +161,64 @@ async function answer(q: string, d: ChatDeps): Promise<Plan> {
     const fr = c.frost
     return {
       tools: [
-        { name: 'get_future_climate', label: `Consultando ${fut.models.length} modelos climáticos` },
-        { name: 'run_scenario', label: 'Recalculando cultivos con el clima futuro' },
-        { name: 'compare_rotations', label: 'Comparando rotaciones' },
+        { name: 'get_future_climate', label: `Consulting ${fut.models.length} climate models` },
+        { name: 'run_scenario', label: 'Recalculating crops with future climate' },
+        { name: 'compare_rotations', label: 'Comparing rotations' },
       ],
-      text: `Para **${fut.period[0]}–${fut.period[1]}** los modelos proyectan en ${d.field.name}:\n\n- Temperatura: **${sg(fut.median.delta_t_c, 1)} °C** (entre ${sg(fut.range.delta_t_c[0], 1)} y ${sg(fut.range.delta_t_c[1], 1)}).\n- Lluvia: **${sg(fut.median.delta_p_pct)} %** (entre ${sg(fut.range.delta_p_pct[0])} y ${sg(fut.range.delta_p_pct[1])} %). ${fut.note}\n- Heladas: ${sg(fut.median.delta_frost_days)} días al año; días sobre 35 °C: ${sg(fut.median.delta_days_over_35c)}.${fr.last_spring_frost.p50 ? ` Hoy la última helada típica es el ${dEs(fr.last_spring_frost.p50.date)}; con menos heladas tenderá a adelantarse, pero las heladas tardías no desaparecen.` : ''}\n\n${lines.length ? `Lo que siembras hoy, con ese clima (mejor fecha actual):\n${lines.join('\n')}\n\n` : ''}${bestLater.id === bestNow.id ? `La rotación que más te conviene **sigue siendo ${bestNow.name}** (${bestNow.scores.overall} → ${bestLater.scores.overall}/100).` : `La rotación recomendada **cambia de ${bestNow.name} a ${bestLater.name}** (${bestLater.scores.overall}/100): ${bestLater.why[0]?.toLowerCase() ?? ''}`}\n\nEs una tendencia de 20 años, no un pronóstico. Úsala para decidir inversiones de largo plazo (riego, cultivos perennes, variedades) y revísala con tu agrónomo.`,
+      text: `For **${fut.period[0]}–${fut.period[1]}** models project for ${d.field.name}:\n\n- Temperature: **${sg(fut.median.delta_t_c, 1)} °C** (between ${sg(fut.range.delta_t_c[0], 1)} and ${sg(fut.range.delta_t_c[1], 1)}).\n- Rain: **${sg(fut.median.delta_p_pct)} %** (between ${sg(fut.range.delta_p_pct[0])} and ${sg(fut.range.delta_p_pct[1])} %). ${fut.note}\n- Frost: ${sg(fut.median.delta_frost_days)} days per year; days above 35 °C: ${sg(fut.median.delta_days_over_35c)}.${fr.last_spring_frost.p50 ? ` Today the typical last frost is the ${dEs(fr.last_spring_frost.p50.date)}; With less frost it will tend to come sooner, but late frosts do not disappear.` : ''}\n\n${lines.length ? `What you plant today, with that weather (current best date):\n${lines.join('\n')}\n\n` : ''}${bestLater.id === bestNow.id ? `The rotation that best suits you **remains ${bestNow.name}** (${bestNow.scores.overall} → ${bestLater.scores.overall}/100).` : `Recommended rotation **changes ${bestNow.name} to ${bestLater.name}** (${bestLater.scores.overall}/100): ${bestLater.why[0]?.toLowerCase() ?? ''}`}\n\nThis is a 20-year trend, not a forecast. Use it to decide long-term investments (irrigation, perennial crops, varieties) and review it with your agronomist.`,
       citations: [power, futureCitation(fut)],
       card: { card: 'rotations', payload: bestLater },
     }
   }
 
-  if (n.includes('helad') || n.includes('frio') || n.includes('frost')) {
+  if (n.includes('cold') || n.includes('freez') || n.includes('frost')) {
     const worst = [...fr.by_month].sort((a, b) => (b.prob_any_frost ?? 0) - (a.prob_any_frost ?? 0)).filter((m) => (m.prob_any_frost ?? 0) > 0.1)
     return {
-      tools: [{ name: 'get_field_profile', label: 'Consultando 35 años de temperaturas' }],
-      text: `En ${d.field.name} las heladas van de **${dEs(fr.first_fall_frost.p50?.date)}** a **${dEs(fr.last_spring_frost.p50?.date)}** en un año típico.\n\n- Para ir a la segura, siembra cultivos sensibles **después del ${dEs(fr.last_spring_frost.p90?.date)}** (9 de cada 10 años ya no heló).\n- Una helada temprana puede llegar desde el **${dEs(fr.first_fall_frost.p10?.date)}** (1 de cada 10 años).\n- Meses con más riesgo: ${worst.map((m) => `${MONTHS[m.month - 1]} (${Math.round((m.prob_any_frost ?? 0) * 100)} % de los años)`).join(', ')}.\n\nOjo: medimos el aire a 2 m; a ras de suelo y en los bajíos puede helar con 2–3 °C.`,
+      tools: [{ name: 'get_field_profile', label: 'Consulting 35 years of temperatures' }],
+      text: `In ${d.field.name} frost goes from **${dEs(fr.first_fall_frost.p50?.date)}** to **${dEs(fr.last_spring_frost.p50?.date)}** in a typical year.\n\n- To play it safe, plant sensitive crops **after ${dEs(fr.last_spring_frost.p90?.date)}** (9 out of 10 years it no longer froze).\n- An early frost may arrive from **${dEs(fr.first_fall_frost.p10?.date)}** (1 in 10 years).\n- Months with more risk: ${worst.map((m) => `${MONTHS[m.month - 1]} (${Math.round((m.prob_any_frost ?? 0) * 100)} % of years)`).join(', ')}.\n\nNote: we measure the air at 2 m; At ground level and in shallows it can freeze at 2–3 °C.`,
       citations: [power],
     }
   }
 
-  if (n.includes('lluv') || n.includes('agua de temporal') || n.includes('rain') || n.includes('temporal')) {
+  if (n.includes('rain') || n.includes('precipitation')) {
     const r = c.rain
     return {
-      tools: [{ name: 'get_climate_stat', label: 'Analizando la temporada de lluvias' }],
-      text: `Llueven en promedio **${r.annual_mean_mm} mm al año** (un año seco ~${r.annual_p20_mm} mm, uno húmedo ~${r.annual_p80_mm} mm). La temporada fuerte es **${r.rainy_months.map((m) => MONTHS[m - 1]).join(', ')}**.\n\nHay ~${r.days_per_year_over_25mm} días al año con aguaceros de más de 25 mm: ahí es cuando más se erosiona el suelo desnudo.${r.trend_mm_per_decade != null ? `\n\nTendencia: ${r.trend_mm_per_decade > 0 ? '+' : ''}${r.trend_mm_per_decade} mm por década.` : ''}`,
+      tools: [{ name: 'get_climate_stat', label: 'Analyzing the rainy season' }],
+      text: `It rains on average **${r.annual_mean_mm} mm per year** (one dry year ~${r.annual_p20_mm} mm, one wet ~${r.annual_p80_mm} mm). The strong season is **${r.rainy_months.map((m) => MONTHS[m - 1]).join(', ')}**.\n\nThere is ~${r.days_per_year_over_25mm} days a year with downpours of more than 25 mm: that is when bare soil erodes the most.${r.trend_mm_per_decade != null ? `\n\nTrend: ${r.trend_mm_per_decade > 0 ? '+' : ''}${r.trend_mm_per_decade} mm per decade.` : ''}`,
       citations: [power],
     }
   }
 
-  if (n.includes('calor') || n.includes('temperatura') || n.includes('heat')) {
+  if (n.includes('heat') || n.includes('temperature') || n.includes('hot')) {
     const h = c.heat
     const hot = h.by_month[h.hottest_month - 1]
     return {
-      tools: [{ name: 'get_climate_stat', label: 'Revisando olas de calor' }],
-      text: `El mes más caliente es **${MONTHS[h.hottest_month - 1]}**, con máximas promedio de ${hot.mean_tmax_c} °C y ~${hot.mean_days_over_35c} días por encima de 35 °C.\n\nSi la floración de tu cultivo cae ahí, puede fallar el amarre de grano o fruto. La temperatura media sube ${h.trend_c_per_decade ?? 0} °C por década en esta zona.`,
+      tools: [{ name: 'get_climate_stat', label: 'Reviewing heat waves' }],
+      text: `The hottest month is **${MONTHS[h.hottest_month - 1]}**, with average maximums of ${hot.mean_tmax_c} °C and ~${hot.mean_days_over_35c} days above 35 °C.\n\nIf the flowering of your crop falls there, the grain or fruit set may fail. The average temperature rises ${h.trend_c_per_decade ?? 0} °C per decade in this area.`,
       citations: [power],
     }
   }
 
-  if (n.includes('viento') || n.includes('invernadero') || n.includes('estructura') || n.includes('wind')) {
+  if (n.includes('wind') || n.includes('greenhouse') || n.includes('structure')) {
     const w = c.wind
     const rl = w.return_levels_kmh
     const rated = d.field.greenhouse?.rated_wind_kmh
     return {
-      tools: [{ name: 'get_greenhouse_risk', label: 'Calculando vientos extremos' }],
-      text: `Los meses con más viento son alrededor de **${MONTHS[w.windiest_month - 1]}**. Ráfagas estimadas:\n\n${rl.map((l) => `- Cada ${l.return_period_years} años: ~${Math.round(l.estimated_gust_kmh ?? 0)} km/h`).join('\n')}\n\n${rated ? `Tu estructura está declarada para ${rated} km/h, ${rated < (rl[0]?.estimated_gust_kmh ?? 0) ? '**por debajo** de la ráfaga de 10 años: conviene reforzar anclajes.' : 'por encima de la ráfaga típica de 10 años.'}` : 'Si me dices para cuántos km/h está diseñada tu estructura, te digo qué tan seguido podría superarse.'}\n\nEs una estimación a ~50 km de resolución; cerros y cañadas pueden acelerar el viento.`,
-      citations: [power, { source_id: 'era5', label: 'ERA5 (próximamente)' }],
+      tools: [{ name: 'get_greenhouse_risk', label: 'Calculating extreme winds' }],
+      text: `The windiest months are around **${MONTHS[w.windiest_month - 1]}**. Estimated Gusts:\n\n${rl.map((l) => `- Each ${l.return_period_years} years: ~${Math.round(l.estimated_gust_kmh ?? 0)} km/h`).join('\n')}\n\n${rated ? `Your structure is declared for ${rated} km/h, ${rated < (rl[0]?.estimated_gust_kmh ?? 0) ? '**below** the 10-year gust: it is advisable to reinforce anchors.' : 'above the typical 10-year gust.'}` : 'If you tell me how many km/h your structure is designed for, I\'ll tell you how often it could be exceeded.'}\n\nThis is an estimate at ~50 km resolution; Hills and ravines can accelerate the wind.`,
+      citations: [power, { source_id: 'era5', label: 'ERA5 (coming soon)' }],
     }
   }
 
-  if (n.includes('ganado') || n.includes('vaca') || n.includes('pozo') || n.includes('dureza') || n.includes('calidad del agua') || n.includes('sarro')) {
+  if (n.includes('cattle') || n.includes('cow') || n.includes('livestock') || n.includes('well') || n.includes('hardness') || n.includes('water quality') || n.includes('scale')) {
     return {
-      tools: [{ name: 'get_water_quality', label: 'Buscando la estación de agua más cercana' }],
-      text: 'Abre la pestaña **Agua** para ver el semáforo completo. En resumen: si el agua es muy dura (mucho calcio y magnesio) no es tóxica, pero forma sarro en bebederos y tuberías y el ganado puede tomar menos. Lo que más hay que vigilar para bovinos son los **sulfatos** (arriba de ~500 mg/L) y las **sales totales**. Confírmalo con un análisis de tu pozo y con tu veterinario.',
-      citations: [{ source_id: 'conagua_renameca', label: 'CONAGUA calidad del agua' }],
+      tools: [{ name: 'get_water_quality', label: 'Finding the nearest water station' }],
+      text: 'Open the **Water** tab to see the full quality assessment. In summary: if the water is very hard (a lot of calcium and magnesium) it is not toxic, but it forms scale in water troughs and pipes and the livestock can drink less. What needs to be monitored the most for cattle are **sulfates** (above ~500 mg/L) and **total salts**. Confirm this with an analysis of your well and with your veterinarian.',
+      citations: [{ source_id: 'conagua_renameca', label: 'CONAGUA water quality' }],
     }
   }
 
-  if (n.includes('suelo') || n.includes('materia organica') || n.includes('nutrient') || n.includes('nitrog') || n.includes('ph') || n.includes('fosforo') || n.includes('potasio') || n.includes('analisis')) {
+  if (n.includes('soil') || n.includes('organic matter') || n.includes('nutrient') || n.includes('nitrog') || n.includes('ph') || n.includes('phosphor') || n.includes('potassium') || n.includes('analysis')) {
     const l = p.soil.layers[0]
     const lab = p.soil.lab
     if (lab) {
@@ -227,24 +227,24 @@ async function answer(q: string, d: ChatDeps): Promise<Plan> {
         return `- ${x.name}: **${lab[x.key]} ${x.unit}**${band ? ` (${band.label.toLowerCase()})` : ''}${band && x.advice?.[band.level] ? `. ${x.advice[band.level]}` : ''}`
       })
       return {
-        tools: [{ name: 'get_soil', label: 'Leyendo tu análisis de laboratorio' }],
-        text: `Según tu análisis${lab.lab_name ? ` de ${lab.lab_name}` : ''}${lab.sample_date ? ` (${lab.sample_date})` : ''}, tu suelo es **${p.soil.texture_class}**:\n\n${rows.join('\n')}\n\nCon estos valores ya recalculé la aptitud de cultivos y las rotaciones. Las dosis exactas de fertilizante dependen del cultivo y del rendimiento que busques: revísalas con tu agrónomo.`,
+        tools: [{ name: 'get_soil', label: 'Reading your lab analysis' }],
+        text: `According to your analysis${lab.lab_name ? ` of ${lab.lab_name}` : ''}${lab.sample_date ? ` (${lab.sample_date})` : ''}, your soil is **${p.soil.texture_class}**:\n\n${rows.join('\n')}\n\nWith these values I already recalculated the crop suitability and rotations. The exact doses of fertilizer depend on the crop and the yield you are looking for: check them with your agronomist.`,
         citations: [soilCitation(p)],
       }
     }
     return {
-      tools: [{ name: 'get_soil', label: 'Leyendo el perfil de suelo' }],
-      text: `Tu suelo es **${p.soil.texture_class}**, con pH ${l.ph} y materia orgánica de ~${l.om_pct} %. ${(l.om_pct ?? 0) < 2 ? 'Es baja: rotaciones con leguminosas, coberturas y dejar rastrojo la pueden subir poco a poco.' : 'Es un nivel aceptable; mantenla con coberturas.'}\n\nNitrógeno, fósforo y potasio **no se pueden ver desde el satélite**: sube tu análisis de laboratorio en la pestaña **Suelo** y ajusto las recomendaciones.`,
+      tools: [{ name: 'get_soil', label: 'Reading the soil profile' }],
+      text: `Your soil is **${p.soil.texture_class}**, with pH ${l.ph} and organic matter ~${l.om_pct} %. ${(l.om_pct ?? 0) < 2 ? 'It is low: rotations with legumes, soil cover and leaving stubble can increase it little by little.' : 'This is an acceptable level; keep it covered.'}\n\nNitrogen, phosphorus and potassium **cannot be seen from the satellite**: upload your lab analysis in the **Soil** tab and I adjust the recommendations.`,
       citations: [soilCitation(p)],
     }
   }
 
-  if (n.includes('rotac') || n.includes('que siembro') || n.includes('que sembrar') || n.includes('recomiend') || n.includes('conviene')) {
+  if (n.includes('rotation') || n.includes('what should i plant') || n.includes('what to plant') || n.includes('recommend') || n.includes('best for me')) {
     const rot = d.rotations()
     const best = rot.strategies.find((s) => s.id === rot.recommended_id)!
     return {
-      tools: [{ name: 'compare_rotations', label: 'Comparando rotaciones' }],
-      text: `Comparé ${rot.strategies.length} opciones con tus prioridades. La que mejor sale es **${best.name}** (${best.scores.overall}/100).\n\n${best.why[0]}\n\n${best.benefits.map((b) => `- ${b}`).join('\n')}\n\nRevísala con tu agrónomo: ${best.risks_local_review[0]?.toLowerCase()}.`,
+      tools: [{ name: 'compare_rotations', label: 'Comparing rotations' }],
+      text: `I compared ${rot.strategies.length} options with your priorities. The one that comes out the best is **${best.name}** (${best.scores.overall}/100).\n\n${best.why[0]}\n\n${best.benefits.map((b) => `- ${b}`).join('\n')}\n\nReview it with your agronomist: ${best.risks_local_review[0]?.toLowerCase()}.`,
       citations: [power, { source_id: p.vegetation.source_id, label: 'MODIS NDVI' }],
       card: { card: 'rotations', payload: best },
     }
@@ -252,7 +252,7 @@ async function answer(q: string, d: ChatDeps): Promise<Plan> {
 
   return {
     tools: [],
-    text: `Puedo ayudarte con tu parcela **${d.field.name}**. Prueba preguntarme:\n\n- ¿Cuándo siembro frijol?\n- ¿Qué tanto riesgo de helada hay?\n- ¿Qué rotación me conviene?\n- ¿Aguanta mi invernadero el viento?\n- ¿Cómo está mi suelo?\n- ¿Cómo cambiará el clima hacia 2040?`,
+    text: `I can help you with your field **${d.field.name}**. Try asking me:\n\n- When do I plant beans?\n- How much risk of frost is there?\n- Which rotation is best for me?\n- Can my greenhouse withstand the wind?\n- How is my soil?\n- How will the climate change by 2040?`,
     citations: [],
   }
 }

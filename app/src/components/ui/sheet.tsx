@@ -47,7 +47,7 @@ export function Sheet({
                     <Dialog.Title className="text-base font-semibold text-ink">{title}</Dialog.Title>
                     {description ? <Dialog.Description className="mt-0.5 text-sm text-ink-2">{description}</Dialog.Description> : <Dialog.Description className="sr-only">Panel</Dialog.Description>}
                   </div>
-                  <Dialog.Close className="grid h-8 w-8 cursor-pointer place-items-center rounded-full text-ink-2 hover:bg-surface-2" aria-label="Cerrar">
+                  <Dialog.Close className="grid h-8 w-8 cursor-pointer place-items-center rounded-full text-ink-2 hover:bg-surface-2" aria-label="Close">
                     <X className="h-4 w-4" />
                   </Dialog.Close>
                 </div>

@@ -19,13 +19,13 @@ import { SummaryTab } from './summary-tab'
 import { WaterTab } from './water-tab'
 
 const TABS = [
-  { id: 'resumen', label: 'Resumen', icon: LayoutGrid },
-  { id: 'calendario', label: 'Calendario', icon: CalendarDays },
-  { id: 'sembrar', label: '¿Qué sembrar?', icon: Sprout },
-  { id: 'rotaciones', label: 'Rotaciones', icon: Repeat },
-  { id: 'suelo', label: 'Suelo', icon: FlaskConical },
-  { id: 'agua', label: 'Agua', icon: Droplets },
-  { id: 'invernadero', label: 'Invernadero', icon: Warehouse },
+  { id: 'resumen', label: 'Summary', icon: LayoutGrid },
+  { id: 'calendario', label: 'Calendar', icon: CalendarDays },
+  { id: 'sembrar', label: 'What to plant?', icon: Sprout },
+  { id: 'rotaciones', label: 'Rotations', icon: Repeat },
+  { id: 'suelo', label: 'Soil', icon: FlaskConical },
+  { id: 'agua', label: 'Water', icon: Droplets },
+  { id: 'invernadero', label: 'Greenhouse', icon: Warehouse },
 ] as const
 type TabId = (typeof TABS)[number]['id']
 
@@ -46,10 +46,10 @@ export function FieldPage() {
   if (field.isError) {
     return (
       <div className="mx-auto max-w-md px-4 py-24 text-center">
-        <h1 className="text-xl font-semibold text-ink">No encontramos esta parcela</h1>
-        <p className="mt-2 text-ink-2">Puede que se haya borrado de este dispositivo.</p>
+        <h1 className="text-xl font-semibold text-ink">We did not find this field</h1>
+        <p className="mt-2 text-ink-2">It may have been deleted from this device.</p>
         <Link to="/" className="mt-6 inline-block">
-          <Button variant="outline">Volver al inicio</Button>
+          <Button variant="outline">Back to home</Button>
         </Link>
       </div>
     )
@@ -64,7 +64,7 @@ export function FieldPage() {
       <div className="flex flex-wrap items-end gap-4 pt-6 pb-5">
         <div className="min-w-0 flex-1">
           <Link to="/" className="no-print inline-flex items-center gap-1 text-sm text-muted hover:text-ink">
-            <ArrowLeft className="h-4 w-4" /> Mis parcelas
+            <ArrowLeft className="h-4 w-4" /> My fields
           </Link>
           {f ? (
             <motion.div initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }}>
@@ -72,11 +72,11 @@ export function FieldPage() {
               <div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-ink-2">
                 <span className="inline-flex items-center gap-1.5">
                   {f.kind === 'greenhouse' ? <Warehouse className="h-4 w-4" style={{ color: 'var(--kind-greenhouse)' }} /> : <MapPinned className="h-4 w-4" style={{ color: 'var(--kind-field)' }} />}
-                  {f.kind === 'greenhouse' ? 'Invernadero' : 'Parcela'}
+                  {f.kind === 'greenhouse' ? 'Greenhouse' : 'Field'}
                 </span>
                 <span>{num(f.area_ha, 1)} ha</span>
                 {(f.admin.municipality || f.admin.state) && <span>{[f.admin.municipality, f.admin.state].filter(Boolean).join(', ')}</span>}
-                {f.is_demo && <span className="rounded-full bg-accent-soft px-2 py-0.5 text-xs font-medium text-ink">Ejemplo</span>}
+                {f.is_demo && <span className="rounded-full bg-accent-soft px-2 py-0.5 text-xs font-medium text-ink">Example</span>}
               </div>
             </motion.div>
           ) : (
@@ -88,17 +88,17 @@ export function FieldPage() {
         </div>
         {ready && (
           <div className="no-print flex gap-1">
-            <Button variant="ghost" size="icon" onClick={() => window.print()} aria-label="Imprimir plan" title="Imprimir o guardar como PDF">
+            <Button variant="ghost" size="icon" onClick={() => window.print()} aria-label="Print plan" title="Print or save as PDF">
               <Printer className="h-4 w-4" />
             </Button>
             {f && !f.is_demo && (
               <Button
                 variant="ghost"
                 size="icon"
-                aria-label="Borrar parcela"
-                title="Borrar parcela"
+                aria-label="Delete field"
+                title="Delete field"
                 onClick={async () => {
-                  if (!confirm(`¿Borrar "${f.name}" de este dispositivo?`)) return
+                  if (!confirm(`Delete "${f.name}" from this device?`)) return
                   await del.mutateAsync(f.id)
                   navigate('/')
                 }}
@@ -112,10 +112,10 @@ export function FieldPage() {
 
       {profile.isError ? (
         <div className="card mx-auto max-w-lg p-8 text-center">
-          <h2 className="font-semibold text-ink">No pudimos analizar la parcela</h2>
+          <h2 className="font-semibold text-ink">We could not analyze the field</h2>
           <p className="mt-2 text-sm text-ink-2">{(profile.error as Error).message}</p>
           <Button className="mt-5" variant="outline" onClick={() => profile.refetch()}>
-            <RefreshCw className="h-4 w-4" /> Reintentar
+            <RefreshCw className="h-4 w-4" /> Retry
           </Button>
         </div>
       ) : !ready || !f ? (

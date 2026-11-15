@@ -29,7 +29,7 @@ export function AnimatedNumber({ value, digits = 0, className }: { value: number
   const display = reduce || (settled && !inView) ? value : shown
   return (
     <span ref={ref} className={className}>
-      {display.toLocaleString('es-MX', { maximumFractionDigits: digits, minimumFractionDigits: digits })}
+      {display.toLocaleString('en-US', { maximumFractionDigits: digits, minimumFractionDigits: digits })}
     </span>
   )
 }

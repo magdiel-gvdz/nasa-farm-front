@@ -13,13 +13,13 @@ import { cn } from '@/lib/cn'
 import { num, signed } from '@/lib/format'
 
 const ROLE: Record<CropRole | 'bare', { label: string; color: string }> = {
-  cash: { label: 'Cultivo comercial', color: 'var(--s-1)' },
-  legume: { label: 'Leguminosa (fija N)', color: 'var(--s-3)' },
-  forage: { label: 'Forraje', color: 'var(--s-4)' },
-  cover: { label: 'Cobertura', color: 'var(--s-6)' },
-  deep_root: { label: 'Raíz profunda', color: 'var(--s-7)' },
-  drought_tolerant: { label: 'Tolera sequía', color: 'var(--s-2)' },
-  bare: { label: 'Suelo desnudo', color: 'transparent' },
+  cash: { label: 'Cash crop', color: 'var(--s-1)' },
+  legume: { label: 'Legume (fixes N)', color: 'var(--s-3)' },
+  forage: { label: 'Forage', color: 'var(--s-4)' },
+  cover: { label: 'Soil cover', color: 'var(--s-6)' },
+  deep_root: { label: 'Deep roots', color: 'var(--s-7)' },
+  drought_tolerant: { label: 'Tolerates drought', color: 'var(--s-2)' },
+  bare: { label: 'Bare soil', color: 'transparent' },
 }
 
 const SOURCE: Record<string, string> = { nasa_power: 'NASA POWER', modis_ndvi: 'MODIS NDVI', soilgrids: 'SoilGrids', ssurgo: 'SSURGO', cdl: 'USDA CDL' }
@@ -38,7 +38,7 @@ function Timeline({ s, years }: { s: Strategy; years: number }) {
     <div className="grid gap-1.5" style={{ gridTemplateColumns: `repeat(${years}, minmax(0, 1fr))` }}>
       {Array.from({ length: years }, (_, y) => (
         <div key={y} className="space-y-1.5">
-          <div className="text-center text-[11px] text-muted">Año {y + 1}</div>
+          <div className="text-center text-[11px] text-muted">Year {y + 1}</div>
           {(['spring_summer', 'fall_winter'] as const).map((season) => {
             const step = s.sequence.find((x) => x.year === y + 1 && x.season === season)
             const crop = step?.crop_id ? CROP_BY_ID.get(step.crop_id) : null
@@ -46,14 +46,14 @@ function Timeline({ s, years }: { s: Strategy; years: number }) {
             return (
               <div
                 key={season}
-                title={`${season === 'spring_summer' ? 'Primavera–verano' : 'Otoño–invierno'}: ${crop?.name.es ?? 'descanso'}${step?.plant ? ` · siembra ${step.plant}` : ''}`}
+                title={`${season === 'spring_summer' ? 'Spring–summer' : 'Autumn–winter'}: ${crop?.name.en ?? 'fallow'}${step?.plant ? ` · sowing ${step.plant}` : ''}`}
                 className={cn('relative flex h-9 items-center gap-1 overflow-hidden rounded-lg px-1.5 text-xs', crop ? 'bg-surface-2 text-ink' : 'border border-dashed border-line-strong text-muted')}
               >
                 {crop && <span className="absolute inset-y-0 left-0 w-1" style={{ background: role.color }} />}
                 <span className="pl-1" aria-hidden>
                   {crop?.emoji ?? '·'}
                 </span>
-                <span className="truncate">{crop?.name.es.split(' ')[0] ?? 'Descanso'}</span>
+                <span className="truncate">{crop?.name.en.split(' ')[0] ?? 'Fallow'}</span>
               </div>
             )
           })}
@@ -65,7 +65,7 @@ function Timeline({ s, years }: { s: Strategy; years: number }) {
 
 function Delta({ value, base, unit, lowerIsBetter, digits = 0 }: { value: number; base: number; unit: string; lowerIsBetter?: boolean; digits?: number }) {
   const d = value - base
-  if (Math.abs(d) < 0.5 * 10 ** -digits * 10) return <span className="text-xs text-muted">igual que hoy</span>
+  if (Math.abs(d) < 0.5 * 10 ** -digits * 10) return <span className="text-xs text-muted">same as today</span>
   const good = lowerIsBetter ? d < 0 : d > 0
   const Icon = d > 0 ? ArrowUp : ArrowDown
   return (
@@ -107,11 +107,11 @@ function StrategyCard({ s, base, recommended, years }: { s: Strategy; base: Stra
   const m = s.metrics
   const b = base.metrics
   const scores: [string, number][] = [
-    ['Ahorro de agua', s.scores.save_water],
-    ['Salud del suelo', s.scores.soil_health],
-    ['Ingreso', s.scores.income],
-    ['Forraje', s.scores.forage],
-    ['Corta plagas', s.scores.pest_break],
+    ['Water saving', s.scores.save_water],
+    ['Soil health', s.scores.soil_health],
+    ['Income', s.scores.income],
+    ['Forage', s.scores.forage],
+    ['Pest control', s.scores.pest_break],
   ]
   return (
     <motion.article
@@ -124,12 +124,12 @@ function StrategyCard({ s, base, recommended, years }: { s: Strategy; base: Stra
     >
       {recommended && (
         <motion.div layoutId="recommended-badge" className="absolute -top-3 left-5 inline-flex items-center gap-1 rounded-full bg-accent px-2.5 py-1 text-xs font-semibold text-accent-ink shadow-lg shadow-accent/30">
-          <Sparkles className="h-3.5 w-3.5" /> Recomendada para ti
+          <Sparkles className="h-3.5 w-3.5" /> Recommended for you
         </motion.div>
       )}
       <div className="flex items-start gap-3">
         <div className="min-w-0 flex-1">
-          {s.is_current && <div className="mb-1 text-xs font-medium text-muted">Lo que siembras hoy</div>}
+          {s.is_current && <div className="mb-1 text-xs font-medium text-muted">Your current crops</div>}
           <h3 className="text-[17px] leading-snug font-semibold text-ink">{s.name}</h3>
           <p className="mt-1 text-sm text-ink-2">{s.why[0]}</p>
         </div>
@@ -137,7 +137,7 @@ function StrategyCard({ s, base, recommended, years }: { s: Strategy; base: Stra
           <div className="text-3xl leading-none font-semibold tracking-tight text-ink">
             <AnimatedNumber value={s.scores.overall} />
           </div>
-          <div className="mt-1 text-[11px] text-muted">de 100</div>
+          <div className="mt-1 text-[11px] text-muted">of 100</div>
         </div>
       </div>
 
@@ -147,10 +147,10 @@ function StrategyCard({ s, base, recommended, years }: { s: Strategy; base: Stra
 
       <dl className="mt-4 grid grid-cols-2 gap-2">
         {[
-          { k: 'Riego necesario', v: `${num(m.irrigation_need_mm_per_year)} mm/año`, d: <Delta value={m.irrigation_need_mm_per_year} base={b.irrigation_need_mm_per_year} unit="mm" lowerIsBetter /> },
-          { k: 'Suelo desnudo', v: `${num(m.bare_soil_days_per_year)} días/año`, d: <Delta value={m.bare_soil_days_per_year} base={b.bare_soil_days_per_year} unit="días" lowerIsBetter /> },
-          { k: 'Nitrógeno', v: `${signed(m.n_balance_kg_ha_per_year)} kg/ha`, d: <Delta value={m.n_balance_kg_ha_per_year} base={b.n_balance_kg_ha_per_year} unit="kg" /> },
-          { k: 'Erosión', v: `${num(m.erosion_t_ha_per_year, 1)} t/ha`, d: <Delta value={m.erosion_t_ha_per_year} base={b.erosion_t_ha_per_year} unit="t" lowerIsBetter digits={1} /> },
+          { k: 'Irrigation required', v: `${num(m.irrigation_need_mm_per_year)} mm/year`, d: <Delta value={m.irrigation_need_mm_per_year} base={b.irrigation_need_mm_per_year} unit="mm" lowerIsBetter /> },
+          { k: 'Bare soil', v: `${num(m.bare_soil_days_per_year)} days/year`, d: <Delta value={m.bare_soil_days_per_year} base={b.bare_soil_days_per_year} unit="days" lowerIsBetter /> },
+          { k: 'Nitrogen', v: `${signed(m.n_balance_kg_ha_per_year)} kg/ha`, d: <Delta value={m.n_balance_kg_ha_per_year} base={b.n_balance_kg_ha_per_year} unit="kg" /> },
+          { k: 'Erosion', v: `${num(m.erosion_t_ha_per_year, 1)} t/ha`, d: <Delta value={m.erosion_t_ha_per_year} base={b.erosion_t_ha_per_year} unit="t" lowerIsBetter digits={1} /> },
         ].map((x) => (
           <div key={x.k} className="rounded-xl bg-surface-2 p-2.5">
             <dt className="text-[11px] text-muted">{x.k}</dt>
@@ -173,17 +173,17 @@ function StrategyCard({ s, base, recommended, years }: { s: Strategy; base: Stra
       </div>
 
       <div className="mt-4 flex-1">
-        <Section title="Beneficios" defaultOpen={!s.is_current} items={s.benefits} icon={<StatusIcon level="ok" />} />
+        <Section title="Benefits" defaultOpen={!s.is_current} items={s.benefits} icon={<StatusIcon level="ok" />} />
         <Section
-          title="Evidencia"
+          title="Evidence"
           items={s.evidence.map((e) => (
             <span key={e.claim}>
               {e.claim} <Chip className="ml-1">{SOURCE[e.source_id] ?? e.source_id}</Chip>
             </span>
           ))}
         />
-        <Section title="Lo que falta saber" items={s.gaps} icon={<StatusIcon level="warn" />} />
-        <Section title="Revisar con tu agrónomo" items={s.risks_local_review} icon={<StatusIcon level="bad" />} />
+        <Section title="What you need to know" items={s.gaps} icon={<StatusIcon level="warn" />} />
+        <Section title="Check with your agronomist" items={s.risks_local_review} icon={<StatusIcon level="bad" />} />
       </div>
     </motion.article>
   )
@@ -201,29 +201,29 @@ export function RotationsTab({ field, profile, scenario, onScenario }: { field: 
   const ordered = data ? [...data.strategies].sort((a, b) => b.scores.overall - a.scores.overall) : []
 
   const sliders: { key: keyof Priorities; label: string; icon: React.ReactNode }[] = [
-    { key: 'save_water', label: 'Ahorrar agua', icon: <Droplets className="h-4 w-4" /> },
-    { key: 'soil_health', label: 'Cuidar el suelo', icon: <Sprout className="h-4 w-4" /> },
-    { key: 'income', label: 'Ganar más', icon: <Coins className="h-4 w-4" /> },
-    { key: 'forage', label: 'Forraje para ganado', icon: <Beef className="h-4 w-4" /> },
-    { key: 'pest_break', label: 'Cortar plagas', icon: <Bug className="h-4 w-4" /> },
-    { key: 'low_labor', label: 'Menos trabajo', icon: <Hand className="h-4 w-4" /> },
+    { key: 'save_water', label: 'Save water', icon: <Droplets className="h-4 w-4" /> },
+    { key: 'soil_health', label: 'Take care of the soil', icon: <Sprout className="h-4 w-4" /> },
+    { key: 'income', label: 'Earn more', icon: <Coins className="h-4 w-4" /> },
+    { key: 'forage', label: 'Forage for livestock', icon: <Beef className="h-4 w-4" /> },
+    { key: 'pest_break', label: 'Control pests', icon: <Bug className="h-4 w-4" /> },
+    { key: 'low_labor', label: 'Less work', icon: <Hand className="h-4 w-4" /> },
   ]
-  const LEVEL = ['Nada', 'Poco', 'Algo', 'Importa', 'Mucho', 'Lo más']
+  const LEVEL = ['Nothing', 'Bit', 'Something', 'Matters', 'A lot', 'Most']
 
   return (
     <div className="grid gap-4 lg:grid-cols-[320px_1fr]">
       <aside className="space-y-4 lg:sticky lg:top-32 lg:self-start">
         <div className="card p-5">
-          <h3 className="text-[15px] font-semibold text-ink">¿Qué es lo más importante para ti?</h3>
-          <p className="mt-1 text-sm text-ink-2">Ajusta y las opciones se reordenan solas.</p>
+          <h3 className="text-[15px] font-semibold text-ink">What is most important to you?</h3>
+          <p className="mt-1 text-sm text-ink-2">Adjust and the options reorder themselves.</p>
           <div className="mt-5 space-y-5">
             {sliders.map((s) => (
               <Slider key={s.key} label={s.label} icon={s.icon} value={pri[s.key]} min={0} max={5} onChange={(v) => setPri((p) => ({ ...p, [s.key]: v }))} format={(v) => LEVEL[v]} />
             ))}
           </div>
           <div className="mt-5 flex items-center justify-between">
-            <span className="text-sm font-medium text-ink">Planear a</span>
-            <Segmented size="sm" value={years} onChange={setYears} options={[3, 4, 5].map((y) => ({ value: y, label: `${y} años` }))} />
+            <span className="text-sm font-medium text-ink">Plan for</span>
+            <Segmented size="sm" value={years} onChange={setYears} options={[3, 4, 5].map((y) => ({ value: y, label: `${y} years` }))} />
           </div>
         </div>
         <ScenarioControl value={scenario} onChange={onScenario} compact fieldId={field.id} />
@@ -234,8 +234,8 @@ export function RotationsTab({ field, profile, scenario, onScenario }: { field: 
           <div className="card mb-4 flex items-start gap-3 p-4 text-sm text-ink-2">
             <TreeDeciduous className="mt-0.5 h-4 w-4 shrink-0 text-accent" />
             <span>
-              Tu terreno es una huerta de <b className="text-ink">{orchard.name.es.toLowerCase()}</b>: los árboles no se rotan. Abajo comparamos la huerta tal como está contra
-              alternativas para un terreno de cultivos anuales, por si piensas renovarla o reconvertirla. Para cuidar el suelo dentro de la huerta, usa una cobertura entre hileras.
+              Your fields is a garden of <b className="text-ink">{orchard.name.en.toLowerCase()}</b>- Trees are not rotated. Below we compare the garden as is against
+              alternatives for a land of annual crops, in case you plan to renew or reconvert it. To take care of the soil inside the garden, use a cover between rows.
             </span>
           </div>
         )}
@@ -267,7 +267,7 @@ export function RotationsTab({ field, profile, scenario, onScenario }: { field: 
         {data && (
           <p className="mt-5 flex items-start gap-2 text-sm text-ink-2">
             <StatusIcon level="warn" className="mt-0.5" />
-            {data.disclaimer} Datos: {profile.sources.slice(0, 4).map((s) => s.dataset).join(', ')}.
+            {data.disclaimer} Data: {profile.sources.slice(0, 4).map((s) => s.dataset).join(', ')}.
           </p>
         )}
       </div>

@@ -43,11 +43,11 @@ function insights(field: Field, p: FieldProfile): Insight[] {
       level: 'warn',
       text: (
         <>
-          Siembra cultivos sensibles al frío <b>después del {dateLong(c.frost.last_spring_frost.p90.date)}</b>. Antes, 1 de cada 10 años todavía hiela.
+          Plant cold-sensitive crops <b>after {dateLong(c.frost.last_spring_frost.p90.date)}</b>. Before, 1 in 10 years it still freezes.
         </>
       ),
       tab: 'calendario',
-      cta: 'Ver calendario',
+      cta: 'View calendar',
     })
   }
   const total = c.rain.by_month.reduce((a, b) => a + (b.mean_mm ?? 0), 0)
@@ -57,11 +57,11 @@ function insights(field: Field, p: FieldProfile): Insight[] {
       level: total < 500 ? 'warn' : 'ok',
       text: (
         <>
-          El <b>{Math.round((rainy / total) * 100)} % de la lluvia</b> cae de {monthRange(c.rain.rainy_months)}. Fuera de esos meses dependes del riego.
+           <b>{Math.round((rainy / total) * 100)} % of rainfall</b> falls during {monthRange(c.rain.rainy_months)}. Outside of those months you depend on irrigation.
         </>
       ),
       tab: 'agua',
-      cta: 'Ver agua',
+      cta: 'See water',
     })
   }
   if (p.vegetation.bare_soil_months.length >= 3 && field.kind !== 'greenhouse') {
@@ -69,11 +69,11 @@ function insights(field: Field, p: FieldProfile): Insight[] {
       level: 'warn',
       text: (
         <>
-          Tu campo queda <b>sin cobertura {p.vegetation.bare_soil_months.length} meses</b> ({monthRange(p.vegetation.bare_soil_months)}). Es una buena ventana para un cultivo de cobertura que proteja el suelo.
+          Your field is <b>uncovered {p.vegetation.bare_soil_months.length} months</b> ({monthRange(p.vegetation.bare_soil_months)}). It's a good window for a cover crop to protect the soil.
         </>
       ),
       tab: 'rotaciones',
-      cta: 'Ver rotaciones',
+      cta: 'View rotations',
     })
   }
   const hot = c.heat.by_month[c.heat.hottest_month - 1]
@@ -82,11 +82,11 @@ function insights(field: Field, p: FieldProfile): Insight[] {
       level: 'warn',
       text: (
         <>
-          En <b>{monthName(c.heat.hottest_month)}</b> hay ~{num(hot.mean_days_over_35c)} días sobre 35 °C: evita que la floración caiga ahí.
+          In <b>{monthName(c.heat.hottest_month)}</b> there are ~{num(hot.mean_days_over_35c)} days above 35 °C: avoid flowering during this period.
         </>
       ),
       tab: 'sembrar',
-      cta: 'Ver cultivos',
+      cta: 'See crops',
     })
   }
   if (p.water.groundwater.trend_cm_per_year < -0.5) {
@@ -94,15 +94,15 @@ function insights(field: Field, p: FieldProfile): Insight[] {
       level: 'bad',
       text: (
         <>
-          El agua subterránea de la región <b>baja {num(Math.abs(p.water.groundwater.trend_cm_per_year), 1)} cm al año</b>. Conviene preferir cultivos que ahorran agua.
+          Groundwater in the region <b>declines by {num(Math.abs(p.water.groundwater.trend_cm_per_year), 1)} cm per year</b>. It is advisable to prefer crops that save water.
         </>
       ),
       tab: 'rotaciones',
-      cta: 'Comparar opciones',
+      cta: 'Compare options',
     })
   }
   if (field.kind === 'greenhouse') {
-    out.push({ level: 'warn', text: <>Revisa qué tan seguido el viento podría superar lo que resiste tu estructura.</>, tab: 'invernadero', cta: 'Ver invernadero' })
+    out.push({ level: 'warn', text: <>Check how often the wind could exceed what your structure can withstand.</>, tab: 'invernadero', cta: 'See greenhouse' })
   }
   return out.slice(0, 5)
 }
@@ -113,8 +113,8 @@ function FutureCard({ field, onUse }: { field: Field; onUse: (s: Scenario) => vo
   return (
     <Card className="lg:col-span-2">
       <CardHeader
-        title={f ? `Tu clima hacia ${f.period[0]}–${f.period[1]}` : 'Tu clima en el futuro'}
-        subtitle={f ? `Mediana de ${f.models.length} modelos climáticos (CMIP6) contra ${f.baseline[0]}–${f.baseline[1]}` : 'Proyecciones de modelos climáticos CMIP6'}
+        title={f ? `Your climate in ${f.period[0]}–${f.period[1]}` : 'Your climate in the future'}
+        subtitle={f ? `Median of ${f.models.length} climate models (CMIP6) compared with ${f.baseline[0]}–${f.baseline[1]}` : 'CMIP6 climate model projections'}
         icon={<Telescope className="h-4 w-4" />}
       />
       {q.isError ? (
@@ -125,10 +125,10 @@ function FutureCard({ field, onUse }: { field: Field; onUse: (s: Scenario) => vo
         <>
           <dl className="grid grid-cols-2 gap-3 sm:grid-cols-4">
             {[
-              ['Temperatura', `${signed(f.median.delta_t_c, 1)} °C`, `${signed(f.range.delta_t_c[0], 1)} a ${signed(f.range.delta_t_c[1], 1)}`],
-              ['Lluvia', `${signed(f.median.delta_p_pct)} %`, `${signed(f.range.delta_p_pct[0])} a ${signed(f.range.delta_p_pct[1])} %`],
-              ['Días con helada', `${signed(f.median.delta_frost_days)}`, 'por año'],
-              ['Días sobre 35 °C', `${signed(f.median.delta_days_over_35c)}`, 'por año'],
+              ['Temperature', `${signed(f.median.delta_t_c, 1)} °C`, `${signed(f.range.delta_t_c[0], 1)} to ${signed(f.range.delta_t_c[1], 1)}`],
+              ['Rain', `${signed(f.median.delta_p_pct)} %`, `${signed(f.range.delta_p_pct[0])} to ${signed(f.range.delta_p_pct[1])} %`],
+              ['Days with frost', `${signed(f.median.delta_frost_days)}`, 'per year'],
+              ['Days above 35 °C', `${signed(f.median.delta_days_over_35c)}`, 'per year'],
             ].map(([k, v, sub]) => (
               <div key={k} className="rounded-xl bg-surface-2 p-3">
                 <dt className="text-xs text-muted">{k}</dt>
@@ -137,9 +137,9 @@ function FutureCard({ field, onUse }: { field: Field; onUse: (s: Scenario) => vo
               </div>
             ))}
           </dl>
-          <p className="mt-3 text-sm text-ink-2">{f.note} Es una tendencia de 20 años, no un pronóstico del año que viene.</p>
+          <p className="mt-3 text-sm text-ink-2">{f.note} It's a 20-year trend, not a forecast for next year.</p>
           <Button className="no-print mt-4" variant="outline" size="sm" onClick={() => onUse(f.scenario)}>
-            Ver qué cultivos cambian <ArrowRight className="h-4 w-4" />
+            See which crops change <ArrowRight className="h-4 w-4" />
           </Button>
         </>
       )}
@@ -165,60 +165,60 @@ export function SummaryTab({ field, profile, onNavigate, onScenario }: { field: 
       <div className="grid gap-4 sm:grid-cols-2 lg:col-span-2">
         <Kpi
           icon={Snowflake}
-          label="Siembra sin helada desde"
-          value={frostFree ? 'Todo el año' : dateLong(c.frost.last_spring_frost.p90?.date)}
-          sub={frostFree ? 'Casi nunca hiela aquí' : <>Última helada típica: {dateLong(c.frost.last_spring_frost.p50?.date)}</>}
+          label="Frost-safe planting from"
+          value={frostFree ? 'All year round' : dateLong(c.frost.last_spring_frost.p90?.date)}
+          sub={frostFree ? 'It almost never freezes here' : <>Typical last frost: {dateLong(c.frost.last_spring_frost.p50?.date)}</>}
         />
         <Kpi
           icon={CloudRain}
-          label="Lluvia al año"
+          label="Rainfall per year"
           value={
             <>
               <AnimatedNumber value={c.rain.annual_mean_mm ?? 0} /> <span className="text-lg font-medium text-ink-2">mm</span>
             </>
           }
-          sub={<>Temporada: {monthRange(c.rain.rainy_months)}</>}
-          status={(c.rain.annual_mean_mm ?? 0) < 400 ? { level: 'warn', label: 'Seco' } : undefined}
+          sub={<>Season: {monthRange(c.rain.rainy_months)}</>}
+          status={(c.rain.annual_mean_mm ?? 0) < 400 ? { level: 'warn', label: 'Dry' } : undefined}
         />
         <Kpi
           icon={Sun}
-          label="Mes más caliente"
+          label="Hottest month"
           value={
             <>
               <span className="capitalize">{monthName(c.heat.hottest_month)}</span> <span className="text-lg font-medium text-ink-2">{num(hot.mean_tmax_c)} °C</span>
             </>
           }
-          sub={<>~{num(c.heat.by_month.reduce((a, b) => a + (b.mean_days_over_35c ?? 0), 0))} días al año sobre 35 °C</>}
+          sub={<>~{num(c.heat.by_month.reduce((a, b) => a + (b.mean_days_over_35c ?? 0), 0))} days a year above 35 °C</>}
         />
         {field.kind === 'greenhouse' ? (
           <Kpi
             icon={Wind}
-            label="Ráfaga cada 10 años"
+            label="10-year wind gust"
             value={
               <>
                 <AnimatedNumber value={c.wind.return_levels_kmh[0]?.estimated_gust_kmh ?? 0} /> <span className="text-lg font-medium text-ink-2">km/h</span>
               </>
             }
-            sub={<>Más viento en {monthName(c.wind.windiest_month)}</>}
-            status={field.greenhouse?.rated_wind_kmh && field.greenhouse.rated_wind_kmh < (c.wind.return_levels_kmh[0]?.estimated_gust_kmh ?? 0) ? { level: 'bad', label: 'Supera tu estructura' } : undefined}
+            sub={<>More wind in {monthName(c.wind.windiest_month)}</>}
+            status={field.greenhouse?.rated_wind_kmh && field.greenhouse.rated_wind_kmh < (c.wind.return_levels_kmh[0]?.estimated_gust_kmh ?? 0) ? { level: 'bad', label: 'Exceeds structure rating' } : undefined}
           />
         ) : (
           <Kpi
             icon={Droplets}
-            label="Agua subterránea"
+            label="Groundwater"
             value={
               <>
-                <AnimatedNumber value={gw} digits={1} /> <span className="text-lg font-medium text-ink-2">cm/año</span>
+                <AnimatedNumber value={gw} digits={1} /> <span className="text-lg font-medium text-ink-2">cm/year</span>
               </>
             }
-            sub="Tendencia regional desde 2002 (GRACE-FO)"
-            status={gw < -1 ? { level: 'bad', label: 'Bajando rápido' } : gw < 0 ? { level: 'warn', label: 'Bajando' } : { level: 'ok', label: 'Estable' }}
+            sub="Regional trend since 2002 (GRACE-FO)"
+            status={gw < -1 ? { level: 'bad', label: 'Declining rapidly' } : gw < 0 ? { level: 'warn', label: 'Declining' } : { level: 'ok', label: 'Stable' }}
           />
         )}
       </div>
 
       <Card className="lg:col-span-2">
-        <CardHeader title="Lo más importante" subtitle="Lo que dicen 35 años de datos sobre tu terreno." />
+        <CardHeader title="Key insights" subtitle="What 35 years of data say about your land." />
         <ul className="divide-y divide-line">
           {items.map((it, i) => (
             <motion.li key={i} initial={{ opacity: 0, x: -6 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.15 + i * 0.07 }} className="flex items-start gap-3 py-3 first:pt-0 last:pb-0">
@@ -237,17 +237,17 @@ export function SummaryTab({ field, profile, onNavigate, onScenario }: { field: 
 
       <Card>
         <CardHeader
-          title="Tu suelo"
+          title="Your soil"
           subtitle={profile.soil.texture_class}
           icon={<Layers className="h-4 w-4" />}
-          action={<StatusPill level={om < 1.5 ? 'bad' : om < 3 ? 'warn' : 'ok'} label={om < 1.5 ? 'MO baja' : om < 3 ? 'MO media' : 'MO buena'} />}
+          action={<StatusPill level={om < 1.5 ? 'bad' : om < 3 ? 'warn' : 'ok'} label={om < 1.5 ? 'Low OM' : om < 3 ? 'Moderate OM' : 'Good OM'} />}
         />
         <dl className="grid grid-cols-2 gap-3">
           {[
-            ['Materia orgánica', `${num(om, 1)} %`],
+            ['Organic matter', `${num(om, 1)} %`],
             ['pH', num(profile.soil.lab?.ph ?? soil.ph, 1)],
-            ['Nitrógeno total', `${num(soil.n_total_g_kg, 2)} g/kg`],
-            ['Arcilla / arena', `${num(soil.clay_pct)} / ${num(soil.sand_pct)} %`],
+            ['Total Nitrogen', `${num(soil.n_total_g_kg, 2)} g/kg`],
+            ['Clay/sand', `${num(soil.clay_pct)} / ${num(soil.sand_pct)} %`],
           ].map(([k, v]) => (
             <div key={k} className="rounded-xl bg-surface-2 p-3">
               <dt className="text-xs text-muted">{k}</dt>
@@ -258,12 +258,12 @@ export function SummaryTab({ field, profile, onNavigate, onScenario }: { field: 
         {profile.soil.lab ? (
           <p className="mt-3 flex items-start gap-2 text-xs text-muted">
             <Shovel className="mt-0.5 h-3.5 w-3.5 shrink-0" />
-            Con tu análisis de laboratorio{profile.soil.lab.sample_date ? ` (${profile.soil.lab.sample_date})` : ''}.
+            With your laboratory analysis{profile.soil.lab.sample_date ? ` (${profile.soil.lab.sample_date})` : ''}.
           </p>
         ) : (
           <button onClick={() => onNavigate('suelo')} className="no-print mt-3 flex w-full cursor-pointer items-center gap-2 rounded-xl border border-dashed border-line-strong p-3 text-left text-sm text-ink-2 hover:border-accent hover:text-ink">
             <Shovel className="h-4 w-4 shrink-0 text-accent" />
-            <span className="flex-1">Sube tu análisis de laboratorio para saber nitrógeno, fósforo y potasio.</span>
+            <span className="flex-1">Upload your laboratory analysis to know nitrogen, phosphorus and potassium.</span>
             <ArrowRight className="h-4 w-4" />
           </button>
         )}
@@ -278,7 +278,7 @@ export function SummaryTab({ field, profile, onNavigate, onScenario }: { field: 
       />
 
       <Card>
-        <CardHeader title="Fuentes" icon={<Database className="h-4 w-4" />} />
+        <CardHeader title="Sources" icon={<Database className="h-4 w-4" />} />
         <div className="flex flex-wrap gap-1.5">
           {profile.sources.map((s) => (
             <a key={s.id} href={s.url} target="_blank" rel="noreferrer" title={`${s.provider} · ${s.resolution}${s.period ? ` · ${s.period}` : ''}`}>
@@ -288,7 +288,7 @@ export function SummaryTab({ field, profile, onNavigate, onScenario }: { field: 
         </div>
       </Card>
       <Card className="lg:col-span-2">
-        <CardHeader title="Lo que no sabemos" subtitle="Datos que hay que confirmar en campo." />
+        <CardHeader title="What we don't know" subtitle="Data that must be confirmed in the field." />
         <ul className="space-y-2.5">
           {profile.gaps.map((g) => (
             <li key={g.code} className="flex items-start gap-2.5 text-sm text-ink-2">

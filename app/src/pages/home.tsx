@@ -11,10 +11,10 @@ import { num } from '@/lib/format'
 import { KIND } from '@/lib/kinds'
 
 const ORBIT_CHIPS = [
-  { icon: Snowflake, label: 'Heladas', angle: -40 },
-  { icon: CloudRain, label: 'Lluvias', angle: 50 },
-  { icon: Sun, label: 'Calor', angle: 140 },
-  { icon: Droplets, label: 'Agua', angle: 230 },
+  { icon: Snowflake, label: 'Frost', angle: -40 },
+  { icon: CloudRain, label: 'Rainfall', angle: 50 },
+  { icon: Sun, label: 'Heat', angle: 140 },
+  { icon: Droplets, label: 'Water', angle: 230 },
 ]
 
 function Orbit() {
@@ -92,16 +92,16 @@ function MapLink() {
   return (
     <Link to="/mapa">
       <Button size="sm" variant="outline">
-        <MapIcon className="h-4 w-4" /> Ver en el mapa
+        <MapIcon className="h-4 w-4" /> See on map
       </Button>
     </Link>
   )
 }
 
 const STEPS = [
-  { icon: MapPinned, title: 'Marca tu terreno', text: 'Toca las esquinas de tu parcela o invernadero en el mapa satelital.' },
-  { icon: Layers, title: 'Lo analizamos con la NASA', text: '35 años de heladas, lluvias, calor y viento, más suelo, agua y vegetación.' },
-  { icon: MessageCircle, title: 'Decide con confianza', text: 'Qué sembrar y cuándo, qué rotación te conviene y un agrónomo para tus dudas.' },
+  { icon: MapPinned, title: 'Outline your field', text: 'Tap the corners of your field or greenhouse on the satellite map.' },
+  { icon: Layers, title: 'We analyze it with NASA', text: '35 years of frost, rainfall, heat, and wind data, plus soil, water, and vegetation insights.' },
+  { icon: MessageCircle, title: 'Decide with confidence', text: 'What to plant and when, what rotation is best for you and an agronomist for your questions.' },
 ]
 
 export function HomePage() {
@@ -117,25 +117,25 @@ export function HomePage() {
             <span className="h-1.5 w-1.5 rounded-full bg-accent" /> NASA Space Apps 2026 · Field Shift
           </motion.p>
           <motion.h1 variants={fadeUp} className="mt-5 text-4xl leading-[1.05] font-semibold tracking-tight text-balance text-ink sm:text-6xl">
-            Conoce tu tierra <span className="text-accent">antes de sembrar.</span>
+            Know your land <span className="text-accent">before you plant.</span>
           </motion.h1>
           <motion.p variants={fadeUp} className="mt-5 max-w-xl text-lg text-pretty text-ink-2">
-            Dibuja tu parcela y te decimos qué sembrar, cuándo hacerlo y cómo cuidar tu suelo y tu agua, con datos satelitales de la NASA explicados en palabras simples.
+            Draw your field and we will tell you what to plant, when to do it and how to take care of your soil and water, with NASA satellite data explained in simple words.
           </motion.p>
           <motion.div variants={fadeUp} className="mt-8 flex flex-wrap gap-3">
             <Link to="/nueva">
               <Button size="lg" variant="accent">
-                <MapPinned className="h-5 w-5" /> Dibujar mi parcela
+                <MapPinned className="h-5 w-5" /> Draw my field
               </Button>
             </Link>
             <Link to={`/parcela/${DEMOS[0].field.id}`}>
               <Button size="lg" variant="outline">
-                Ver un ejemplo <ArrowRight className="h-4 w-4" />
+                See an example <ArrowRight className="h-4 w-4" />
               </Button>
             </Link>
           </motion.div>
           <motion.p variants={fadeUp} className="mt-4 text-sm text-muted">
-            Sin registro. Gratis. Tus parcelas se guardan en este dispositivo.
+            No registration. Free. Your fields are saved on this device.
           </motion.p>
         </motion.div>
         <motion.div initial={{ opacity: 0, scale: 0.92 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}>
@@ -147,7 +147,7 @@ export function HomePage() {
       {mine.length > 0 && (
         <section className="mb-12">
           <div className="mb-4 flex items-center justify-between gap-4">
-            <h2 className="text-lg font-semibold text-ink">Tus terrenos</h2>
+            <h2 className="text-lg font-semibold text-ink">Your fields</h2>
             <MapLink />
           </div>
           <motion.div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3" variants={stagger()} initial="hidden" animate="show">
@@ -158,12 +158,12 @@ export function HomePage() {
         </section>
       )}
 
-      {/* Ejemplos */}
+      {/* Examples */}
       <section className="mb-16">
         <div className="mb-4 flex items-end justify-between gap-4">
           <div>
-            <h2 className="text-lg font-semibold text-ink">Explora un ejemplo</h2>
-            <p className="text-sm text-ink-2">Tres casos reales con clima de NASA POWER 1991–2025.</p>
+            <h2 className="text-lg font-semibold text-ink">Explore an example</h2>
+            <p className="text-sm text-ink-2">Three examples with NASA POWER climate data from 1991–2025.</p>
           </div>
           {mine.length === 0 && <MapLink />}
         </div>
@@ -176,7 +176,7 @@ export function HomePage() {
 
       {/* Cómo funciona */}
       <section>
-        <h2 className="mb-4 text-lg font-semibold text-ink">Cómo funciona</h2>
+        <h2 className="mb-4 text-lg font-semibold text-ink">How it works</h2>
         <motion.ol className="grid gap-3 md:grid-cols-3" variants={stagger(0.1)} initial="hidden" whileInView="show" viewport={{ once: true, margin: '-60px' }}>
           {STEPS.map((s, i) => (
             <motion.li key={s.title} variants={fadeUp} className="card p-6">
@@ -184,7 +184,7 @@ export function HomePage() {
                 <span className="grid h-10 w-10 place-items-center rounded-xl bg-accent-soft text-accent">
                   <s.icon className="h-5 w-5" />
                 </span>
-                <span className="text-sm font-medium text-muted">Paso {i + 1}</span>
+                <span className="text-sm font-medium text-muted">Step {i + 1}</span>
               </div>
               <h3 className="mt-4 font-semibold text-ink">{s.title}</h3>
               <p className="mt-1 text-sm text-ink-2">{s.text}</p>
@@ -192,7 +192,7 @@ export function HomePage() {
           ))}
         </motion.ol>
         <p className="mt-10 text-center text-xs text-pretty text-muted">
-          Datos: NASA POWER · SMAP · GPM IMERG · MODIS · ECOSTRESS · SRTM · GRACE-FO · SoilGrids · USDA · CONAGUA. Herramienta de apoyo: no reemplaza el criterio de tu agrónomo.
+          Data: NASA POWER · SMAP · GPM IMERG · MODIS · ECOSTRESS · SRTM · GRACE-FO · SoilGrids · USDA · CONAGUA. Support tool: it does not replace the judgment of your agronomist.
         </p>
       </section>
     </div>

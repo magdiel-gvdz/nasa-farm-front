@@ -21,11 +21,11 @@ export function RiskCalendar({ profile }: { profile: FieldProfile }) {
   const [hover, setHover] = useState<number>(today - 1)
 
   const rows: Row[] = [
-    { key: 'frost', label: 'Heladas', icon: Snowflake, color: 'var(--s-7)', value: (w) => w.p_frost ?? 0, describe: (w) => `Helada ${Math.round((w.p_frost ?? 0) * 100)} % de los años` },
-    { key: 'rain', label: 'Lluvias', icon: CloudRain, color: 'var(--s-1)', value: (w) => 1 - (w.p_dry_week ?? 1), describe: (w) => `Llueve ${Math.round((1 - (w.p_dry_week ?? 1)) * 100)} % de los años · ${w.mean_prec_mm ?? 0} mm` },
-    { key: 'heat', label: 'Calor > 35 °C', icon: Sun, color: 'var(--s-2)', value: (w) => w.p_heat_35c ?? 0, describe: (w) => `Calor extremo ${Math.round((w.p_heat_35c ?? 0) * 100)} % de los años` },
-    { key: 'hail', label: 'Granizo (aprox.)', icon: CloudHail, color: 'var(--s-4)', value: (w) => Math.min(1, (w.p_hail_proxy ?? 0) * 4), describe: (w) => ((w.p_hail_proxy ?? 0) > 0 ? 'Temporada con riesgo de granizo (evidencia baja)' : 'Sin señal de granizo') },
-    { key: 'bare', label: 'Suelo desnudo', icon: Shovel, color: 'var(--ink-2)', value: (_w, m) => (bare.has(m) ? 0.55 : 0), describe: (_w, m) => (bare.has(m) ? 'El campo suele quedar sin cultivo' : 'Con cultivo o cobertura') },
+    { key: 'frost', label: 'Frost', icon: Snowflake, color: 'var(--s-7)', value: (w) => w.p_frost ?? 0, describe: (w) => `Frost ${Math.round((w.p_frost ?? 0) * 100)} % of years` },
+    { key: 'rain', label: 'Rainfall', icon: CloudRain, color: 'var(--s-1)', value: (w) => 1 - (w.p_dry_week ?? 1), describe: (w) => `It's raining ${Math.round((1 - (w.p_dry_week ?? 1)) * 100)} % of years · ${w.mean_prec_mm ?? 0} mm` },
+    { key: 'heat', label: 'Heat > 35 °C', icon: Sun, color: 'var(--s-2)', value: (w) => w.p_heat_35c ?? 0, describe: (w) => `Extreme heat ${Math.round((w.p_heat_35c ?? 0) * 100)} % of years` },
+    { key: 'hail', label: 'Hail (approx.)', icon: CloudHail, color: 'var(--s-4)', value: (w) => Math.min(1, (w.p_hail_proxy ?? 0) * 4), describe: (w) => ((w.p_hail_proxy ?? 0) > 0 ? 'Season with risk of hail (low evidence)' : 'No hail sign') },
+    { key: 'bare', label: 'Bare soil', icon: Shovel, color: 'var(--ink-2)', value: (_w, m) => (bare.has(m) ? 0.55 : 0), describe: (_w, m) => (bare.has(m) ? 'The field is usually left without cultivation' : 'With cultivation or soil cover') },
   ]
   const monthOf = (w: RiskWeek) => +w.starts.slice(0, 2)
   const hw = weeks[hover] ?? weeks[0]
@@ -67,7 +67,7 @@ export function RiskCalendar({ profile }: { profile: FieldProfile }) {
                         onMouseEnter={() => setHover(i)}
                         onFocus={() => setHover(i)}
                         onClick={() => setHover(i)}
-                        aria-label={`Semana del ${dateShort(w.starts)}: ${r.describe(w, monthOf(w))}`}
+                        aria-label={`Week of ${dateShort(w.starts)}: ${r.describe(w, monthOf(w))}`}
                         className={cn('h-7 cursor-pointer rounded-[4px] transition-transform hover:scale-y-110', i === hover && 'ring-1 ring-ink/40')}
                         style={{ background: v > 0.02 ? `color-mix(in srgb, ${r.color} ${Math.round(12 + v * 88)}%, transparent)` : 'var(--surface-2)' }}
                       />
@@ -80,7 +80,7 @@ export function RiskCalendar({ profile }: { profile: FieldProfile }) {
             <div className="pointer-events-none absolute inset-y-[-6px] left-[132px] right-0">
               <div className="relative h-full" style={{ marginLeft: `${((today - 0.5) / 52) * 100}%` }}>
                 <div className="absolute inset-y-0 w-[2px] -translate-x-1/2 rounded-full bg-ink" />
-                <div className="absolute -top-5 -translate-x-1/2 rounded-full bg-ink px-1.5 py-0.5 text-[10px] font-semibold text-page">Hoy</div>
+                <div className="absolute -top-5 -translate-x-1/2 rounded-full bg-ink px-1.5 py-0.5 text-[10px] font-semibold text-page">Today</div>
               </div>
             </div>
           </motion.div>
@@ -89,7 +89,7 @@ export function RiskCalendar({ profile }: { profile: FieldProfile }) {
       {/* Detalle de la semana */}
       <motion.div key={hover} initial={{ opacity: 0.4, y: 4 }} animate={{ opacity: 1, y: 0 }} className="mt-4 rounded-2xl bg-surface-2 p-4">
         <div className="text-sm font-semibold text-ink">
-          Semana del {dateShort(hw.starts)} {hover === today - 1 && <span className="ml-1 font-normal text-muted">(esta semana)</span>}
+          Week of {dateShort(hw.starts)} {hover === today - 1 && <span className="ml-1 font-normal text-muted">(this week)</span>}
         </div>
         <div className="mt-2 grid gap-x-6 gap-y-1.5 text-sm text-ink-2 sm:grid-cols-2">
           {rows.map((r) => (
@@ -100,11 +100,11 @@ export function RiskCalendar({ profile }: { profile: FieldProfile }) {
           ))}
           <div className="flex items-center gap-2 sm:col-span-2">
             <span className="h-2.5 w-2.5 shrink-0" />
-            Temperatura típica: {hw.mean_tmin_c} °C a {hw.mean_tmax_c} °C
+            Typical temperature: {hw.mean_tmin_c} °C to {hw.mean_tmax_c} °C
           </div>
         </div>
       </motion.div>
-      <p className="mt-3 text-xs text-muted">Más intenso = más años con ese evento en esa semana (1991–2025). Toca una semana para ver el detalle.</p>
+      <p className="mt-3 text-xs text-muted">More intense = more years with that event in that week (1991–2025). Tap a week to see the details.</p>
     </div>
   )
 }
